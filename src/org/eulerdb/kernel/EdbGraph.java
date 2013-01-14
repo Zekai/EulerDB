@@ -22,14 +22,15 @@ public class EdbGraph implements Graph {
 	private static final Logger logger = Logger.getLogger(EdbGraph.class
 			.getCanonicalName());
 
-	public static EdbKeyPairStore edgeStore;
+	public EdbKeyPairStore edgeStore;
 
 	private EdbCaching mCache;
 
 	public EdbGraph(String path) {
 
 		mCache = EdbCaching.getInstance();
-		EulerDBHelper.init(path);
+		edgeStore = EdbKeyPairStore.getInstance(path);
+		
 		initStores(path);
 
 	}

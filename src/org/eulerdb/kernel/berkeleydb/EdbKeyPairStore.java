@@ -1,9 +1,8 @@
 package org.eulerdb.kernel.berkeleydb;
 
-import java.io.File;
 
+import org.eulerdb.kernel.EdbGraph;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
-
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
@@ -15,9 +14,25 @@ public class EdbKeyPairStore {
 
 	public Database mStore;
 	private Transaction txn = null;
-
-	public EdbKeyPairStore() {
-	};
+	
+	private static EdbKeyPairStore instance = null;
+	
+	public static EdbKeyPairStore getInstance(String path) {
+		if (instance == null) {
+			EulerDBHelper.init(path);
+			instance = new EdbKeyPairStore(path);
+		}
+		return instance;
+	}
+	
+	public static EdbKeyPairStore getInstance(Object c) {
+		if(c.getClass().isInstance(EdbGraph.class))
+		{
+			throw new IllegalArgumentException("EdbGraph.class needs to pass in the path, use getInstance(String path) instead");
+		}
+		assert(instance!=null);
+		return instance;
+	}
 
 	public EdbKeyPairStore(String name) {
 

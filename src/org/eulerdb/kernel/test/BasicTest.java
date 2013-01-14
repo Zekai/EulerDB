@@ -4,6 +4,7 @@ import org.eulerdb.kernel.EdbGraph;
 import org.eulerdb.kernel.EdbVertex;
 import org.eulerdb.kernel.helper.FileHelper;
 
+import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 
 public class BasicTest {
@@ -37,6 +38,14 @@ public class BasicTest {
 		System.out.println("All nodes:");
 		for (Vertex v : g.getVertices()) {
 			System.out.println(v.getId() + " : ");
+			
+			for (Vertex u: ((EdbVertex)v).getVertices(Direction.IN, null))
+			{
+				System.out.println("     "+u.getId()+" connects to "+ v.getId());
+			}
+			
+			
+			
 			System.out.println("Who he like :"+((EdbVertex) v).getOut("likes"));
 			System.out.println("Who hates him :"+((EdbVertex) v).getIn("hates"));
 		}

@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 
+import org.eulerdb.kernel.berkeleydb.EdbKeyPairStore;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.tinkerpop.blueprints.Direction;
@@ -21,11 +23,14 @@ public class EdbVertex implements Vertex, Serializable {
 	private Integer mId;
 	private Multimap<String, Integer> mInRelationMap;
 	private Multimap<String, Integer> mOutRelationMap;
+	public transient EdbKeyPairStore edgeStore;
 
 	// private List<Integer> mInEdges;
 	// private List<Integer> mOutEdges;
 
 	public EdbVertex(Integer id) {
+		
+		edgeStore = EdbKeyPairStore.getInstance(this);
 		mId = id;
 		mInRelationMap = HashMultimap.create();
 		mOutRelationMap = HashMultimap.create();
@@ -68,22 +73,37 @@ public class EdbVertex implements Vertex, Serializable {
 
 		/*
 		if (arg0 == Direction.IN)
-			return new EdbEdgeIterator(mInEdges.iterator());
+			return new EdbEdgeIterator(edgeStore,mInRelationMap);
 		else
-			return new EdbEdgeIterator(mOutEdges.iterator());
-	*/
+			return new EdbEdgeIterator(edgeStore,mInRelationMap);
+		 */
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.tinkerpop.blueprints.Vertex#getVertices(com.tinkerpop.blueprints.Direction, java.lang.String[])
+	 * 
+	 * the mInRelationMap.values().iterator() might contain duplicate keys
+	 * when there are more than one edge between two vertices
+	 * this is what it supposed to be, don't fix it
+	 */
 	@Override
 	public Iterable<Vertex> getVertices(Direction arg0, String... arg1) {
-		/*
-		 * if(arg0 == Direction.IN) return new
-		 * EdbVertexIterator(mInEdges.iterator()); else return new
-		 * EdbVertexIterator(mOutEdges.iterator());
-		 */
+		if(edgeStore==null) edgeStore = EdbKeyPairStore.getInstance(this);
 
-		return null;
+		if (arg0 == Direction.IN)
+			return new EdbIVertexIterator(edgeStore,mInRelationMap.values().iterator());
+		else if (arg0 == Direction.OUT)
+			return new EdbIVertexIterator(edgeStore,mOutRelationMap.values().iterator());
+		else if(arg0 == Direction.BOTH)
+		{
+			Collection<Integer> total = mInRelationMap.values();
+			total.addAll(mOutRelationMap.values());
+			return new EdbIVertexIterator(edgeStore,total.iterator());
+		}
+		
+		throw new IllegalArgumentException("Wrong direction type: " + arg0.toString() );
 
 	}
 
@@ -94,7 +114,7 @@ public class EdbVertex implements Vertex, Serializable {
 	}
 
 	public void addInEdge(EdbEdge e) {
-		mInRelationMap.put(e.getRelation(), (Integer) e.getToVertex().getId());
+		mInRelationMap.put(e.getRelation(), (Integer) e.getVertex(Direction.IN).getId());
 
 	}
 
