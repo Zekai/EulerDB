@@ -36,12 +36,5 @@ public class BasicTest2 {
 		
 		System.gc();
 		
-		Collection<EdbVertex> outs = v1.getOut("likes");
-		for(EdbVertex v:outs){
-			Collection<EdbVertex> outs2 = v.getOut("likes");
-			for(EdbVertex u:outs2){
-				System.out.println("id:"+u.getId());
-			}
-		}
 	}
 }

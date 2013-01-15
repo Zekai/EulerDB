@@ -1,27 +1,38 @@
 package org.eulerdb.kernel.test;
 
+import org.eulerdb.kernel.EdbEdge;
 import org.eulerdb.kernel.EdbGraph;
 import org.eulerdb.kernel.EdbVertex;
 import org.eulerdb.kernel.helper.FileHelper;
 
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 
 public class BasicTestLoading {
 
 	public static void main(String[] args) {
 		
-		String path = "./temp2";
+		String path = "./temp";
 		
 		System.out.println("loading a graph with 1m vertices");
 		
 		EdbGraph g =  new EdbGraph(path);
 
 		System.out.println("All nodes:");
-		/*for (Vertex v : g.getVertices()) {
+		for (Vertex v : g.getVertices()) {
 			System.out.println(v.getId() + " : ");
-			System.out.println("Who he like :"+((EdbVertex) v).getOut("likes"));
-			System.out.println("Who hates him :"+((EdbVertex) v).getIn("hates"));
-		}*/
-		System.out.println(g.getVertex(10000).getId());
+			
+			for (Vertex u: ((EdbVertex)v).getVertices(Direction.IN, null))
+			{
+				System.out.println("     "+u.getId()+" connects to "+ v.getId());
+			}
+			
+		}
+		
+		System.out.println("\nAll edges");
+		for (Edge e : g.getEdges()) {
+			System.out.println(e.getVertex(Direction.IN).getId()+" "+((EdbEdge) e).getLabel()+" "+e.getVertex(Direction.OUT).getId());
+		}
 	}
 }

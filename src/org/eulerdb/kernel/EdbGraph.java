@@ -2,9 +2,7 @@ package org.eulerdb.kernel;
 
 import java.io.IOException;
 import java.util.Iterator;
-
 import org.apache.log4j.*;
-
 import org.eulerdb.kernel.berkeleydb.EdbCursor;
 import org.eulerdb.kernel.berkeleydb.EdbKeyPairStore;
 import org.eulerdb.kernel.berkeleydb.EulerDBHelper;
@@ -19,6 +17,12 @@ import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
+
+/**
+ * Model https://github.com/tinkerpop/blueprints/wiki/Property-Graph-Model
+ * @author Zekai Huang
+ *
+ */
 
 public class EdbGraph implements Graph {
 
@@ -130,11 +134,11 @@ public class EdbGraph implements Graph {
 	public void removeEdge(Edge arg0) {
 		EdbEdge e2 = (EdbEdge) arg0;
 
-		EdbVertex n = (EdbVertex) getVertex(e2.getVertex(Direction.IN));
+		EdbVertex n = (EdbVertex) getVertex(e2.getVertex(Direction.OUT).getId());
 		n.removeOutEdge(e2);
 		store(mNodePairs, n);
 
-		EdbVertex n2 = (EdbVertex) getVertex(e2.getVertex(Direction.OUT));
+		EdbVertex n2 = (EdbVertex) getVertex(e2.getVertex(Direction.IN).getId());
 		n2.removeInEdge(e2);
 		store(mNodePairs, n2);
 		
@@ -196,7 +200,7 @@ public class EdbGraph implements Graph {
 		try {
 			store.put(ByteArrayHelper.serialize(n.getId()),
 					ByteArrayHelper.serialize(n));
-			store.sync();
+			//store.sync();//shouldn't commit here, should be done when I implmente the interface for transactional graph
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

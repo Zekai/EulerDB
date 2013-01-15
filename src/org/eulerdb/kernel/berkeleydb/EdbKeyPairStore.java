@@ -1,7 +1,5 @@
 package org.eulerdb.kernel.berkeleydb;
 
-
-import org.eulerdb.kernel.EdbGraph;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.Database;
@@ -16,7 +14,7 @@ public class EdbKeyPairStore {
 	private Transaction txn = null;
 	
 	
-	private static EdbKeyPairStore instance = null;
+	//private static EdbKeyPairStore instance = null;
 	
 	/*
 	public static EdbKeyPairStore getInstance(String path) {

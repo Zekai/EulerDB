@@ -1,6 +1,8 @@
 package org.eulerdb.kernel;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import com.tinkerpop.blueprints.Direction;
@@ -18,6 +20,7 @@ public class EdbEdge implements Edge,Serializable {
 	private Float mWeight;
 	private String mRelation;
 	private String mId;
+	private Map<String, Object> mProps;
 
 	public EdbEdge(Vertex n1, Vertex n2, Object weight, String relation) {
 		mFromVertex = (EdbVertex) n1;
@@ -25,6 +28,7 @@ public class EdbEdge implements Edge,Serializable {
 		mWeight = (Float) weight;
 		mRelation = relation;
 		mId = n1.getId()+"_"+relation+"_"+n2.getId();
+		mProps = new  HashMap<String, Object>();
 	}
 
 	@Override
@@ -34,26 +38,22 @@ public class EdbEdge implements Edge,Serializable {
 
 	@Override
 	public Object getProperty(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
+		return mProps.get(arg0);
 	}
 
 	@Override
 	public Set<String> getPropertyKeys() {
-		// TODO Auto-generated method stub
-		return null;
+		return mProps.keySet();
 	}
 
 	@Override
 	public Object removeProperty(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
+		return mProps.remove(arg0);
 	}
 
 	@Override
 	public void setProperty(String arg0, Object arg1) {
-		// TODO Auto-generated method stub
-
+		mProps.put(arg0, arg1);
 	}
 
 	@Override
@@ -61,14 +61,17 @@ public class EdbEdge implements Edge,Serializable {
 		return mRelation;
 	}
 
+	/**
+	 * see the model for detail
+	 */
 	@Override
 	public Vertex getVertex(Direction arg0) throws IllegalArgumentException {
 		if (arg0 == Direction.BOTH)
 			throw new IllegalArgumentException("direction should be both");
 		else if (arg0 == Direction.IN)
-			return mFromVertex;
-		else if (arg0 == Direction.OUT)
 			return mToVertex;
+		else if (arg0 == Direction.OUT)
+			return mFromVertex;
 
 		return null;
 	}
