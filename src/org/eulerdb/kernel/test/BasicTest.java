@@ -1,10 +1,12 @@
 package org.eulerdb.kernel.test;
 
+import org.eulerdb.kernel.EdbEdge;
 import org.eulerdb.kernel.EdbGraph;
 import org.eulerdb.kernel.EdbVertex;
 import org.eulerdb.kernel.helper.FileHelper;
 
 import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 
 public class BasicTest {
@@ -22,7 +24,8 @@ public class BasicTest {
 
 		EdbVertex v2 = new EdbVertex(2);
 		g.addVertex(v2);
-
+		
+		
 		EdbVertex v3 = new EdbVertex(3);
 		g.addVertex(v3);
 
@@ -45,9 +48,19 @@ public class BasicTest {
 			}
 			
 			
-			
-			System.out.println("Who he like :"+((EdbVertex) v).getOut("likes"));
-			System.out.println("Who hates him :"+((EdbVertex) v).getIn("hates"));
+			for (Vertex u: ((EdbVertex) v).getOut("likes"))
+			{
+				System.out.println("   Who he like :" + u.getId());
+			}
+			for (Vertex u: ((EdbVertex) v).getIn("hates"))
+			{
+				System.out.println("   Who hate him :" + u.getId());
+			}
+		}
+		
+		System.out.println("\nAll edges");
+		for (Edge e : g.getEdges()) {
+			System.out.println(e.getVertex(Direction.IN).getId()+" "+((EdbEdge) e).getRelation()+" "+e.getVertex(Direction.OUT).getId());
 		}
 		g.commit();
 	}

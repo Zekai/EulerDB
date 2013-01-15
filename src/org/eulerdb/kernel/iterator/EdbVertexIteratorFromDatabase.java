@@ -1,4 +1,4 @@
-package org.eulerdb.kernel;
+package org.eulerdb.kernel.iterator;
 
 
 import java.util.Iterator;
@@ -6,11 +6,11 @@ import org.eulerdb.kernel.berkeleydb.EdbCursor;
 import com.tinkerpop.blueprints.Vertex;
 
 
-public class EdbVertexIterator implements Iterable<Vertex>, Iterator<Vertex> {
+public class EdbVertexIteratorFromDatabase extends EdbVertexIterator {
 	
 	EdbCursor mCur;
 	
-	public EdbVertexIterator(EdbCursor cur) {
+	public EdbVertexIteratorFromDatabase(EdbCursor cur) {
 		mCur = cur;
 	}
 
@@ -23,7 +23,7 @@ public class EdbVertexIterator implements Iterable<Vertex>, Iterator<Vertex> {
 	@Override
 	public Vertex next() {
 		
-		return mCur.next();
+		return (Vertex) mCur.next();
 	}
 
 	@Override

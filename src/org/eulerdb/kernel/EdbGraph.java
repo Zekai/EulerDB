@@ -8,11 +8,14 @@ import org.apache.log4j.*;
 import org.eulerdb.kernel.berkeleydb.EdbCursor;
 import org.eulerdb.kernel.berkeleydb.EdbKeyPairStore;
 import org.eulerdb.kernel.berkeleydb.EulerDBHelper;
+import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 import org.eulerdb.kernel.helper.EdbCaching;
+import org.eulerdb.kernel.iterator.IteratorFactory;
 
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
@@ -22,28 +25,28 @@ public class EdbGraph implements Graph {
 	private static final Logger logger = Logger.getLogger(EdbGraph.class
 			.getCanonicalName());
 
-	public EdbKeyPairStore edgeStore;
+	public EdbKeyPairStore mNodePairs;
+	public EdbKeyPairStore mEdgePairs;
 
 	private EdbCaching mCache;
 
 	public EdbGraph(String path) {
-
+		EulerDBHelper.init(path);
 		mCache = EdbCaching.getInstance();
-		edgeStore = EdbKeyPairStore.getInstance(path);
 		
 		initStores(path);
-
 	}
 
 	@Override
 	public Edge addEdge(Object weight, Vertex n1, Vertex n2, String relation) {
-
+		
 		EdbEdge e = new EdbEdge(n1, n2, weight, relation);
+		store(mEdgePairs,e);
 		((EdbVertex) n1).addOutEdge(e);
 		((EdbVertex) n2).addInEdge(e);
-		store(n1);
-		store(n2);
-		return null;
+		store(mNodePairs,n1);
+		store(mNodePairs,n2);
+		return e;
 	}
 
 	/**
@@ -51,21 +54,30 @@ public class EdbGraph implements Graph {
 	 */
 	@Override
 	public Vertex addVertex(Object arg0) {
-		store((EdbVertex) arg0);
+		store(mNodePairs, (EdbVertex)arg0);
 		mCache.put((Integer) ((EdbVertex) arg0).getId(), (EdbVertex) arg0);
-		return null;
+		return (EdbVertex)arg0;
 	}
 
 	@Override
 	public Edge getEdge(Object arg0) {
-		// TODO Auto-generated method stub
-		return null;
+		EdbEdge e = null;
+		try {
+			e = (EdbEdge) ByteArrayHelper.deserialize(mEdgePairs.get(ByteArrayHelper.serialize(arg0)));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			logger.error(e);
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return e;
 	}
 
 	@Override
 	public Iterable<Edge> getEdges() {
 
-		return null;
+		 return IteratorFactory.getEdgeIterator(mEdgePairs.getCursor());
 	}
 
 	@Override
@@ -87,25 +99,25 @@ public class EdbGraph implements Graph {
 			return n;
 
 		try {
-			n = (EdbVertex) ByteArrayHelper.deserialize(edgeStore
+			n = (EdbVertex) ByteArrayHelper.deserialize(mNodePairs
 					.get(ByteArrayHelper.serialize((Integer) arg0)));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			logger.error(e);
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
+			logger.error(e);
 			e.printStackTrace();
 		}
 
 		mCache.put((Integer) arg0, n);
 
-		return null;
+		return n;
 	}
 
 	@Override
 	public Iterable<Vertex> getVertices() {
-
-		return new EdbVertexIterator(new EdbCursor(edgeStore.getCursor()));
+		
+		 return IteratorFactory.getVertexIterator(mNodePairs.getCursor());
 	}
 
 	@Override
@@ -118,27 +130,20 @@ public class EdbGraph implements Graph {
 	public void removeEdge(Edge arg0) {
 		EdbEdge e2 = (EdbEdge) arg0;
 
-		EdbVertex n = (EdbVertex) getVertex(e2.getToVertex());
-		EdbEdgeIterator iterable = (EdbEdgeIterator) n.getEdges(Direction.OUT);
-		Iterator<Edge> edges = iterable.iterator();
-		while (edges.hasNext()) {
-			EdbEdge ee = (EdbEdge) edges.next();
-			if ((ee.getVertex(Direction.IN).equals(e2.getVertex(Direction.IN)))
-					&& (ee.getRelation().equals(e2.getRelation())))
-				edges.remove();
-		}
-		store(n);
+		EdbVertex n = (EdbVertex) getVertex(e2.getVertex(Direction.IN));
+		n.removeOutEdge(e2);
+		store(mNodePairs, n);
 
-		EdbVertex n2 = (EdbVertex) getVertex(e2.getVertex(Direction.IN));
-		EdbEdgeIterator iterable2 = (EdbEdgeIterator) n2.getEdges(Direction.IN);
-		Iterator<Edge> edges2 = iterable2.iterator();
-		while (edges2.hasNext()) {
-			EdbEdge ee = (EdbEdge) edges2.next();
-			if ((ee.getToVertex().equals(e2.getToVertex()))
-					&& (ee.getRelation().equals(e2.getRelation())))
-				edges2.remove();
+		EdbVertex n2 = (EdbVertex) getVertex(e2.getVertex(Direction.OUT));
+		n2.removeInEdge(e2);
+		store(mNodePairs, n2);
+		
+		try {
+			mEdgePairs.delete(ByteArrayHelper.serialize(e2.getId()));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		store(n2);
 
 	}
 
@@ -152,37 +157,46 @@ public class EdbGraph implements Graph {
 			e1.printStackTrace();
 		}
 
-		for (Edge e : arg0.getEdges(Direction.BOTH, null)) {
+		for (Edge e : arg0.getEdges(Direction.IN, null)) {
+			removeEdge(e);
+		}
+		
+		for (Edge e : arg0.getEdges(Direction.OUT, null)) {
 			removeEdge(e);
 		}
 
 		mCache.remove((Integer) arg0.getId());
-		edgeStore.delete(key);// remove(key);
+		mNodePairs.delete(key);// remove(key);
 
 	}
 
 	@Override
 	public void shutdown() {
 		commit();
-		edgeStore.close();
-		edgeStore = null;
+		mNodePairs.close();
+		mEdgePairs.close();
+		mNodePairs = null;
+		mEdgePairs = null;
 
 	}
 
 	private void initStores(String path) {
-
-		if (edgeStore == null) {
-			edgeStore = new EdbKeyPairStore("edgeStore");
-
+		
+		if (mNodePairs == null) {
+			mNodePairs = new EdbKeyPairStore(Common.VERTEXSTORE);
+		}
+		
+		if (mEdgePairs == null) {
+			mEdgePairs = new EdbKeyPairStore(Common.EDGESTORE);
 		}
 
 	}
-
-	protected void store(Vertex n) {
+	
+	protected void store(EdbKeyPairStore store,Element n) {
 		try {
-			edgeStore.put(ByteArrayHelper.serialize(n.getId()),
+			store.put(ByteArrayHelper.serialize(n.getId()),
 					ByteArrayHelper.serialize(n));
-			edgeStore.sync();
+			store.sync();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -190,8 +204,8 @@ public class EdbGraph implements Graph {
 	}
 
 	public void commit() {
-		edgeStore.sync();
-
+		mNodePairs.sync();
+		mEdgePairs.sync();
 	}
 
 }

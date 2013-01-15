@@ -1,29 +1,35 @@
 package org.eulerdb.kernel;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 
-public class EdbEdge implements Edge {
+public class EdbEdge implements Edge,Serializable {
 
-	private EdbVertex mFromVertex;
-	private EdbVertex mToVertex;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1034618974276848252L;
+	private EdbVertex mFromVertex; //head/in
+	private EdbVertex mToVertex; //tail/out
 	private Float mWeight;
 	private String mRelation;
+	private String mId;
 
 	public EdbEdge(Vertex n1, Vertex n2, Object weight, String relation) {
 		mFromVertex = (EdbVertex) n1;
 		mToVertex = (EdbVertex) n2;
 		mWeight = (Float) weight;
 		mRelation = relation;
+		mId = n1.getId()+"_"+relation+"_"+n2.getId();
 	}
 
 	@Override
 	public Object getId() {
-		// TODO Auto-generated method stub
-		return null;
+		return mId;
 	}
 
 	@Override

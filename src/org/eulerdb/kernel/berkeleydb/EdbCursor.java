@@ -2,9 +2,7 @@ package org.eulerdb.kernel.berkeleydb;
 
 import java.io.IOException;
 
-import org.eulerdb.kernel.EdbVertex;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
-
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.LockMode;
@@ -48,13 +46,13 @@ public class EdbCursor {
 		return (hasNext == OperationStatus.SUCCESS) && (key.getData() != null);
 	}
 
-	public EdbVertex getFirst() {
-		EdbVertex v = null;
+	public Object getFirst() {
+		Object v = null;
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
 		mCur.getFirst(key, data, LockMode.DEFAULT);
 		try {
-			v = (EdbVertex) ByteArrayHelper.deserialize(data.getData());
+			v = ByteArrayHelper.deserialize(data.getData());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -65,14 +63,14 @@ public class EdbCursor {
 		return v;
 	}
 
-	public EdbVertex current() {
+	public Object current() {
 
-		EdbVertex v = null;
+		Object v = null;
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
 		mCur.getCurrent(key, data, LockMode.DEFAULT);
 		try {
-			v = (EdbVertex) ByteArrayHelper.deserialize(data.getData());
+			v = ByteArrayHelper.deserialize(data.getData());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -83,11 +81,11 @@ public class EdbCursor {
 		return v;
 	}
 
-	public EdbVertex next() {
+	public Object next() {
 
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
-		EdbVertex v = null;
+		Object v = null;
 
 		if (cnt == 0) {
 			mCur.getFirst(key, data, LockMode.DEFAULT);
@@ -96,7 +94,7 @@ public class EdbCursor {
 		}
 		cnt++;
 		try {
-			v = (EdbVertex) ByteArrayHelper.deserialize(data.getData());
+			v = ByteArrayHelper.deserialize(data.getData());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

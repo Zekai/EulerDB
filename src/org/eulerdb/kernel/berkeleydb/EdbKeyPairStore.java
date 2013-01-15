@@ -15,8 +15,10 @@ public class EdbKeyPairStore {
 	public Database mStore;
 	private Transaction txn = null;
 	
+	
 	private static EdbKeyPairStore instance = null;
 	
+	/*
 	public static EdbKeyPairStore getInstance(String path) {
 		if (instance == null) {
 			EulerDBHelper.init(path);
@@ -24,7 +26,7 @@ public class EdbKeyPairStore {
 		}
 		return instance;
 	}
-	
+
 	public static EdbKeyPairStore getInstance(Object c) {
 		if(c.getClass().isInstance(EdbGraph.class))
 		{
@@ -32,8 +34,10 @@ public class EdbKeyPairStore {
 		}
 		assert(instance!=null);
 		return instance;
-	}
-
+	}*/
+	
+	
+	
 	public EdbKeyPairStore(String name) {
 
 		mStore = EulerDBHelper.getEnvironment().openDatabase(null, name,

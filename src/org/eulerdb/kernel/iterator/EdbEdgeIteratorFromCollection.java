@@ -1,41 +1,37 @@
-package org.eulerdb.kernel;
+package org.eulerdb.kernel.iterator;
 
 import java.util.Iterator;
+import java.util.Map.Entry;
 
+import org.eulerdb.kernel.EdbEdge;
 import org.eulerdb.kernel.berkeleydb.EdbKeyPairStore;
 
 import com.google.common.collect.Multimap;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 
-public class EdbEdgeIterator implements Iterable<Edge>, Iterator<Edge> {
+public class EdbEdgeIteratorFromCollection extends EdbEdgeIterator {
 
-	private Iterator<Integer> mIterator;
+	private Iterator<EdbEdge> mEdgesIterator;
 
-	public EdbEdgeIterator(Iterator<Integer> it) {
-		mIterator = it;
-	}
-
-	public EdbEdgeIterator(EdbKeyPairStore edgeStore,
-			Multimap<String, Integer> mInRelationMap) {
-		
+	public EdbEdgeIteratorFromCollection(Iterator<EdbEdge> iterator) {
+		mEdgesIterator = iterator;
 	}
 
 	@Override
 	public boolean hasNext() {
 
-		return mIterator.hasNext();
+		return mEdgesIterator.hasNext();
 	}
 
 	@Override
 	public Edge next() {
-
-		return null;
+		return mEdgesIterator.next();
 	}
 
 	@Override
 	public void remove() {
-
+		mEdgesIterator.remove();
 	}
 
 	@Override
