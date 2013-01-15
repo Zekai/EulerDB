@@ -58,8 +58,7 @@ public class EdbEdge implements Edge,Serializable {
 
 	@Override
 	public String getLabel() {
-		// TODO Auto-generated method stub
-		return null;
+		return mRelation;
 	}
 
 	@Override
@@ -72,11 +71,6 @@ public class EdbEdge implements Edge,Serializable {
 			return mToVertex;
 
 		return null;
-	}
-
-	public String getRelation() {
-
-		return mRelation;
 	}
 
 	public Vertex getToVertex() {

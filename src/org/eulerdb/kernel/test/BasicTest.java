@@ -7,6 +7,7 @@ import org.eulerdb.kernel.helper.FileHelper;
 
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Query;
 import com.tinkerpop.blueprints.Vertex;
 
 public class BasicTest {
@@ -21,6 +22,8 @@ public class BasicTest {
 
 		EdbVertex v1 = new EdbVertex(1);
 		g.addVertex(v1);
+		
+		Query q = v1.query();
 
 		EdbVertex v2 = new EdbVertex(2);
 		g.addVertex(v2);
@@ -60,7 +63,7 @@ public class BasicTest {
 		
 		System.out.println("\nAll edges");
 		for (Edge e : g.getEdges()) {
-			System.out.println(e.getVertex(Direction.IN).getId()+" "+((EdbEdge) e).getRelation()+" "+e.getVertex(Direction.OUT).getId());
+			System.out.println(e.getVertex(Direction.IN).getId()+" "+((EdbEdge) e).getLabel()+" "+e.getVertex(Direction.OUT).getId());
 		}
 		g.commit();
 	}

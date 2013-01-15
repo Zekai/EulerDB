@@ -2,6 +2,7 @@ package org.eulerdb.kernel;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -9,13 +10,19 @@ import java.util.Set;
 import org.eulerdb.kernel.berkeleydb.EdbKeyPairStore;
 import org.eulerdb.kernel.iterator.IteratorFactory;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.Multiset;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Query;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.util.DefaultQuery;
 
 public class EdbVertex implements Vertex, Serializable {
 
@@ -33,7 +40,6 @@ public class EdbVertex implements Vertex, Serializable {
 
 	public EdbVertex(Integer id) {
 		
-		//edgeStore = EdbKeyPairStore.getInstance(this);
 		mId = id;
 		mInRelationMap = HashMultimap.create();
 		mOutRelationMap = HashMultimap.create();
@@ -74,19 +80,49 @@ public class EdbVertex implements Vertex, Serializable {
 	@Override
 	public Iterable<Edge> getEdges(Direction arg0, String... arg1) {
 
-		
-		if (arg0 == Direction.IN)
-		{		
-			return IteratorFactory.getEdgeIterator(mInEdges.iterator());//new EdbEdgeIteratorFromCollection(mInEdges.iterator());
+		Integer size =  arg1.length;
+		if(size==0)
+		{
+			if (arg0 == Direction.IN)
+			{		
+				return IteratorFactory.getEdgeIterator(mInEdges.iterator());//new EdbEdgeIteratorFromCollection(mInEdges.iterator());
+			}
+			else if (arg0 == Direction.OUT)
+			{
+				return IteratorFactory.getEdgeIterator(mOutEdges.iterator());//return new EdbEdgeIteratorFromCollection(mOutEdges.iterator());
+			} else if(arg0 == Direction.BOTH)
+			{
+				List<EdbEdge> total = mInEdges;
+				total.addAll(mOutEdges);
+				return IteratorFactory.getEdgeIterator(total.iterator());//return new EdbEdgeIteratorFromCollection(total.iterator());
+			}
 		}
-		else if (arg0 == Direction.OUT)
+		else
 		{
-			return IteratorFactory.getEdgeIterator(mOutEdges.iterator());//return new EdbEdgeIteratorFromCollection(mOutEdges.iterator());
-		} else if(arg0 == Direction.BOTH)
-		{
-			List<EdbEdge> total = mInEdges;
-			total.addAll(mOutEdges);
-			return IteratorFactory.getEdgeIterator(total.iterator());//return new EdbEdgeIteratorFromCollection(total.iterator());
+			
+			final String relation  = arg1[0];//FIXME should allows more than one labels
+			Predicate<Edge> relationFilter = new Predicate<Edge>() {
+				  public boolean apply(Edge e) {
+				    return e.getLabel().equals(relation);
+				  }
+				};
+				
+				Collections2.filter(mInEdges, relationFilter);
+				
+			if (arg0 == Direction.IN)
+			{		
+				return IteratorFactory.getEdgeIterator(Collections2.filter(mInEdges, relationFilter).iterator());//new EdbEdgeIteratorFromCollection(mInEdges.iterator());
+			}
+			else if (arg0 == Direction.OUT)
+			{
+				return IteratorFactory.getEdgeIterator(Collections2.filter(mOutEdges, relationFilter).iterator());//return new EdbEdgeIteratorFromCollection(mOutEdges.iterator());
+			} 
+			else if(arg0 == Direction.BOTH)
+			{
+				List<EdbEdge> total = mInEdges;
+				total.addAll(mOutEdges);
+				return IteratorFactory.getEdgeIterator(Collections2.filter(total, relationFilter).iterator());//return new EdbEdgeIteratorFromCollection(total.iterator());
+			}
 		}
 		
 		return null;
@@ -121,33 +157,35 @@ public class EdbVertex implements Vertex, Serializable {
 
 	@Override
 	public Query query() {
-		// TODO Auto-generated method stub
-		return null;
+		return new DefaultQuery(this);
 	}
 
 	public void addInEdge(EdbEdge e) {
-		mInRelationMap.put(e.getRelation(), (EdbVertex)e.getVertex(Direction.IN));
+		mInRelationMap.put(e.getLabel(), (EdbVertex)e.getVertex(Direction.IN));
 		mInEdges.add(e);
 	}
 
 	public void addOutEdge(EdbEdge e) {
-		mOutRelationMap.put(e.getRelation(), (EdbVertex) e.getToVertex());
+		mOutRelationMap.put(e.getLabel(), (EdbVertex) e.getToVertex());
 		mOutEdges.add(e);
 	}
 	
 	public void removeInEdge(EdbEdge e) {
 		mInEdges.remove(e);
-		mInRelationMap.remove(e.getRelation(), e.getVertex(Direction.IN));
+		mInRelationMap.remove(e.getLabel(), e.getVertex(Direction.IN));
 
 	}
 	
 	public void removeOutEdge(EdbEdge e) {
 		mOutEdges.remove(e);
 
-		mOutRelationMap.remove(e.getRelation(), e.getVertex(Direction.OUT));
+		mOutRelationMap.remove(e.getLabel(), e.getVertex(Direction.OUT));
 
 	}
 	
+	
+	//Following 2 functions duplicate the Query feature, 
+	//consider removing them and the relationmap
 	public Collection<EdbVertex> getOut(String relation) {
 		return mOutRelationMap.get(relation);
 	}
