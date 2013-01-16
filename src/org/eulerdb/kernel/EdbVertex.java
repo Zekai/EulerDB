@@ -194,7 +194,7 @@ public class EdbVertex implements Vertex, Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + mId;
+		result = prime * result + (mId==null?0:mId);
 		return result;
 	}
 
