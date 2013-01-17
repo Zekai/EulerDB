@@ -89,5 +89,15 @@ public class EdbCaching {
 			logger.error("Problem removing " + id + " in the cache", e);
 		}
 	}
+	
+	public void clear() {
+		try {
+			cache.clear();
+		} catch (CacheException e) {
+			// TODO Auto-generated catch block
+			logger.error("Problem clearing the cache", e);
+		}
+	}
+	
 
 }

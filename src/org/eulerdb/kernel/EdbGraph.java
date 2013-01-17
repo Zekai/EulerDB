@@ -11,6 +11,7 @@ import org.eulerdb.kernel.helper.ByteArrayHelper;
 import org.eulerdb.kernel.helper.EdbCaching;
 import org.eulerdb.kernel.iterator.IteratorFactory;
 
+import com.sleepycat.je.Transaction;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Element;
@@ -33,6 +34,7 @@ public class EdbGraph implements Graph {
 	public EdbKeyPairStore mEdgePairs;
 	
 	protected boolean mTransactional;
+	protected Transaction mTx = null;
 
 	protected EdbCaching mCache;
 	
@@ -111,7 +113,7 @@ public class EdbGraph implements Graph {
 	public Edge getEdge(Object arg0) {
 		EdbEdge e = null;
 		try {
-			e = (EdbEdge) ByteArrayHelper.deserialize(mEdgePairs.get(ByteArrayHelper.serialize(arg0)));
+			e = (EdbEdge) ByteArrayHelper.deserialize(mEdgePairs.get(mTx,ByteArrayHelper.serialize(arg0)));
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			logger.error(e);
@@ -125,7 +127,7 @@ public class EdbGraph implements Graph {
 	@Override
 	public Iterable<Edge> getEdges() {
 
-		 return IteratorFactory.getEdgeIterator(mEdgePairs.getCursor());
+		 return IteratorFactory.getEdgeIterator(mEdgePairs.getCursor(mTx));
 	}
 
 	@Override
@@ -141,13 +143,13 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public Vertex getVertex(Object arg0) {
-		EdbVertex n = null;//mCache.get((Integer) arg0);
+		EdbVertex n = mCache.get((Integer) arg0);
 		if (n != null)
 			return n;
 
 		try {
 			n = (EdbVertex) ByteArrayHelper.deserialize(mNodePairs
-					.get(ByteArrayHelper.serialize((Integer) arg0)));
+					.get(mTx,ByteArrayHelper.serialize((Integer) arg0)));
 		} catch (IOException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -164,7 +166,7 @@ public class EdbGraph implements Graph {
 	@Override
 	public Iterable<Vertex> getVertices() {
 		
-		 return IteratorFactory.getVertexIterator(mNodePairs.getCursor());
+		 return IteratorFactory.getVertexIterator(mNodePairs.getCursor(mTx));
 	}
 
 	@Override
@@ -186,7 +188,7 @@ public class EdbGraph implements Graph {
 		store(mNodePairs, n2);
 		
 		try {
-			mEdgePairs.delete(ByteArrayHelper.serialize(e2.getId()));
+			mEdgePairs.delete(mTx,ByteArrayHelper.serialize(e2.getId()));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -213,7 +215,7 @@ public class EdbGraph implements Graph {
 		}
 
 		mCache.remove((Integer) arg0.getId());
-		mNodePairs.delete(key);// remove(key);
+		mNodePairs.delete(mTx,key);// remove(key);
 
 	}
 
@@ -243,7 +245,7 @@ public class EdbGraph implements Graph {
 	
 	protected void store(EdbKeyPairStore store,Element n) {
 		try {
-			store.put(ByteArrayHelper.serialize(n.getId()),
+			store.put(mTx,ByteArrayHelper.serialize(n.getId()),
 					ByteArrayHelper.serialize(n));
 			//store.sync();//shouldn't commit here, should be done when implementing the interface for transactional graph
 		} catch (IOException e) {

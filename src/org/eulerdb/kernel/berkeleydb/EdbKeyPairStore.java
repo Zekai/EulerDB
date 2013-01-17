@@ -46,23 +46,23 @@ public class EdbKeyPairStore {
 		//txn0.commit();
 	};
 
-	public OperationStatus put(byte[] key, byte[] value) {
+	public OperationStatus put(Transaction tx,byte[] key, byte[] value) {
 		
 		DatabaseEntry d_key = new DatabaseEntry(key);
 		DatabaseEntry d_value = new DatabaseEntry(value);
-		mStore.delete(mEdbHelper.getTransaction(), d_key);
-		return mStore.put(mEdbHelper.getTransaction(), d_key, d_value);
+		mStore.delete(tx, d_key);
+		return mStore.put(tx, d_key, d_value);
 	}
 
-	public byte[] get(byte[] id) {
+	public byte[] get(Transaction tx,byte[] id) {
 		DatabaseEntry data = new DatabaseEntry();
-		mStore.get(mEdbHelper.getTransaction(), new DatabaseEntry(id), data, LockMode.DEFAULT);
+		mStore.get(tx, new DatabaseEntry(id), data, LockMode.DEFAULT);
 		return data.getData();
 	}
 
-	public OperationStatus delete(byte[] id) {
+	public OperationStatus delete(Transaction tx,byte[] id) {
 		DatabaseEntry key = new DatabaseEntry(id);
-		return mStore.delete(mEdbHelper.getTransaction(), key);
+		return mStore.delete(tx, key);
 	}
 
 	public long count() {
@@ -78,8 +78,8 @@ public class EdbKeyPairStore {
 
 	}
 
-	public Cursor getCursor() {
-		return mStore.openCursor(mEdbHelper.getTransaction(), null);
+	public Cursor getCursor(Transaction tx) {
+		return mStore.openCursor(tx, null);
 	}
 
 	public void append(byte[] key, byte[] value) {

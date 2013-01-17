@@ -94,7 +94,7 @@ public class EdbVertex implements Vertex, Serializable {
 			} else if(arg0 == Direction.BOTH)
 			{
 				List<EdbEdge> total = new ArrayList<EdbEdge>();//
-				total.addAll(mOutEdges.values());
+				total.addAll(mInEdges.values());
 				total.addAll(mOutEdges.values());
 				return IteratorFactory.getEdgeIterator(total.iterator());//return new EdbEdgeIteratorFromCollection(total.iterator());
 			}
@@ -122,7 +122,7 @@ public class EdbVertex implements Vertex, Serializable {
 			else if(arg0 == Direction.BOTH)
 			{
 				List<EdbEdge> total = new ArrayList<EdbEdge>();//
-				total.addAll(mOutEdges.values());
+				total.addAll(mInEdges.values());
 				total.addAll(mOutEdges.values());
 				return IteratorFactory.getEdgeIterator(Collections2.filter(total, relationFilter).iterator());//return new EdbEdgeIteratorFromCollection(total.iterator());
 			}

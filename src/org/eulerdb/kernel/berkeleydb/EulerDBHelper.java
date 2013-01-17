@@ -86,8 +86,8 @@ public class EulerDBHelper {
 				dbXAEnv = new XAEnvironment(new File(path), envConf);
 			}
 
-			if (txn == null)
-				txn = dbXAEnv.beginTransaction(null, null);
+//			if (txn == null)
+//				txn = dbXAEnv.beginTransaction(null, null);
 
 			if (dbConf == null) {
 				dbConf = new DatabaseConfig();
@@ -103,6 +103,10 @@ public class EulerDBHelper {
 		}
 
 	}
+	
+	public void setTransaction(Transaction tx) {
+		txn = tx;
+	}
 
 	public Environment getEnvironment() {
 		if (mTransactional)
@@ -111,9 +115,10 @@ public class EulerDBHelper {
 			return dbEnv;
 	}
 
+	/*
 	public Transaction getTransaction() {
 		return txn;
-	}
+	}*/
 
 	public DatabaseConfig getDatabaseConfig() {
 		return dbConf;

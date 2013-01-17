@@ -1,18 +1,18 @@
 package org.eulerdb.kernel;
 
 import javax.transaction.xa.XAException;
-
-import com.sleepycat.je.Transaction;
 import com.sleepycat.je.XAEnvironment;
 import com.sleepycat.je.log.LogUtils.XidImpl;
 import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.TransactionalGraph;
 
-
 /**
- * Check this out for 2-phase commit http://en.wikipedia.org/wiki/Two-phase_commit_protocol
+ * Check this out for 2-phase commit
+ * http://en.wikipedia.org/wiki/Two-phase_commit_protocol
+ * http://docs.oracle.com/cd/B28359_01/server.111/b28310/ds_txns003.htm
+ * 
  * @author Zekai Huang
- *
+ * 
  */
 public class EdbTransactionalGraph extends EdbGraph implements
 		TransactionalGraph {
@@ -26,9 +26,9 @@ public class EdbTransactionalGraph extends EdbGraph implements
 
 	public EdbTransactionalGraph(String path) {
 		super(path, true);
-		xid = new XidImpl(1, "TwoPCTest1".getBytes(), null);
+		xid = generateXid();
 		xaEnv = (XAEnvironment) mEdbHelper.getEnvironment();
-		xaEnv.setXATransaction(xid, mEdbHelper.getTransaction());
+
 	}
 
 	@Override
@@ -38,16 +38,14 @@ public class EdbTransactionalGraph extends EdbGraph implements
 
 	@Override
 	public void startTransaction() throws IllegalStateException {
-		
+
 		try {
-			xaEnv.beginTransaction(mEdbHelper.getTransaction(), null);
+			generateXid();
+			mTx = xaEnv.beginTransaction(null, null);
+			mEdbHelper.setTransaction(mTx);
+			xaEnv.setXATransaction(xid, mTx);
 		} catch (IllegalStateException e) {
-			try {
-				rollback();
-			} catch (XAException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+
 		}
 	}
 
@@ -61,19 +59,28 @@ public class EdbTransactionalGraph extends EdbGraph implements
 		} catch (XAException e) {
 
 		}
+	}
 
+	private XidImpl generateXid() {
+		String id = java.util.UUID.randomUUID().toString();
+		XidImpl xid = new XidImpl(1, id.getBytes(), "TwoPCTest1".getBytes());
+
+		return xid;
 	}
 
 	public int prepare() throws XAException {
 		return xaEnv.prepare(xid);
 	}
 
-	public void commit() throws XAException {
+	private void commit() throws XAException {
 		xaEnv.commit(xid, false);
 	}
 
-	public void rollback() throws XAException {
+	private void rollback() throws XAException {
 		xaEnv.rollback(xid);
+		mCache.clear();// invalidate the previous caching. The caching doesn't
+						// really support rollback. when rolling back, it simply
+						// rebuild caching
 	}
 
 }

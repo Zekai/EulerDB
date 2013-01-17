@@ -10,6 +10,7 @@ import org.eulerdb.kernel.helper.FileHelper;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.TransactionalGraph.Conclusion;
 
 public class TransTestRollback {
 	public static void main(String[] args) {
@@ -52,7 +53,7 @@ public class TransTestRollback {
 			System.out.println(v.getId() + " : ");
 		}
 		
-		
+		/*
 		try {
 			g.prepare();
 			//g.commit();
@@ -60,7 +61,8 @@ public class TransTestRollback {
 		} catch (XAException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}
+		}*/
+		g.stopTransaction(Conclusion.FAILURE);
 		
 		testloading(path);
 		
