@@ -8,7 +8,7 @@ public class WorkloadTest {
 
 	public static void main(String[] args) {
 
-		String path = "./temp-workload";
+		String path = "./temp/workload";
 
 		FileHelper.deleteDir(path);
 
@@ -21,7 +21,7 @@ public class WorkloadTest {
 			g.addVertex(v);
 		}
 		
-		g.commit();
+		g.nontransactionalCommit();
 
 	}
 }

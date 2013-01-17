@@ -13,7 +13,7 @@ import com.tinkerpop.blueprints.Edge;
 public class BasicTestRelation {
 	public static void main(String[] args) {
 
-		String path = "./temp_BasicTestRelation";
+		String path = "./temp/BasicTestRelation";
 
 		FileHelper.deleteDir(path);
 
@@ -35,7 +35,7 @@ public class BasicTestRelation {
 		g.addEdge(0.4f, v2, v3, "hates");
 		g.addEdge(0.4f, v1, v4, "hates");
 		g.addEdge(0.4f, v4, v1, "likes");
-		g.commit();
+		g.nontransactionalCommit();
 		for(String s: v4.getOutRelationWith(v1))
 		{
 			System.out.println(v4.getId() + " " + s +" "+v1.getId());

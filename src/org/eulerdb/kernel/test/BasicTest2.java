@@ -9,7 +9,7 @@ import org.eulerdb.kernel.helper.FileHelper;
 public class BasicTest2 {
 	public static void main(String[] args) {
 
-		String path = "./temp2";
+		String path = "./temp/BasicTest2";
 
 		FileHelper.deleteDir(path);
 

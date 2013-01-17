@@ -13,7 +13,7 @@ public class BasicTestLoading {
 
 	public static void main(String[] args) {
 		
-		String path = "./temp";
+		String path = "./temp/BasicTest";
 		
 		System.out.println("loading a graph with 1m vertices");
 		
@@ -27,7 +27,6 @@ public class BasicTestLoading {
 			{
 				System.out.println("     "+u.getId()+" connects to "+ v.getId());
 			}
-			
 		}
 		
 		System.out.println("\nAll edges");

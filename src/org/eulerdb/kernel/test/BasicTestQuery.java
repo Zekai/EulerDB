@@ -13,7 +13,7 @@ import com.tinkerpop.blueprints.Vertex;
 public class BasicTestQuery {
 public static void main(String[] args) {
 		
-		String path = "./temp-BasicTestQuery";
+		String path = "./temp/BasicTestQuery";
 		
 		FileHelper.deleteDir(path);
 		
@@ -49,6 +49,6 @@ public static void main(String[] args) {
 		}
 
 		
-		g.commit();
+		g.nontransactionalCommit();
 	}
 }

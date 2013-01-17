@@ -14,7 +14,7 @@ public class BasicTest {
 
 	public static void main(String[] args) {
 		
-		String path = "./temp";
+		String path = "./temp/BasicTest";
 		
 		FileHelper.deleteDir(path);
 		
@@ -47,7 +47,7 @@ public class BasicTest {
 		g.addEdge(0.4f, v2, v3, "hates");
 		g.addEdge(0.4f, v2, v4, "hates");
 		g.addEdge(0.4f, v4, v1, "likes");
-		g.commit();
+		g.nontransactionalCommit();
 		System.out.println("All nodes:");
 		for (Vertex v : g.getVertices()) {
 			System.out.println(v.getId() + " : ");

@@ -31,11 +31,55 @@ public class EdbGraph implements Graph {
 
 	public EdbKeyPairStore mNodePairs;
 	public EdbKeyPairStore mEdgePairs;
+	
+	protected boolean mTransactional;
 
-	private EdbCaching mCache;
+	protected EdbCaching mCache;
+	
+	protected EulerDBHelper mEdbHelper = null;
+	
+	protected static final Features FEATURES = new Features();
 
+	static {
+		FEATURES.supportsDuplicateEdges = true;
+		FEATURES.supportsSelfLoops = true;
+		FEATURES.isPersistent = true;
+		FEATURES.isRDFModel = false;
+		FEATURES.supportsVertexIteration = true;
+		FEATURES.supportsEdgeIteration = true;
+		FEATURES.supportsVertexIndex = false;
+		FEATURES.supportsEdgeIndex = false;
+		FEATURES.ignoresSuppliedIds = true;
+		FEATURES.supportsTransactions = false;
+		FEATURES.supportsEdgeKeyIndex = false;
+		FEATURES.supportsVertexKeyIndex = false;
+		FEATURES.supportsKeyIndices = false;
+		FEATURES.isWrapper = false;
+		FEATURES.supportsIndices = false;
+
+		FEATURES.supportsSerializableObjectProperty = true;
+		FEATURES.supportsBooleanProperty = true;
+		FEATURES.supportsDoubleProperty = true;
+		FEATURES.supportsFloatProperty = true;
+		FEATURES.supportsIntegerProperty = true;
+		FEATURES.supportsPrimitiveArrayProperty = true;
+		FEATURES.supportsUniformListProperty = true;
+		FEATURES.supportsMixedListProperty = true;
+		FEATURES.supportsLongProperty = true;
+		FEATURES.supportsMapProperty = true;
+		FEATURES.supportsStringProperty = true;
+		FEATURES.supportsThreadedTransactions = true;
+	}
+	
 	public EdbGraph(String path) {
-		EulerDBHelper.init(path);
+		mTransactional = false;
+		mCache = EdbCaching.getInstance();
+		
+		initStores(path);
+	}
+
+	public EdbGraph(String path,boolean transactional) {
+		mTransactional = transactional;
 		mCache = EdbCaching.getInstance();
 		
 		initStores(path);
@@ -92,13 +136,12 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public Features getFeatures() {
-		// TODO Auto-generated method stub
-		return null;
+		return FEATURES;
 	}
 
 	@Override
 	public Vertex getVertex(Object arg0) {
-		EdbVertex n = mCache.get((Integer) arg0);
+		EdbVertex n = null;//mCache.get((Integer) arg0);
 		if (n != null)
 			return n;
 
@@ -176,7 +219,7 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public void shutdown() {
-		commit();
+		//nontransactionalCommit();
 		mNodePairs.close();
 		mEdgePairs.close();
 		mNodePairs = null;
@@ -185,13 +228,15 @@ public class EdbGraph implements Graph {
 	}
 
 	private void initStores(String path) {
-		
+		if(mEdbHelper == null) {
+			mEdbHelper = new EulerDBHelper(path,mTransactional);
+		}
 		if (mNodePairs == null) {
-			mNodePairs = new EdbKeyPairStore(Common.VERTEXSTORE);
+			mNodePairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXSTORE);
 		}
 		
 		if (mEdgePairs == null) {
-			mEdgePairs = new EdbKeyPairStore(Common.EDGESTORE);
+			mEdgePairs = new EdbKeyPairStore(mEdbHelper,Common.EDGESTORE);
 		}
 
 	}
@@ -200,14 +245,14 @@ public class EdbGraph implements Graph {
 		try {
 			store.put(ByteArrayHelper.serialize(n.getId()),
 					ByteArrayHelper.serialize(n));
-			//store.sync();//shouldn't commit here, should be done when I implmente the interface for transactional graph
+			//store.sync();//shouldn't commit here, should be done when implementing the interface for transactional graph
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	public void commit() {
+	public void nontransactionalCommit() {
 		mNodePairs.sync();
 		mEdgePairs.sync();
 	}

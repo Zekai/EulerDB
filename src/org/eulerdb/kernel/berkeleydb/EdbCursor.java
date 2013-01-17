@@ -43,7 +43,12 @@ public class EdbCursor {
 		DatabaseEntry data = new DatabaseEntry();
 		hasNext = mCur.getCurrent(key, data, LockMode.DEFAULT);
 
-		return (hasNext == OperationStatus.SUCCESS) && (key.getData() != null);
+		boolean result = (hasNext == OperationStatus.SUCCESS) && (key.getData() != null);
+		
+		if(!result) 
+			mCur.close();
+		
+		return result;
 	}
 
 	public Object getFirst() {

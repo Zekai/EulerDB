@@ -240,6 +240,5 @@ public class EdbVertex implements Vertex, Serializable {
 		}
 		return relations;
 	}
-	
 
 }

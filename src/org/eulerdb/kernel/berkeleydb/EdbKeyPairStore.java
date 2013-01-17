@@ -1,5 +1,7 @@
 package org.eulerdb.kernel.berkeleydb;
 
+import junit.framework.Assert;
+
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.Database;
@@ -10,8 +12,8 @@ import com.sleepycat.je.Transaction;
 
 public class EdbKeyPairStore {
 
-	public Database mStore;
-	private Transaction txn = null;
+	private Database mStore;
+	private EulerDBHelper mEdbHelper = null;
 	
 	
 	//private static EdbKeyPairStore instance = null;
@@ -36,27 +38,31 @@ public class EdbKeyPairStore {
 	
 	
 	
-	public EdbKeyPairStore(String name) {
-
-		mStore = EulerDBHelper.getEnvironment().openDatabase(null, name,
-				EulerDBHelper.getDatabaseConfig());
+	public EdbKeyPairStore(EulerDBHelper edbHelper,String name) {
+		mEdbHelper = edbHelper;
+		//Transaction txn0 =  edbHelper.getEnvironment().beginTransaction(null, null);
+		mStore = mEdbHelper.getEnvironment().openDatabase(null, name,
+				mEdbHelper.getDatabaseConfig());
+		//txn0.commit();
 	};
 
 	public OperationStatus put(byte[] key, byte[] value) {
+		
 		DatabaseEntry d_key = new DatabaseEntry(key);
 		DatabaseEntry d_value = new DatabaseEntry(value);
-		return mStore.put(txn, d_key, d_value);
+		mStore.delete(mEdbHelper.getTransaction(), d_key);
+		return mStore.put(mEdbHelper.getTransaction(), d_key, d_value);
 	}
 
 	public byte[] get(byte[] id) {
 		DatabaseEntry data = new DatabaseEntry();
-		mStore.get(txn, new DatabaseEntry(id), data, LockMode.DEFAULT);
+		mStore.get(mEdbHelper.getTransaction(), new DatabaseEntry(id), data, LockMode.DEFAULT);
 		return data.getData();
 	}
 
 	public OperationStatus delete(byte[] id) {
 		DatabaseEntry key = new DatabaseEntry(id);
-		return mStore.delete(txn, key);
+		return mStore.delete(mEdbHelper.getTransaction(), key);
 	}
 
 	public long count() {
@@ -73,7 +79,7 @@ public class EdbKeyPairStore {
 	}
 
 	public Cursor getCursor() {
-		return mStore.openCursor(txn, null);
+		return mStore.openCursor(mEdbHelper.getTransaction(), null);
 	}
 
 	public void append(byte[] key, byte[] value) {
