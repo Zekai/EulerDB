@@ -18,21 +18,23 @@ Copyright 2013 Zekai Huang
 
 EulerDB is a Graph Database, and it started with a story about connecting the dots. Steve Jobs said "you have to trust that the dots will somehow connect in your future". So mine are about 3 dots.
 
-Dot 1: Robotics and AI
+Dot 1: Passion: Robotics and AI
 
-It's my passion towards Robotics brought me to Computer Science. And Natural Language Processing and semantic network marks this first dot.
+My passion towards Robotics brought me to Computer Science. And I found the field of Natural Language Processing and semantic network better satisfies that.
 
-Dot 2: Interest and Experience
+Dot 2: Schooling: CNC Project
 
 I happend to code the CNC/CAM system for a commercial project in my college, which required lots of Graph knowledge. And I don't know which is chicken, which is egg, but I was also doing good in the graph part for both database and algorithm at schoool.
 
-Dot 3: Graph Database (GD) or Google's Devil
+Dot 3: Career: Graph Database (GD) or Google's Devil
 
-Google lusted me for an Interview. Thus I read some books about some profound topics on Graph. While I was waiting for the result, I made a prototype of this project. After a long wait, I got declined, but I think it would be a good idea to connect the dots.
+Google lusted me for an interview. Thus I read some books about some profound topics on Graph. While I was waiting for the result, I made a prototype of this project. After a long wait, I got declined, but I think it would be a good idea to connect the dots.
 
-So this would be a graph database with a focus of knowledge representation.
+
+This would be a graph database with a focus of knowledge representation.
 
 EulerDB is 
 
- * NoSQL Graph-based Database (Since V0.1.0)
- * Transactional (will be from V0.2.0)
+ * NoSQL graph-based database (Since V0.1.0)
+ * Transactional database (will be from V0.2.0)
+ * With an application focus on Knowledge Representation (planing after V1.0)
