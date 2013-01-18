@@ -11,6 +11,9 @@ import org.eulerdb.kernel.helper.ByteArrayHelper;
 import org.eulerdb.kernel.helper.EdbCaching;
 import org.eulerdb.kernel.iterator.IteratorFactory;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterators;
 import com.sleepycat.je.Transaction;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
@@ -45,7 +48,7 @@ public class EdbGraph implements Graph {
 	protected static final Features FEATURES = new Features();
 
 	static {
-		FEATURES.supportsDuplicateEdges = true;
+		FEATURES.supportsDuplicateEdges = false; //duplicated edge mean completely duplicated
 		FEATURES.supportsSelfLoops = true;
 		FEATURES.isPersistent = true;
 		FEATURES.isRDFModel = false;
@@ -113,14 +116,15 @@ public class EdbGraph implements Graph {
 	
 	@Override
 	public Vertex addVertex(Object id) {
-		EdbVertex v = new EdbVertex((Integer)id);
+		EdbVertex v = new EdbVertex((String)id);
 		store(mNodePairs, v);
-		mCache.put((Integer)id, v);
+		mCache.put((String)id, v);
 		return v;
 	}
 
 	@Override
 	public Edge getEdge(Object arg0) {
+		if(arg0==null) throw new IllegalArgumentException("Get id shouldn't be null");
 		EdbEdge e = null;
 		try {
 			e = (EdbEdge) ByteArrayHelper.deserialize(mEdgePairs.get(mTx,ByteArrayHelper.serialize(arg0)));
@@ -142,7 +146,8 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public Iterable<Edge> getEdges(String arg0, Object arg1) {
-		// TODO Auto-generated method stub
+
+		
 		return null;
 	}
 
@@ -153,13 +158,14 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public Vertex getVertex(Object arg0) {
+		if(arg0==null) throw new IllegalArgumentException("argument is null");
 		EdbVertex n = null;//mCache.get((Integer) arg0);
 		if (n != null)
 			return n;
 
 		try {
 			n = (EdbVertex) ByteArrayHelper.deserialize(mNodePairs
-					.get(mTx,ByteArrayHelper.serialize((Integer) arg0)));
+					.get(mTx,ByteArrayHelper.serialize(String.valueOf(arg0))));
 		} catch (IOException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -168,7 +174,7 @@ public class EdbGraph implements Graph {
 			e.printStackTrace();
 		}
 
-		mCache.put((Integer) arg0, n);
+		mCache.put(String.valueOf(arg0), n);
 
 		return n;
 	}
@@ -180,22 +186,57 @@ public class EdbGraph implements Graph {
 	}
 
 	@Override
-	public Iterable<Vertex> getVertices(String arg0, Object arg1) {
-		// TODO Auto-generated method stub
-		return null;
+	public Iterable<Vertex> getVertices(String arg0,  Object arg1) {
+		final String key = arg0;
+		final String value = (String) arg1;
+
+		Predicate<Vertex> relationFilter = new Predicate<Vertex>() {
+			public boolean apply(Vertex v) {
+				if(null==v.getProperty(key))
+					return false;
+				else 
+					return v.getProperty(key).equals(value);
+				//return true;
+			}
+		};
+
+		Iterable<Vertex> its = IteratorFactory.getVertexIterator(Iterators
+				.filter(IteratorFactory.getVertexIterator(mNodePairs
+						.getCursor(mTx)), relationFilter));
+
+		return its;
 	}
 
 	@Override
 	public void removeEdge(Edge arg0) {
 		EdbEdge e2 = (EdbEdge) arg0;
 
-		EdbVertex n = (EdbVertex) getVertex(e2.getVertex(Direction.OUT).getId());
-		n.removeOutEdge(e2);
-		store(mNodePairs, n);
+		EdbVertex n = (EdbVertex) e2.getVertex(Direction.OUT);
+		try {
+			if(mNodePairs.get(mTx, ByteArrayHelper.serialize(n.getId()))!=null)
+			{//check whether vertex still exist, we might have remove vertex before the edge
+				n.removeOutEdge(e2);
+				store(mNodePairs, n);
+			}
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 
-		EdbVertex n2 = (EdbVertex) getVertex(e2.getVertex(Direction.IN).getId());
-		n2.removeInEdge(e2);
-		store(mNodePairs, n2);
+		EdbVertex n2 = (EdbVertex) e2.getVertex(Direction.IN);
+		try {
+			if(mNodePairs.get(mTx, ByteArrayHelper.serialize(n.getId()))!=null)
+			{//check whether vertex still exist, we might have remove vertex before the edge
+				n2.removeInEdge(e2);
+				store(mNodePairs, n2);
+			}
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
 		
 		try {
 			mEdgePairs.delete(mTx,ByteArrayHelper.serialize(e2.getId()));
@@ -210,7 +251,7 @@ public class EdbGraph implements Graph {
 	public void removeVertex(Vertex arg0) {
 		byte[] key = null;
 		try {
-			key = ByteArrayHelper.serialize((Integer) arg0.getId());
+			key = ByteArrayHelper.serialize((String) arg0.getId());
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -224,7 +265,7 @@ public class EdbGraph implements Graph {
 			removeEdge(e);
 		}
 
-		mCache.remove((Integer) arg0.getId());
+		mCache.remove((String) arg0.getId());
 		mNodePairs.delete(mTx,key);// remove(key);
 
 	}
@@ -236,6 +277,7 @@ public class EdbGraph implements Graph {
 		mEdgePairs.close();
 		mNodePairs = null;
 		mEdgePairs = null;
+		mEdbHelper.getEnvironment().close();
 
 	}
 

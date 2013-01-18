@@ -18,7 +18,11 @@ public class EdbEdgeIteratorFromDatabase extends EdbEdgeIterator {
 	@Override
 	public boolean hasNext() {
 
-		return mCur.hasNext();
+		boolean result =  mCur.hasNext();
+		if(!result) {
+			mCur.close(); 
+		}
+		return result;
 	}
 
 	@Override
@@ -32,11 +36,17 @@ public class EdbEdgeIteratorFromDatabase extends EdbEdgeIterator {
 		mCur.remove();
 
 	}
+	
 
 	@Override
 	public Iterator<Edge> iterator() {
 
 		return this;
+	}
+	
+	@Override
+	public void finalize() {
+		if(mCur!=null) mCur.close();
 	}
 
 }

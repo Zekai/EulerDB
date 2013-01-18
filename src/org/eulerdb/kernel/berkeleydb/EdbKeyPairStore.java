@@ -78,6 +78,7 @@ public class EdbKeyPairStore {
 	}
 
 	public Cursor getCursor(Transaction tx) {
+		
 		return mStore.openCursor(tx, null);
 	}
 

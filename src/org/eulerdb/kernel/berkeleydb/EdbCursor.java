@@ -39,6 +39,7 @@ public class EdbCursor {
 			return false;
 		}
 
+		/*
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
 		hasNext = mCur.getCurrent(key, data, LockMode.DEFAULT);
@@ -47,8 +48,9 @@ public class EdbCursor {
 		
 		if(!result) 
 			mCur.close();
+			*/
 		
-		return result;
+		return true;
 	}
 
 	public Object getFirst() {
@@ -112,6 +114,11 @@ public class EdbCursor {
 
 	public void remove() {
 		mCur.delete();
+	}
+	
+	@Override
+	public void finalize(){
+		mCur.close();
 	}
 
 }

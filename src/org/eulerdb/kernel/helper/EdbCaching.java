@@ -62,8 +62,8 @@ public class EdbCaching {
 		return instance;
 	}
 
-	public void put(Integer id, EdbVertex n) {
-		String key = regionKey + String.valueOf(id);
+	public void put(String id, EdbVertex n) {
+		String key = regionKey + id;
 		try {
 			// if it isn't null, insert it
 			if (n != null) {
@@ -75,13 +75,13 @@ public class EdbCaching {
 		}
 	}
 
-	public EdbVertex get(Integer id) {
-		String key = regionKey + String.valueOf(id);
+	public EdbVertex get(String id) {
+		String key = regionKey + id;
 		return (EdbVertex) cache.get(key);
 	}
 
-	public void remove(Integer id) {
-		String key = regionKey + String.valueOf(id);
+	public void remove(String id) {
+		String key = regionKey + id;
 		try {
 			cache.remove(key);
 		} catch (CacheException e) {
