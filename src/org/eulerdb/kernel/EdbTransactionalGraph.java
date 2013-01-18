@@ -11,14 +11,15 @@ import com.tinkerpop.blueprints.TransactionalGraph;
  * http://en.wikipedia.org/wiki/Two-phase_commit_protocol
  * http://docs.oracle.com/cd/B28359_01/server.111/b28310/ds_txns003.htm
  * 
+ * 
  * @author Zekai Huang
  * 
  */
 public class EdbTransactionalGraph extends EdbGraph implements
 		TransactionalGraph {
 
-	private XidImpl xid;
-	private XAEnvironment xaEnv;
+	protected XidImpl xid;
+	protected XAEnvironment xaEnv;
 
 	static {
 		FEATURES.supportsTransactions = true;
@@ -42,7 +43,6 @@ public class EdbTransactionalGraph extends EdbGraph implements
 		try {
 			generateXid();
 			mTx = xaEnv.beginTransaction(null, null);
-			mEdbHelper.setTransaction(mTx);
 			xaEnv.setXATransaction(xid, mTx);
 		} catch (IllegalStateException e) {
 
@@ -61,7 +61,7 @@ public class EdbTransactionalGraph extends EdbGraph implements
 		}
 	}
 
-	private XidImpl generateXid() {
+	protected XidImpl generateXid() {
 		String id = java.util.UUID.randomUUID().toString();
 		XidImpl xid = new XidImpl(1, id.getBytes(), "TwoPCTest1".getBytes());
 

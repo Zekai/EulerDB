@@ -25,27 +25,26 @@ public class TransTestRollback {
 		FileHelper.deleteDir(path);
 
 		EdbTransactionalGraph g = new EdbTransactionalGraph(path);
-
+		g.startTransaction();
 		
-		EdbVertex v1 = new EdbVertex(1);
+		EdbVertex v1 = (EdbVertex) g.addVertex(1);
 		v1.setProperty("name", "AAAAA");
 		v1.setProperty("age", 25);
 		v1.setProperty("gender", "male");
-		g.addVertex(v1);
+		
 
-		EdbVertex v2 = new EdbVertex(2);
-		g.addVertex(v2);
+		EdbVertex v2 = (EdbVertex) g.addVertex(2);
+		EdbVertex v3 = (EdbVertex) g.addVertex(3);
+		EdbVertex v4 = (EdbVertex) g.addVertex(4);
 
-		EdbVertex v3 = new EdbVertex(3);
-		g.addVertex(v3);
-
-		EdbVertex v4 = new EdbVertex(4);
-		g.addVertex(v4);
-
-		g.addEdge(0.4f, v1, v2, "likes");
-		g.addEdge(0.4f, v2, v3, "hates");
-		g.addEdge(0.4f, v2, v4, "hates");
-		g.addEdge(0.4f, v4, v1, "likes");
+		g.addEdge(1, v1, v2, "likes");
+		g.addEdge(1, v2, v3, "hates");
+		g.addEdge(1, v2, v4, "hates");
+		g.addEdge(1, v4, v1, "likes");
+		
+		g.stopTransaction(Conclusion.SUCCESS);
+		
+		g.startTransaction();
 		
 		System.out.println("g:" + g.mNodePairs.count());
 		System.out.println("All nodes:");

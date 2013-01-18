@@ -17,8 +17,7 @@ public class WorkloadTest {
 		for(int i=0;i<10000;i++)
 		{
 			System.out.println(i);
-			EdbVertex v = new EdbVertex(i);
-			g.addVertex(v);
+			EdbVertex v = (EdbVertex) g.addVertex(i);
 		}
 		
 		g.nontransactionalCommit();

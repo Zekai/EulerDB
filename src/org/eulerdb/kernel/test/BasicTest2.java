@@ -2,9 +2,13 @@ package org.eulerdb.kernel.test;
 
 import java.util.Collection;
 
+import org.eulerdb.kernel.EdbEdge;
 import org.eulerdb.kernel.EdbGraph;
 import org.eulerdb.kernel.EdbVertex;
 import org.eulerdb.kernel.helper.FileHelper;
+
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
 
 public class BasicTest2 {
 	public static void main(String[] args) {
@@ -15,26 +19,28 @@ public class BasicTest2 {
 
 		EdbGraph g = new EdbGraph(path);
 
-		EdbVertex v1 = new EdbVertex(1);
-		g.addVertex(v1);
+		EdbVertex v1 = (EdbVertex) g.addVertex(1);
 		
-		EdbVertex v2 = new EdbVertex(2);
-		g.addVertex(v2);
+		EdbVertex v2 = (EdbVertex) g.addVertex(2);
 		
-		EdbVertex v3 = new EdbVertex(3);
-		g.addVertex(v3);
-		
-		g.addEdge(0.4f, v1, v2, "likes");
-		
-		g.addEdge(0.4f, v2, v3, "likes");
+		EdbVertex v3 = (EdbVertex) g.addVertex(3);
 		
 		for(int i = 3;i<1000000;i++){
 			System.out.println(i);
-			EdbVertex v = new EdbVertex(i);
-			g.addVertex(v);
+			EdbVertex v = (EdbVertex) g.addVertex(i);
+			g.addEdge("", v1, v, "knows");
 		}
 		
 		System.gc();
+		
+		g.addEdge(1, v1, v2, "likes");
+		
+		g.addEdge(1, v2, v3, "likes");
+		
+		System.out.println("\nAll edges");
+		/*for (Edge e : g.getEdges()) {
+			System.out.println(e.getVertex(Direction.IN).getId()+" "+((EdbEdge) e).getLabel()+" "+e.getVertex(Direction.OUT).getId());
+		}*/
 		
 	}
 }

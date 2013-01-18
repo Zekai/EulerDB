@@ -23,6 +23,8 @@ import com.tinkerpop.blueprints.Vertex;
  * Model https://github.com/tinkerpop/blueprints/wiki/Property-Graph-Model
  * @author Zekai Huang
  *
+ * check this out for ACID
+ * http://www.fredosaurus.com/notes-db/transactions/acid.html
  */
 
 public class EdbGraph implements Graph {
@@ -88,9 +90,9 @@ public class EdbGraph implements Graph {
 	}
 
 	@Override
-	public Edge addEdge(Object weight, Vertex n1, Vertex n2, String relation) {
+	public Edge addEdge(Object id, Vertex n1, Vertex n2, String relation) {
 		
-		EdbEdge e = new EdbEdge(n1, n2, weight, relation);
+		EdbEdge e = new EdbEdge(n1, n2, id, relation);
 		store(mEdgePairs,e);
 		((EdbVertex) n1).addOutEdge(e);
 		((EdbVertex) n2).addInEdge(e);
@@ -102,11 +104,19 @@ public class EdbGraph implements Graph {
 	/**
 	 * Object arg0: vertex
 	 */
-	@Override
+	/*@Override
 	public Vertex addVertex(Object arg0) {
 		store(mNodePairs, (EdbVertex)arg0);
 		mCache.put((Integer) ((EdbVertex) arg0).getId(), (EdbVertex) arg0);
 		return (EdbVertex)arg0;
+	}*/
+	
+	@Override
+	public Vertex addVertex(Object id) {
+		EdbVertex v = new EdbVertex((Integer)id);
+		store(mNodePairs, v);
+		mCache.put((Integer)id, v);
+		return v;
 	}
 
 	@Override
@@ -234,11 +244,11 @@ public class EdbGraph implements Graph {
 			mEdbHelper = new EulerDBHelper(path,mTransactional);
 		}
 		if (mNodePairs == null) {
-			mNodePairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXSTORE);
+			mNodePairs = new EdbKeyPairStore(mTx,mEdbHelper,Common.VERTEXSTORE);
 		}
 		
 		if (mEdgePairs == null) {
-			mEdgePairs = new EdbKeyPairStore(mEdbHelper,Common.EDGESTORE);
+			mEdgePairs = new EdbKeyPairStore(mTx,mEdbHelper,Common.EDGESTORE);
 		}
 
 	}

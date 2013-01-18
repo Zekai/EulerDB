@@ -1,7 +1,5 @@
 package org.eulerdb.kernel.berkeleydb;
 
-import junit.framework.Assert;
-
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.Database;
@@ -38,12 +36,13 @@ public class EdbKeyPairStore {
 	
 	
 	
-	public EdbKeyPairStore(EulerDBHelper edbHelper,String name) {
+	public EdbKeyPairStore(Transaction tx,EulerDBHelper edbHelper,String name) {
 		mEdbHelper = edbHelper;
 		//Transaction txn0 =  edbHelper.getEnvironment().beginTransaction(null, null);
-		mStore = mEdbHelper.getEnvironment().openDatabase(null, name,
+		mStore = mEdbHelper.getEnvironment().openDatabase(tx, name,
 				mEdbHelper.getDatabaseConfig());
 		//txn0.commit();
+		
 	};
 
 	public OperationStatus put(Transaction tx,byte[] key, byte[] value) {

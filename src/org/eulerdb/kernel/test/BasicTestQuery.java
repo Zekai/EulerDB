@@ -19,18 +19,14 @@ public static void main(String[] args) {
 		
 		EdbGraph g = new EdbGraph(path);
 
-		EdbVertex v1 = new EdbVertex(1);
-		g.addVertex(v1);
+		EdbVertex v1 = (EdbVertex) g.addVertex(1);
 
-		EdbVertex v2 = new EdbVertex(2);
-		g.addVertex(v2);
+		EdbVertex v2 = (EdbVertex) g.addVertex(2);
 		
 		
-		EdbVertex v3 = new EdbVertex(3);
-		g.addVertex(v3);
+		EdbVertex v3 = (EdbVertex) g.addVertex(3);
 
-		EdbVertex v4 = new EdbVertex(4);
-		g.addVertex(v4);
+		EdbVertex v4 = (EdbVertex) g.addVertex(4);
 		
 		
 		g.addEdge(0.4f, v1, v2, "likes");

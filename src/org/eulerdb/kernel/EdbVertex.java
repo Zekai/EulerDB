@@ -81,7 +81,7 @@ public class EdbVertex implements Vertex, Serializable {
 	@Override
 	public Iterable<Edge> getEdges(Direction arg0, String... arg1) {
 
-		Integer size =  arg1.length;
+		Integer size =  (arg1==null?0:arg1.length);
 		if(size==0)
 		{
 			if (arg0 == Direction.IN)
@@ -149,7 +149,8 @@ public class EdbVertex implements Vertex, Serializable {
 			return IteratorFactory.getVertexIterator(mOutEdges.keys().iterator());//EdbVertexIteratorFromCollection(mOutRelationMap.values().iterator());
 		else if(arg0 == Direction.BOTH)
 		{
-			Collection<EdbVertex> total = mInEdges.keys();
+			List<EdbVertex> total = new ArrayList<EdbVertex>();//
+			total.addAll(mInEdges.keys());
 			total.addAll(mOutEdges.keys());
 			return IteratorFactory.getVertexIterator(total.iterator());//new EdbVertexIteratorFromCollection(total.iterator());
 		}
@@ -167,23 +168,23 @@ public class EdbVertex implements Vertex, Serializable {
 	 * see https://github.com/tinkerpop/blueprints/wiki/Property-Graph-Model for the in/out relation
 	 * @param e
 	 */
-	public void addInEdge(EdbEdge e) {
+	void addInEdge(EdbEdge e) {
 		//mInRelationMap.put(e.getLabel(), (EdbVertex)e.getVertex(Direction.IN));
 		mInEdges.put((EdbVertex)e.getVertex(Direction.OUT),e);
 	}
 
-	public void addOutEdge(EdbEdge e) {
+	void addOutEdge(EdbEdge e) {
 		//mOutRelationMap.put(e.getLabel(), (EdbVertex) e.getToVertex());
 		mOutEdges.put((EdbVertex)e.getVertex(Direction.IN),e);
 	}
 	
-	public void removeInEdge(EdbEdge e) {
+	void removeInEdge(EdbEdge e) {
 		mInEdges.remove((EdbVertex)e.getVertex(Direction.OUT),e);
 		//mInRelationMap.remove(e.getLabel(), e.getVertex(Direction.IN));
 
 	}
 	
-	public void removeOutEdge(EdbEdge e) {
+	void removeOutEdge(EdbEdge e) {
 		mOutEdges.remove((EdbVertex)e.getVertex(Direction.IN),e);
 
 		//mOutRelationMap.remove(e.getLabel(), e.getVertex(Direction.OUT));

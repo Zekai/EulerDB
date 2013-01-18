@@ -22,8 +22,6 @@ public class EulerDBHelper {
 
 	private DatabaseConfig dbConf = null;
 
-	private Transaction txn = null;
-
 	private boolean mTransactional;
 
 	protected Comparator<byte[]> btreeComparisonFunction = null;
@@ -102,10 +100,6 @@ public class EulerDBHelper {
 			}
 		}
 
-	}
-	
-	public void setTransaction(Transaction tx) {
-		txn = tx;
 	}
 
 	public Environment getEnvironment() {

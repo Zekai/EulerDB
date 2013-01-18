@@ -17,17 +17,15 @@ public class EdbEdge implements Edge,Serializable {
 	private static final long serialVersionUID = 1034618974276848252L;
 	private EdbVertex mFromVertex; //head/in
 	private EdbVertex mToVertex; //tail/out
-	private Float mWeight;
 	private String mRelation;
 	private String mId;
 	private Map<String, Object> mProps;
 
-	public EdbEdge(Vertex n1, Vertex n2, Object weight, String relation) {
+	public EdbEdge(Vertex n1, Vertex n2, Object id, String relation) {
 		mFromVertex = (EdbVertex) n1;
 		mToVertex = (EdbVertex) n2;
-		mWeight = (Float) weight;
 		mRelation = relation;
-		mId = n1.getId()+"_"+relation+"_"+n2.getId();
+		mId = n1.getId()+"_"+relation+"_"+n2.getId();//FIXME id is not used here
 		mProps = new  HashMap<String, Object>();
 	}
 
