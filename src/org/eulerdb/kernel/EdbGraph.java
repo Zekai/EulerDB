@@ -153,7 +153,7 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public Vertex getVertex(Object arg0) {
-		EdbVertex n = mCache.get((Integer) arg0);
+		EdbVertex n = null;//mCache.get((Integer) arg0);
 		if (n != null)
 			return n;
 

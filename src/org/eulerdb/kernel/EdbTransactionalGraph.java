@@ -1,7 +1,8 @@
 package org.eulerdb.kernel;
 
 import javax.transaction.xa.XAException;
-import com.sleepycat.je.log.LogUtils.XidImpl;
+
+import com.sleepycat.je.Transaction;
 import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.TransactionalGraph;
 
@@ -10,6 +11,9 @@ import com.tinkerpop.blueprints.TransactionalGraph;
  * http://en.wikipedia.org/wiki/Two-phase_commit_protocol
  * http://docs.oracle.com/cd/B28359_01/server.111/b28310/ds_txns003.htm
  * 
+ * "Transactions are bound to the current thread, which means that any graph
+ * operation executed by the thread occurs in the context of that transaction
+ * and that there may only be one thread executing in a single transaction."
  * 
  * @author Zekai Huang
  * 
@@ -17,16 +21,17 @@ import com.tinkerpop.blueprints.TransactionalGraph;
 public class EdbTransactionalGraph extends EdbGraph implements
 		TransactionalGraph {
 
-	protected XidImpl xid;
-
 	static {
 		FEATURES.supportsTransactions = true;
 	}
 
 	public EdbTransactionalGraph(String path) {
 		super(path, true);
-		xid = generateXid();
+	}
 
+	public EdbTransactionalGraph(String path, Transaction tx) {
+		super(path, true);
+		mTx = tx;
 	}
 
 	@Override
@@ -38,7 +43,6 @@ public class EdbTransactionalGraph extends EdbGraph implements
 	public void startTransaction() throws IllegalStateException {
 
 		try {
-			generateXid();
 			mTx = mEdbHelper.getEnvironment().beginTransaction(null, null);
 		} catch (IllegalStateException e) {
 
@@ -51,24 +55,17 @@ public class EdbTransactionalGraph extends EdbGraph implements
 			if (Conclusion.SUCCESS == conclusion)
 				commit();
 			else
-				rollback();
+				abort();
 		} catch (XAException e) {
 
 		}
-	}
-
-	protected XidImpl generateXid() {
-		String id = java.util.UUID.randomUUID().toString();
-		XidImpl xid = new XidImpl(1, id.getBytes(), "TwoPCTest1".getBytes());
-
-		return xid;
 	}
 
 	private void commit() throws XAException {
 		mTx.commit();
 	}
 
-	private void rollback() throws XAException {
+	private void abort() throws XAException {
 		mTx.abort();
 		mCache.clear();// invalidate the previous caching. The caching doesn't
 						// really support rollback. when rolling back, it simply
