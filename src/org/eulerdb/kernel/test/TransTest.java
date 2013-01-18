@@ -49,13 +49,6 @@ public class TransTest {
 		g.addEdge(0, v2, v4, "hates");
 		g.addEdge(0, v4, v1, "likes");
 
-		try {
-			g.prepare();
-		} catch (XAException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
 		System.out.println("All nodes:");
 		for (Vertex v : g.getVertices()) {
 			System.out.println(v.getId() + " : ");

@@ -1,7 +1,6 @@
 package org.eulerdb.kernel;
 
 import javax.transaction.xa.XAException;
-import com.sleepycat.je.XAEnvironment;
 import com.sleepycat.je.log.LogUtils.XidImpl;
 import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.TransactionalGraph;
@@ -19,7 +18,6 @@ public class EdbTransactionalGraph extends EdbGraph implements
 		TransactionalGraph {
 
 	protected XidImpl xid;
-	protected XAEnvironment xaEnv;
 
 	static {
 		FEATURES.supportsTransactions = true;
@@ -28,7 +26,6 @@ public class EdbTransactionalGraph extends EdbGraph implements
 	public EdbTransactionalGraph(String path) {
 		super(path, true);
 		xid = generateXid();
-		xaEnv = (XAEnvironment) mEdbHelper.getEnvironment();
 
 	}
 
@@ -42,8 +39,7 @@ public class EdbTransactionalGraph extends EdbGraph implements
 
 		try {
 			generateXid();
-			mTx = xaEnv.beginTransaction(null, null);
-			xaEnv.setXATransaction(xid, mTx);
+			mTx = mEdbHelper.getEnvironment().beginTransaction(null, null);
 		} catch (IllegalStateException e) {
 
 		}
@@ -68,16 +64,12 @@ public class EdbTransactionalGraph extends EdbGraph implements
 		return xid;
 	}
 
-	public int prepare() throws XAException {
-		return xaEnv.prepare(xid);
-	}
-
 	private void commit() throws XAException {
-		xaEnv.commit(xid, false);
+		mTx.commit();
 	}
 
 	private void rollback() throws XAException {
-		xaEnv.rollback(xid);
+		mTx.abort();
 		mCache.clear();// invalidate the previous caching. The caching doesn't
 						// really support rollback. when rolling back, it simply
 						// rebuild caching

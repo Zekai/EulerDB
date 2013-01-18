@@ -244,11 +244,11 @@ public class EdbGraph implements Graph {
 			mEdbHelper = new EulerDBHelper(path,mTransactional);
 		}
 		if (mNodePairs == null) {
-			mNodePairs = new EdbKeyPairStore(mTx,mEdbHelper,Common.VERTEXSTORE);
+			mNodePairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXSTORE);
 		}
 		
 		if (mEdgePairs == null) {
-			mEdgePairs = new EdbKeyPairStore(mTx,mEdbHelper,Common.EDGESTORE);
+			mEdgePairs = new EdbKeyPairStore(mEdbHelper,Common.EDGESTORE);
 		}
 
 	}

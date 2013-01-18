@@ -44,29 +44,9 @@ public class TransTestRollback {
 		
 		g.stopTransaction(Conclusion.SUCCESS);
 		
-		g.startTransaction();
-		
-		System.out.println("g:" + g.mNodePairs.count());
-		System.out.println("All nodes:");
-		for (Vertex v : g.getVertices()) {
-			System.out.println(v.getId() + " : ");
-		}
-		
-		/*
-		try {
-			g.prepare();
-			//g.commit();
-			g.rollback();
-		} catch (XAException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}*/
-		g.stopTransaction(Conclusion.FAILURE);
-		
 		testloading(path);
 		
 		System.out.println("g:" + g.mNodePairs.count());
-		System.out.println("=====================================================");
 		g.shutdown();
 	}
 

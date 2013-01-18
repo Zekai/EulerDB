@@ -36,10 +36,10 @@ public class EdbKeyPairStore {
 	
 	
 	
-	public EdbKeyPairStore(Transaction tx,EulerDBHelper edbHelper,String name) {
+	public EdbKeyPairStore(EulerDBHelper edbHelper,String name) {
 		mEdbHelper = edbHelper;
 		//Transaction txn0 =  edbHelper.getEnvironment().beginTransaction(null, null);
-		mStore = mEdbHelper.getEnvironment().openDatabase(tx, name,
+		mStore = mEdbHelper.getEnvironment().openDatabase(null, name,
 				mEdbHelper.getDatabaseConfig());
 		//txn0.commit();
 		

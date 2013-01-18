@@ -9,8 +9,9 @@ import com.sleepycat.je.DbInternal;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.je.Transaction;
-import com.sleepycat.je.XAEnvironment;
 import com.sleepycat.je.config.EnvironmentParams;
+import com.sleepycat.persist.EntityStore;
+import com.sleepycat.persist.StoreConfig;
 
 public class EulerDBHelper {
 
@@ -18,7 +19,7 @@ public class EulerDBHelper {
 
 	private Environment dbEnv = null;
 
-	private XAEnvironment dbXAEnv = null;
+	private EntityStore myStore = null;
 
 	private DatabaseConfig dbConf = null;
 
@@ -51,41 +52,21 @@ public class EulerDBHelper {
 			}
 		} else {
 
-			if (dbXAEnv == null) {
+			if (dbEnv == null) {
 
 				File f = new File(path);
 				if (!f.exists())
 					f.mkdir();
-				EnvironmentConfig envConf = new EnvironmentConfig();
-				envConf.setTransactional(true);
-				envConf.setAllowCreate(true);
-				// envConf.setTxnNoSync(true);
-				envConf.setConfigParam(
-						EnvironmentParams.ENV_CHECK_LEAKS.getName(), "false");
-				envConf.setConfigParam(EnvironmentParams.NODE_MAX.getName(),
-						"6");
-				envConf.setConfigParam(
-						EnvironmentParams.ENV_RUN_CLEANER.getName(), "false");
-				envConf.setConfigParam(
-						EnvironmentParams.ENV_RUN_EVICTOR.getName(), "false");
-				String val = System.getProperty("isolationLevel");
-				if (val != null && val.length() > 0) {
-					if ("serializable".equals(val)) {
-						envConf.setTxnSerializableIsolation(true);
-					} else if ("readCommitted".equals(val)) {
-						DbInternal.setTxnReadCommitted(envConf, true);
-					} else {
-						throw new IllegalArgumentException(
-								"Unknown isolationLevel system property value: "
-										+ val);
-					}
-				}
 
-				dbXAEnv = new XAEnvironment(new File(path), envConf);
+				EnvironmentConfig myEnvConfig = new EnvironmentConfig();
+				myEnvConfig.setAllowCreate(true);
+				myEnvConfig.setTransactional(true);
+
+				dbEnv = new Environment(f, myEnvConfig);
 			}
 
-//			if (txn == null)
-//				txn = dbXAEnv.beginTransaction(null, null);
+			// if (txn == null)
+			// txn = dbXAEnv.beginTransaction(null, null);
 
 			if (dbConf == null) {
 				dbConf = new DatabaseConfig();
@@ -103,16 +84,12 @@ public class EulerDBHelper {
 	}
 
 	public Environment getEnvironment() {
-		if (mTransactional)
-			return dbXAEnv;
-		else
 			return dbEnv;
 	}
 
 	/*
-	public Transaction getTransaction() {
-		return txn;
-	}*/
+	 * public Transaction getTransaction() { return txn; }
+	 */
 
 	public DatabaseConfig getDatabaseConfig() {
 		return dbConf;
