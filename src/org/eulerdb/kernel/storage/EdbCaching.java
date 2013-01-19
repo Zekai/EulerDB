@@ -1,4 +1,4 @@
-package org.eulerdb.kernel.helper;
+package org.eulerdb.kernel.storage;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -13,7 +13,13 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.eulerdb.kernel.EdbVertex;
 
+import com.sleepycat.je.Transaction;
+
 public class EdbCaching {
+	
+	/**
+	 * TODO: use transaction as region name, use object id as the cache key
+	 */
 
 	private static final Logger logger = Logger.getLogger(EdbCaching.class
 			.getCanonicalName());
@@ -62,8 +68,8 @@ public class EdbCaching {
 		return instance;
 	}
 
-	public void put(String id, EdbVertex n) {
-		String key = regionKey + id;
+	public void put(String id, Long tid,EdbVertex n) {
+		String key = regionKey + id+"_"+tid;
 		try {
 			// if it isn't null, insert it
 			if (n != null) {
@@ -75,13 +81,13 @@ public class EdbCaching {
 		}
 	}
 
-	public EdbVertex get(String id) {
-		String key = regionKey + id;
+	public EdbVertex get(String id,Long tid) {
+		String key = regionKey + id+"_"+tid;
 		return (EdbVertex) cache.get(key);
 	}
 
-	public void remove(String id) {
-		String key = regionKey + id;
+	public void remove(String id,Long tid) {
+		String key = regionKey + id+"_"+tid;
 		try {
 			cache.remove(key);
 		} catch (CacheException e) {
@@ -90,7 +96,7 @@ public class EdbCaching {
 		}
 	}
 	
-	public void clear() {
+	public void clear(Long id) {
 		try {
 			cache.clear();
 		} catch (CacheException e) {

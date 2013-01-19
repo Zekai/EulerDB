@@ -2,7 +2,7 @@ package org.eulerdb.kernel.iterator;
 
 import java.util.Iterator;
 
-import org.eulerdb.kernel.berkeleydb.EdbCursor;
+import org.eulerdb.kernel.storage.EdbCursor;
 
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;

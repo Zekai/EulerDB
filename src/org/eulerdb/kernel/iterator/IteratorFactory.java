@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import org.eulerdb.kernel.EdbEdge;
 import org.eulerdb.kernel.EdbVertex;
-import org.eulerdb.kernel.berkeleydb.EdbCursor;
+import org.eulerdb.kernel.storage.EdbCursor;
 
 import com.sleepycat.je.Cursor;
 

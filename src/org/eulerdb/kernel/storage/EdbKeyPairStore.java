@@ -1,4 +1,4 @@
-package org.eulerdb.kernel.berkeleydb;
+package org.eulerdb.kernel.storage;
 
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 import com.sleepycat.je.Cursor;

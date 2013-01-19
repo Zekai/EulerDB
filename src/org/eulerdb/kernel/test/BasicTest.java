@@ -25,9 +25,6 @@ public class BasicTest {
 		v1.setProperty("age", 25);
 		v1.setProperty("gender", "male");
 		
-		
-		
-
 		EdbVertex v2 = (EdbVertex) g.addVertex(2);
 		EdbVertex v3 = (EdbVertex) g.addVertex(3);
 		EdbVertex v4 = (EdbVertex) g.addVertex(4);

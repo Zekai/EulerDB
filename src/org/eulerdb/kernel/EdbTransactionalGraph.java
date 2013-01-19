@@ -2,6 +2,8 @@ package org.eulerdb.kernel;
 
 import javax.transaction.xa.XAException;
 
+import org.eulerdb.kernel.storage.EulerDBHelper;
+
 import com.sleepycat.je.Transaction;
 import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.TransactionalGraph;
@@ -27,11 +29,6 @@ public class EdbTransactionalGraph extends EdbGraph implements
 
 	public EdbTransactionalGraph(String path) {
 		super(path, true);
-	}
-
-	public EdbTransactionalGraph(String path, Transaction tx) {
-		super(path, true);
-		mTx = tx;
 	}
 
 	@Override
@@ -67,9 +64,7 @@ public class EdbTransactionalGraph extends EdbGraph implements
 
 	private void abort() throws XAException {
 		mTx.abort();
-		mCache.clear();// invalidate the previous caching. The caching doesn't
-						// really support rollback. when rolling back, it simply
-						// rebuild caching
+		mStorage.resetCache(mTx);
 	}
 
 }

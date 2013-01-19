@@ -1,4 +1,4 @@
-package org.eulerdb.kernel.berkeleydb;
+package org.eulerdb.kernel.storage;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -18,8 +18,6 @@ public class EulerDBHelper {
 	// private static EulerDBHelper instance = null;
 
 	private Environment dbEnv = null;
-
-	private EntityStore myStore = null;
 
 	private DatabaseConfig dbConf = null;
 

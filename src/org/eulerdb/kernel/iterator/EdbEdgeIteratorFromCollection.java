@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.eulerdb.kernel.EdbEdge;
-import org.eulerdb.kernel.berkeleydb.EdbKeyPairStore;
+import org.eulerdb.kernel.storage.EdbKeyPairStore;
 
 import com.google.common.collect.Multimap;
 import com.tinkerpop.blueprints.Direction;
