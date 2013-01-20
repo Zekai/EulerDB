@@ -73,17 +73,17 @@ public class EdbGraph implements Graph {
 	public EdbGraph(String path) {
 		mTransactional = false;
 		if(mEdbHelper==null) 
-			mEdbHelper = new EulerDBHelper(path, false);
+			mEdbHelper = EulerDBHelper.getInstance(path, false);
 		
 		if (mStorage == null)
-			mStorage = EdbStorage.getInstance(path, mTransactional);
+			mStorage = EdbStorage.getInstance(path, false);
 	}
 
 	public EdbGraph(String path, boolean transactional) {
 		mTransactional = transactional;
 		
 		if(mEdbHelper==null) 
-			mEdbHelper = new EulerDBHelper(path, false);
+			mEdbHelper = EulerDBHelper.getInstance(path, transactional);
 		
 		if (mStorage == null)
 			mStorage = EdbStorage.getInstance(path, mTransactional);
@@ -255,7 +255,9 @@ public class EdbGraph implements Graph {
 	public void shutdown() {
 		// nontransactionalCommit();
 		mStorage.close();
-
+		mTx = null;
+		mStorage = null;
+		mEdbHelper = null;
 	}
 
 	public void nontransactionalCommit() {

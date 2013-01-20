@@ -19,7 +19,7 @@ public class TransTest {
 		String path = "./temp/TransTest";
 
 		testGenerating(path);
-		testloading(path);
+		//testloading(path);
 
 	}
 	

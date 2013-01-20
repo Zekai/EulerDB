@@ -15,7 +15,7 @@ import org.eulerdb.kernel.EdbVertex;
 
 import com.sleepycat.je.Transaction;
 
-public class EdbCaching {
+class EdbCaching {
 	
 	/**
 	 * TODO: use transaction as region name, use object id as the cache key

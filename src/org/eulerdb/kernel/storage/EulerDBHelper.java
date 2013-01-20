@@ -17,17 +17,28 @@ public class EulerDBHelper {
 
 	// private static EulerDBHelper instance = null;
 
-	private Environment dbEnv = null;
+	private static Environment dbEnv = null;
 
-	private DatabaseConfig dbConf = null;
+	private static DatabaseConfig dbConf = null;
 
-	private boolean mTransactional;
+	private static boolean mTransactional;
 
 	protected Comparator<byte[]> btreeComparisonFunction = null;
 
 	protected boolean keyPrefixing = true;
+	
+	protected static EulerDBHelper instance = null;
+	
+	
+	public static EulerDBHelper getInstance(String path,boolean transactional) {
+		mTransactional = transactional;
+		if (instance == null) {
+			instance = new EulerDBHelper(path,transactional);
+		}
+		return instance;
+	}
 
-	public EulerDBHelper(String path, boolean transactional) {
+	private EulerDBHelper(String path, boolean transactional) {
 		mTransactional = transactional;
 
 		if (!mTransactional) {
@@ -79,6 +90,12 @@ public class EulerDBHelper {
 			}
 		}
 
+	}
+	
+	public void closeEnv(){
+		dbEnv.close();
+		dbEnv = null;
+		instance = null;
 	}
 
 	public Environment getEnvironment() {

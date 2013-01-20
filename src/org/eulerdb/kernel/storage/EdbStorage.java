@@ -50,7 +50,7 @@ public class EdbStorage {
 	
 	private void initStores(String path) {
 		if(mEdbHelper == null) {
-			mEdbHelper = new EulerDBHelper(path,mTransactional);
+			mEdbHelper = EulerDBHelper.getInstance(path,mTransactional);
 		}
 		if (mNodePairs == null) {
 			mNodePairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXSTORE);
@@ -139,7 +139,10 @@ public class EdbStorage {
 		mEdgePairs.close();
 		mNodePairs = null;
 		mEdgePairs = null;
-		mEdbHelper.getEnvironment().close();
+		mEdbHelper.closeEnv();
+		mEdbHelper = null;
+		mCache = null;
+		instance = null;
 	}
 	
 	public void commit() {
