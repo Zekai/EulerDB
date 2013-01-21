@@ -6,7 +6,6 @@ import org.apache.log4j.*;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 import org.eulerdb.kernel.iterator.IteratorFactory;
 import org.eulerdb.kernel.storage.EdbStorage;
-import org.eulerdb.kernel.storage.EulerDBHelper;
 import org.eulerdb.kernel.storage.EdbStorage.storeType;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
@@ -32,9 +31,7 @@ public class EdbGraph implements Graph {
 			.getCanonicalName());
 
 	protected boolean mTransactional;
-	protected Transaction mTx = null;
-	protected EdbStorage mStorage = null;
-	protected EulerDBHelper mEdbHelper = null;
+	protected static EdbStorage mStorage = null;
 
 	protected static final Features FEATURES = new Features();
 
@@ -72,8 +69,6 @@ public class EdbGraph implements Graph {
 
 	public EdbGraph(String path) {
 		mTransactional = false;
-		if(mEdbHelper==null) 
-			mEdbHelper = EulerDBHelper.getInstance(path, false);
 		
 		if (mStorage == null)
 			mStorage = EdbStorage.getInstance(path, false);
@@ -81,9 +76,6 @@ public class EdbGraph implements Graph {
 
 	public EdbGraph(String path, boolean transactional) {
 		mTransactional = transactional;
-		
-		if(mEdbHelper==null) 
-			mEdbHelper = EulerDBHelper.getInstance(path, transactional);
 		
 		if (mStorage == null)
 			mStorage = EdbStorage.getInstance(path, mTransactional);
@@ -93,11 +85,11 @@ public class EdbGraph implements Graph {
 	public Edge addEdge(Object id, Vertex n1, Vertex n2, String relation) {
 
 		EdbEdge e = new EdbEdge(n1, n2, id, relation);
-		mStorage.store(storeType.EDGE, mTx, e);
+		mStorage.store(storeType.EDGE, e);
 		((EdbVertex) n1).addOutEdge(e);
 		((EdbVertex) n2).addInEdge(e);
-		mStorage.store(storeType.VERTEX, mTx, n1);// store(mNodePairs,n1);
-		mStorage.store(storeType.VERTEX, mTx, n2);// store(mNodePairs,n2);
+		mStorage.store(storeType.VERTEX, n1);// store(mNodePairs,n1);
+		mStorage.store(storeType.VERTEX, n2);// store(mNodePairs,n2);
 		return e;
 	}
 
@@ -113,7 +105,7 @@ public class EdbGraph implements Graph {
 	@Override
 	public Vertex addVertex(Object id) {
 		EdbVertex v = new EdbVertex(String.valueOf(id));
-		mStorage.store(storeType.VERTEX, mTx, v);
+		mStorage.store(storeType.VERTEX, v);
 
 		return v;
 	}
@@ -122,7 +114,7 @@ public class EdbGraph implements Graph {
 	public Edge getEdge(Object arg0) {
 		if (arg0 == null)
 			throw new IllegalArgumentException("Get id shouldn't be null");
-		EdbEdge e = (EdbEdge) mStorage.getObj(storeType.EDGE, mTx,
+		EdbEdge e = (EdbEdge) mStorage.getObj(storeType.EDGE,
 				(String) arg0);
 
 		return e;
@@ -132,7 +124,7 @@ public class EdbGraph implements Graph {
 	public Iterable<Edge> getEdges() {
 
 		return IteratorFactory.getEdgeIterator(mStorage.getCursor(
-				storeType.EDGE, mTx));
+				storeType.EDGE));
 	}
 
 	@Override
@@ -150,7 +142,7 @@ public class EdbGraph implements Graph {
 	public Vertex getVertex(Object arg0) {
 		if (arg0 == null)
 			throw new IllegalArgumentException("argument is null");
-		EdbVertex n = (EdbVertex) mStorage.getObj(storeType.VERTEX, mTx,
+		EdbVertex n = (EdbVertex) mStorage.getObj(storeType.VERTEX,
 				String.valueOf(arg0));
 
 		return n;
@@ -160,7 +152,7 @@ public class EdbGraph implements Graph {
 	public Iterable<Vertex> getVertices() {
 
 		return IteratorFactory.getVertexIterator(mStorage.getCursor(
-				storeType.VERTEX, mTx));
+				storeType.VERTEX));
 	}
 
 	@Override
@@ -180,7 +172,7 @@ public class EdbGraph implements Graph {
 
 		Iterable<Vertex> its = IteratorFactory.getVertexIterator(Iterators
 				.filter(IteratorFactory.getVertexIterator(mStorage.getCursor(
-						storeType.VERTEX, mTx)), relationFilter));
+						storeType.VERTEX)), relationFilter));
 
 		return its;
 	}
@@ -190,7 +182,7 @@ public class EdbGraph implements Graph {
 		EdbEdge e2 = (EdbEdge) arg0;
 
 		EdbVertex n = (EdbVertex) e2.getVertex(Direction.OUT);
-		if (mStorage.containsKey(storeType.VERTEX, mTx, n.getId())) {// check
+		if (mStorage.containsKey(storeType.VERTEX, n.getId())) {// check
 																		// whether
 																		// vertex
 																		// still
@@ -204,11 +196,11 @@ public class EdbGraph implements Graph {
 																		// the
 																		// edge
 			n.removeOutEdge(e2);
-			mStorage.store(storeType.VERTEX, mTx, n);
+			mStorage.store(storeType.VERTEX, n);
 		}
 
 		EdbVertex n2 = (EdbVertex) e2.getVertex(Direction.IN);
-		if (mStorage.containsKey(storeType.VERTEX, mTx, n2.getId())) {// check
+		if (mStorage.containsKey(storeType.VERTEX, n2.getId())) {// check
 																		// whether
 																		// vertex
 																		// still
@@ -222,10 +214,10 @@ public class EdbGraph implements Graph {
 																		// the
 																		// edge
 			n2.removeInEdge(e2);
-			mStorage.store(storeType.VERTEX, mTx, n2);
+			mStorage.store(storeType.VERTEX, n2);
 		}
 
-		mStorage.delete(storeType.EDGE, mTx, e2);
+		mStorage.delete(storeType.EDGE, e2);
 
 	}
 
@@ -247,7 +239,7 @@ public class EdbGraph implements Graph {
 			removeEdge(e);
 		}
 
-		mStorage.delete(storeType.VERTEX, mTx, arg0);// remove(key);
+		mStorage.delete(storeType.VERTEX, arg0);// remove(key);
 
 	}
 
@@ -255,9 +247,7 @@ public class EdbGraph implements Graph {
 	public void shutdown() {
 		// nontransactionalCommit();
 		mStorage.close();
-		mTx = null;
 		mStorage = null;
-		mEdbHelper = null;
 	}
 
 	public void nontransactionalCommit() {

@@ -1,9 +1,6 @@
 package org.eulerdb.kernel;
 
 import javax.transaction.xa.XAException;
-
-import org.eulerdb.kernel.storage.EulerDBHelper;
-
 import com.sleepycat.je.Transaction;
 import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.TransactionalGraph;
@@ -17,11 +14,11 @@ import com.tinkerpop.blueprints.TransactionalGraph;
  * operation executed by the thread occurs in the context of that transaction
  * and that there may only be one thread executing in a single transaction."
  * 
- * "A transactional graph supports the notion of transactions. Once a transaction
- * is started, all write operations can either be committed or rolled back. Read
- * operations are not required to be in a transaction. A transactional graph can
- * be in two modes: automatic or manual. All constructed transactional graphs
- * begin in automatic transaction mode."
+ * "A transactional graph supports the notion of transactions. Once a
+ * transaction is started, all write operations can either be committed or
+ * rolled back. Read operations are not required to be in a transaction. A
+ * transactional graph can be in two modes: automatic or manual. All constructed
+ * transactional graphs begin in automatic transaction mode."
  * 
  * @author Zekai Huang
  * 
@@ -42,7 +39,7 @@ public class EdbTransactionalGraph extends EdbGraph implements
 	public EdbTransactionalGraph(String path) {
 		super(path, true);
 		mStatus = Status.FRESH;
-		mTx = mEdbHelper.getEnvironment().beginTransaction(null, null);
+		mStorage.newTransaction();
 	}
 
 	@Override
@@ -58,7 +55,7 @@ public class EdbTransactionalGraph extends EdbGraph implements
 					"previous transaction has not ended.");
 		else if (mStatus == Status.END) {
 			try {
-				mTx = mEdbHelper.getEnvironment().beginTransaction(null, null);
+				mStorage.newTransaction();
 				mStatus = Status.NEW;
 			} catch (IllegalStateException e) {
 
@@ -82,28 +79,18 @@ public class EdbTransactionalGraph extends EdbGraph implements
 	}
 
 	private void commit() throws XAException {
-		mTx.commit();
-		mTx = null;
+		mStorage.commit();
 		mStatus = Status.END;
 	}
 
 	private void abort() throws XAException {
-		mTx.abort();
-		mTx = null;
-		mStorage.resetCache(mTx);
+		mStorage.abort();
+		mStorage.resetCache();
 		mStatus = Status.END;
 	}
 
 	@Override
 	public void shutdown() {
-		if (mTx != null) {
-			try {
-				commit();
-			} catch (XAException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 		super.shutdown();
 	}
 

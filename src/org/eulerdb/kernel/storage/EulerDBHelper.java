@@ -13,7 +13,7 @@ import com.sleepycat.je.config.EnvironmentParams;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.StoreConfig;
 
-public class EulerDBHelper {
+class EulerDBHelper {
 
 	// private static EulerDBHelper instance = null;
 

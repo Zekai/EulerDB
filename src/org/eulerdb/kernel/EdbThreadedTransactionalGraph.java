@@ -1,5 +1,7 @@
 package org.eulerdb.kernel;
 
+import org.eulerdb.kernel.storage.EdbStorage;
+
 import com.tinkerpop.blueprints.ThreadedTransactionalGraph;
 import com.tinkerpop.blueprints.TransactionalGraph;
 

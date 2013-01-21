@@ -2,7 +2,7 @@ package org.eulerdb.kernel.storage;
 
 import java.io.IOException;
 
-import org.eulerdb.kernel.EdbGraph;
+
 import org.eulerdb.kernel.EdbVertex;
 import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
@@ -14,6 +14,8 @@ import com.tinkerpop.blueprints.Element;
 /**
  * Why this can be a singleton even while we are supporting multiple isolated EdbGraph instant and transactions?
  * We don't really implement the low level ACID, instead, the BerkeleyDB simulate it. 
+ * 
+ * This is a per thread singlton 
  * @author Zekai Huang
  *
  */
@@ -26,6 +28,15 @@ public class EdbStorage {
 	private static EdbCaching mCache;
 	private static EulerDBHelper mEdbHelper = null;
 	private static boolean mTransactional;
+	private static Transaction mTx;
+	private static Long mTid;
+	
+	private static final ThreadLocal<EdbStorage> _localStorage = new ThreadLocal<EdbStorage>(){
+	    protected EdbStorage initialValue() {
+	      return new EdbStorage("./temp/ttg");
+	   }
+	  };
+
 	
 	private EdbStorage(String path){
 		mCache = EdbCaching.getInstance();
@@ -35,18 +46,19 @@ public class EdbStorage {
 	public static EdbStorage getInstance(String path,boolean transactional) {
 		mTransactional = transactional;
 		if (instance == null) {
-			instance = new EdbStorage(path);
+			instance = _localStorage.get();
 		}
 		return instance;
 	}
 
+	/*
 	public static EdbStorage getInstance() {
 		if(instance==null)
 		{
 			throw new IllegalArgumentException("EdbGraph.class needs to pass in the path, use getInstance(String path) instead");
 		}
 		return instance;
-	}
+	}*/
 	
 	private void initStores(String path) {
 		if(mEdbHelper == null) {
@@ -73,40 +85,41 @@ public class EdbStorage {
 		}
 	}
 	
-	public void store(storeType type,Transaction tx,Element n) {
+	public void store(storeType type,Element n) {
 		try {
-			getStore(type).put(tx,ByteArrayHelper.serialize(n.getId()),
+			getStore(type).put(mTx,ByteArrayHelper.serialize(n.getId()),
 					ByteArrayHelper.serialize(n));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
 		if(type==storeType.VERTEX){
-			mCache.put((String)n.getId(),getTransactionId(tx), (EdbVertex)n);
+			mCache.put((String)n.getId(),mTid, (EdbVertex)n);
 		}
 	}
 	
-	public Long getTransactionId(Transaction tx){
-		return tx==null?0:tx.getId();
+	public void newTransaction(){
+		mTx = mEdbHelper.getEnvironment().beginTransaction(null, null);
+		mTid = mTx.getId();
 	}
 	
-	public void delete(storeType type,Transaction tx,Element o){
+	public void delete(storeType type,Element o){
 		try {
-			mEdgePairs.delete(tx,ByteArrayHelper.serialize(o.getId()));
+			mEdgePairs.delete(mTx,ByteArrayHelper.serialize(o.getId()));
 			if(type == storeType.VERTEX) 
-				mCache.remove((String)o.getId(),getTransactionId(tx));
+				mCache.remove((String)o.getId(),mTid);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	public Object getObj(storeType type,Transaction tx, String id){
+	public Object getObj(storeType type, String id){
 		Object o = null; //mCache.get(id, tx.getId());
 		if(o!=null) return o;
 		
 		try {
-			o = ByteArrayHelper.deserialize(getStore(type).get(tx, ByteArrayHelper.serialize(id)));
+			o = ByteArrayHelper.deserialize(getStore(type).get(mTx, ByteArrayHelper.serialize(id)));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -114,18 +127,18 @@ public class EdbStorage {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(type == storeType.VERTEX) mCache.put(id, getTransactionId(tx), (EdbVertex) o);
+		if(type == storeType.VERTEX) mCache.put(id, mTid, (EdbVertex) o);
 		
 		return o;
 	}
 	
-	public Cursor getCursor(storeType type,Transaction tx) {
-		return getStore(type).getCursor(tx);
+	public Cursor getCursor(storeType type) {
+		return getStore(type).getCursor(mTx);
 	}
 	
-	public boolean containsKey(storeType type,Transaction tx,String key) {
+	public boolean containsKey(storeType type,String key) {
 		try {
-			if(getStore(type).get(tx, ByteArrayHelper.serialize(key))!=null)
+			if(getStore(type).get(mTx, ByteArrayHelper.serialize(key))!=null)
 				return true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -146,12 +159,17 @@ public class EdbStorage {
 	}
 	
 	public void commit() {
-		mNodePairs.sync();
-		mEdgePairs.sync();
+		mTx.commit();
+		//mNodePairs.sync();
+		//mEdgePairs.sync();
 	}
 	
-	public void resetCache(Transaction tx){
-		mCache.clear(getTransactionId(tx));//FIXME shoudn't clear all, should clear for transaction, use region
+	public void abort() {
+		mTx.abort();
+	}
+	
+	public void resetCache(){
+		mCache.clear(mTid);//FIXME shoudn't clear all, should clear for transaction, use region
 	}
 
 

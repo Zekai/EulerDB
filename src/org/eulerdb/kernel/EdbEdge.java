@@ -35,7 +35,7 @@ public class EdbEdge implements Edge, Serializable {
 		mRelation = relation;
 		mId = n1.getId() + "_" + relation + "_" + n2.getId();// FIXME id is not
 																// used here
-		if(mStorage==null) mStorage = EdbStorage.getInstance();
+		if(mStorage==null) mStorage = EdbStorage.getInstance("",true);
 		mProps = new HashMap<String, Object>();
 	}
 
@@ -65,7 +65,7 @@ public class EdbEdge implements Edge, Serializable {
 			throw new IllegalArgumentException(arg0
 					+ " is not allowed to be used as property name");
 		mProps.put(arg0, arg1);
-		mStorage.store(storeType.EDGE, null, this);//FIXME this code make it nontransactional
+		mStorage.store(storeType.EDGE, this);//FIXME this code make it nontransactional
 
 	}
 

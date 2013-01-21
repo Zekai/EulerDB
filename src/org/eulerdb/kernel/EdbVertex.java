@@ -56,7 +56,7 @@ public class EdbVertex implements Vertex, Serializable {
 		// mInRelationMap = HashMultimap.create();
 		// mOutRelationMap = HashMultimap.create();
 		
-		if(mStorage==null) mStorage = EdbStorage.getInstance();
+		if(mStorage==null) mStorage = EdbStorage.getInstance("",true);
 
 		mInEdges = HashMultimap.create();// new LinkedList<EdbEdge> ();
 		mOutEdges = HashMultimap.create();// new LinkedList<EdbEdge> ();\
@@ -98,7 +98,7 @@ public class EdbVertex implements Vertex, Serializable {
 			throw new IllegalArgumentException(arg0
 					+ " is not allowed to be used as property name");
 		mProps.put(arg0, arg1);
-		mStorage.store(storeType.VERTEX, null, this);//FIXME this code make it nontransactional
+		mStorage.store(storeType.VERTEX, this);//FIXME this code make it nontransactional
 	}
 
 	@Override
