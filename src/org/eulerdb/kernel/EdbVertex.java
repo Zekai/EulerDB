@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eulerdb.kernel.iterator.IteratorFactory;
 import org.eulerdb.kernel.storage.EdbStorage;
@@ -33,7 +34,9 @@ public class EdbVertex implements Vertex, Serializable {
 	 */
 	private static final long serialVersionUID = 5653068124792462590L;
 
-	public static Long Id = 0L;//FIXME put the autoincreament storage
+	//public static Long Id = 0L;//FIXME put the autoincreament storage
+	
+	private static final AtomicInteger uniqueId = new AtomicInteger(0);
 	
 	protected transient static EdbStorage mStorage = null;
 
@@ -50,9 +53,7 @@ public class EdbVertex implements Vertex, Serializable {
 
 	public EdbVertex(String id) {
 
-		generateId();
-
-		mId = id == null ? String.valueOf(Id) : id;
+		mId = id == null ? String.valueOf(uniqueId.getAndIncrement()) : id;
 		// mInRelationMap = HashMultimap.create();
 		// mOutRelationMap = HashMultimap.create();
 		
@@ -61,10 +62,6 @@ public class EdbVertex implements Vertex, Serializable {
 		mInEdges = HashMultimap.create();// new LinkedList<EdbEdge> ();
 		mOutEdges = HashMultimap.create();// new LinkedList<EdbEdge> ();\
 		mProps = new HashMap<String, Object>();
-	}
-
-	private synchronized Long generateId() {
-		return Id++;
 	}
 
 	@Override

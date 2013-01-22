@@ -10,13 +10,15 @@ import com.tinkerpop.blueprints.Vertex;
 public class ACIDTestIsolation2 {
 	public static void main(String[] args) {
 		
-		FileHelper.deleteDir("./temp/ttg");
+		final String path = "./temp/ttg";
+		
+		FileHelper.deleteDir(path);
 
 		Thread thread1 = new Thread(new Runnable(){
 
 			@Override
 			public void run() {
-				EdbTransactionalGraph g =  new EdbTransactionalGraph("");
+				EdbTransactionalGraph g =  new EdbTransactionalGraph(path);
 				g.startTransaction();
 				EdbVertex v = (EdbVertex) g.addVertex(1);
 				System.out.println(Thread.currentThread()+" adding vertex");
@@ -26,7 +28,7 @@ public class ACIDTestIsolation2 {
 
 			@Override
 			public void run() {
-				EdbTransactionalGraph g =  new EdbTransactionalGraph("");
+				EdbTransactionalGraph g =  new EdbTransactionalGraph(path);
 				g.startTransaction();
 				EdbVertex v = (EdbVertex) g.addVertex(2);
 				System.out.print("\n [thread2 ");

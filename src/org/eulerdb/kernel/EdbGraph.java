@@ -71,14 +71,20 @@ public class EdbGraph implements Graph {
 		mTransactional = false;
 		
 		if (mStorage == null)
+		{
+			EdbStorage.set(path);
 			mStorage = EdbStorage.getInstance(path, false);
+		}
 	}
 
 	public EdbGraph(String path, boolean transactional) {
 		mTransactional = transactional;
 		
 		if (mStorage == null)
+		{
+			EdbStorage.set(path);
 			mStorage = EdbStorage.getInstance(path, mTransactional);
+		}
 	}
 
 	@Override
@@ -246,12 +252,12 @@ public class EdbGraph implements Graph {
 	@Override
 	public void shutdown() {
 		// nontransactionalCommit();
-		mStorage.close();
-		mStorage = null;
+		//mStorage.close();
+		//mStorage = null;
 	}
 
 	public void nontransactionalCommit() {
-		mStorage.commit();
+		//mStorage.commit();
 	}
 
 }

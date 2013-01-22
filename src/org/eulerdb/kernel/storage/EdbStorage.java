@@ -26,6 +26,7 @@ public class EdbStorage {
 	private static EdbKeyPairStore mNodePairs;
 	private static EdbKeyPairStore mEdgePairs;
 	private static EdbCaching mCache;
+	private static String mPath;
 	private static EulerDBHelper mEdbHelper = null;
 	private static boolean mTransactional;
 	private static Transaction mTx;
@@ -33,14 +34,17 @@ public class EdbStorage {
 	
 	private static final ThreadLocal<EdbStorage> _localStorage = new ThreadLocal<EdbStorage>(){
 	    protected EdbStorage initialValue() {
-	      return new EdbStorage("./temp/ttg");
+	      return new EdbStorage(mPath);
 	   }
 	  };
-
 	
 	private EdbStorage(String path){
 		mCache = EdbCaching.getInstance();
 		initStores(path);
+	}
+	
+	public static void set(String path){
+		mPath = path;
 	}
 
 	public static EdbStorage getInstance(String path,boolean transactional) {
@@ -152,8 +156,8 @@ public class EdbStorage {
 		mEdgePairs.close();
 		mNodePairs = null;
 		mEdgePairs = null;
-		mEdbHelper.closeEnv();
-		mEdbHelper = null;
+		//mEdbHelper.closeEnv();
+		//mEdbHelper = null;
 		mCache = null;
 		instance = null;
 	}
