@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eulerdb.kernel.iterator.IteratorFactory;
@@ -21,6 +22,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Query;
@@ -59,8 +61,8 @@ public class EdbVertex implements Vertex, Serializable {
 		
 		if(mStorage==null) mStorage = EdbStorage.getInstance("",true);
 
-		mInEdges = HashMultimap.create();// new LinkedList<EdbEdge> ();
-		mOutEdges = HashMultimap.create();// new LinkedList<EdbEdge> ();\
+		mInEdges = HashMultimap.<EdbVertex, EdbEdge>create();// new LinkedList<EdbEdge> ();
+		mOutEdges = HashMultimap.<EdbVertex, EdbEdge>create();// new LinkedList<EdbEdge> ();\
 		mProps = new HashMap<String, Object>();
 	}
 
@@ -103,15 +105,19 @@ public class EdbVertex implements Vertex, Serializable {
 
 		if (arg1 == null || arg1.length == 0) {
 			if (arg0 == Direction.IN) {
-				return IteratorFactory.getEdgeIterator(mInEdges.values()
-						.iterator());// new
+				List<EdbEdge> in = new CopyOnWriteArrayList<EdbEdge>();
+				in.addAll(mInEdges.values());
+				return IteratorFactory.getEdgeIterator(in
+						.iterator());// return// new
 										// EdbEdgeIteratorFromCollection(mInEdges.iterator());
 			} else if (arg0 == Direction.OUT) {
-				return IteratorFactory.getEdgeIterator(mOutEdges.values()
+				List<EdbEdge> out = new CopyOnWriteArrayList<EdbEdge>();
+				out.addAll(mOutEdges.values());
+				return IteratorFactory.getEdgeIterator(out
 						.iterator());// return new
 										// EdbEdgeIteratorFromCollection(mOutEdges.iterator());
 			} else if (arg0 == Direction.BOTH) {
-				List<EdbEdge> total = new ArrayList<EdbEdge>();//
+				List<EdbEdge> total = new CopyOnWriteArrayList<EdbEdge>();//
 				total.addAll(mInEdges.values());
 				total.addAll(mOutEdges.values());
 				return IteratorFactory.getEdgeIterator(total.iterator());// return
@@ -129,16 +135,22 @@ public class EdbVertex implements Vertex, Serializable {
 			};
 
 			if (arg0 == Direction.IN) {
-				return IteratorFactory.getEdgeIterator(Collections2.filter(
-						mInEdges.values(), relationFilter).iterator());// new
-																		// EdbEdgeIteratorFromCollection(mInEdges.iterator());
+				List<EdbEdge> in = new CopyOnWriteArrayList<EdbEdge>();//
+				in.addAll(mInEdges.values());
+				return IteratorFactory.getEdgeIterator(Collections2.filter(in,
+						relationFilter).iterator());
+				// new
+				// EdbEdgeIteratorFromCollection(mInEdges.iterator());
 			} else if (arg0 == Direction.OUT) {
-				return IteratorFactory.getEdgeIterator(Collections2.filter(
-						mOutEdges.values(), relationFilter).iterator());// return
-																		// new
-																		// EdbEdgeIteratorFromCollection(mOutEdges.iterator());
+				List<EdbEdge> out = new CopyOnWriteArrayList<EdbEdge>();//
+				out.addAll(mOutEdges.values());
+				return IteratorFactory.getEdgeIterator(Collections2.filter(out,
+						relationFilter).iterator());
+				// return
+				// new
+				// EdbEdgeIteratorFromCollection(mOutEdges.iterator());
 			} else if (arg0 == Direction.BOTH) {
-				List<EdbEdge> total = new ArrayList<EdbEdge>();//
+				List<EdbEdge> total = new CopyOnWriteArrayList<EdbEdge>();//
 				total.addAll(mInEdges.values());
 				total.addAll(mOutEdges.values());
 				return IteratorFactory.getEdgeIterator(Collections2.filter(
@@ -266,6 +278,7 @@ public class EdbVertex implements Vertex, Serializable {
 	void removeInEdge(EdbEdge e) {
 		mInEdges.remove((EdbVertex) e.getVertex(Direction.OUT), e);
 		// mInRelationMap.remove(e.getLabel(), e.getVertex(Direction.IN));
+		
 
 	}
 

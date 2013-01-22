@@ -54,9 +54,9 @@ public class BasicTest {
 
 		System.out.println("\nAll edges");
 		for (Edge e : g.getEdges()) {
-			System.out.println(e.getVertex(Direction.IN).getId() + " "
+			System.out.println(e.getVertex(Direction.OUT).getId() + " "
 					+ ((EdbEdge) e).getLabel() + " "
-					+ e.getVertex(Direction.OUT).getId());
+					+ e.getVertex(Direction.IN).getId());
 		}
 
 	}

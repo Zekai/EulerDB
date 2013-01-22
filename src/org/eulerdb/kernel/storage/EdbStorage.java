@@ -27,7 +27,7 @@ public class EdbStorage {
 	private static EdbKeyPairStore mEdgePairs;
 	private static EdbCaching mCache;
 	private static String mPath;
-	private static EulerDBHelper mEdbHelper = null;
+	private EulerDBHelper mEdbHelper = null;
 	private static boolean mTransactional;
 	private static Transaction mTx;
 	private static Long mTid;
