@@ -51,9 +51,9 @@ public class EdbVertex implements Vertex, Serializable {
 	private Multimap<EdbVertex, EdbEdge> mOutEdges;
 	private Map<String, Object> mProps;
 
-	public EdbVertex(String id) {
+	public EdbVertex(Object id) {
 
-		mId = id == null ? String.valueOf(uniqueId.getAndIncrement()) : id;
+		mId = id == null ? String.valueOf(uniqueId.getAndIncrement()) : String.valueOf(id);
 		// mInRelationMap = HashMultimap.create();
 		// mOutRelationMap = HashMultimap.create();
 		

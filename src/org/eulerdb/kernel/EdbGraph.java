@@ -31,7 +31,7 @@ public class EdbGraph implements Graph {
 			.getCanonicalName());
 
 	protected boolean mTransactional;
-	protected static EdbStorage mStorage = null;
+	protected EdbStorage mStorage = null;
 
 	protected static final Features FEATURES = new Features();
 
@@ -110,7 +110,7 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public Vertex addVertex(Object id) {
-		EdbVertex v = new EdbVertex(String.valueOf(id));
+		EdbVertex v = new EdbVertex(id);
 		mStorage.store(storeType.VERTEX, v);
 
 		return v;
@@ -252,8 +252,8 @@ public class EdbGraph implements Graph {
 	@Override
 	public void shutdown() {
 		// nontransactionalCommit();
-		//mStorage.close();
-		//mStorage = null;
+		mStorage.close();
+		mStorage = null;
 	}
 
 	public void nontransactionalCommit() {

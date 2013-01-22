@@ -39,7 +39,7 @@ public class EdbGraphTest extends GraphTest {
 
     public void testVertexTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new VertexTestSuite(this));
+        doTestSuite(new VertexTestSuite(this));
         printTestPerformance("VertexTestSuite", this.stopWatch());
     }
 
