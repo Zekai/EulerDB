@@ -68,7 +68,7 @@ public class EdbKeyPairStore {
 		return mStore.count();
 	}
 
-	public void close() {
+	public void close() {		
 		mStore.close();
 	}
 
@@ -78,7 +78,7 @@ public class EdbKeyPairStore {
 	}
 
 	public Cursor getCursor(Transaction tx) {
-		
+
 		return mStore.openCursor(tx, null);
 	}
 

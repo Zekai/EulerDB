@@ -11,8 +11,8 @@ import com.sleepycat.je.Cursor;
 public class IteratorFactory {
 	public static EdbVertexIterator getVertexIterator(Object arg0) {
 
-		if (arg0 instanceof Cursor) {
-			return (new EdbVertexIteratorFromDatabase(new EdbCursor ((Cursor)arg0)));
+		if (arg0 instanceof EdbCursor) {
+			return (new EdbVertexIteratorFromDatabase((EdbCursor)arg0));
 		} else {
 			return (new EdbVertexIteratorFromCollection((Iterator<EdbVertex>) arg0));
 		}
@@ -21,8 +21,8 @@ public class IteratorFactory {
 	
 	public static EdbEdgeIterator getEdgeIterator(Object arg0) {
 
-		if (arg0 instanceof Cursor) {
-			return (new EdbEdgeIteratorFromDatabase(new EdbCursor ((Cursor)arg0)));
+		if (arg0 instanceof EdbCursor) {
+			return (new EdbEdgeIteratorFromDatabase((EdbCursor)arg0));
 		} else {
 			return (new EdbEdgeIteratorFromCollection((Iterator<EdbEdge>) arg0));
 		}

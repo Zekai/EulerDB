@@ -45,13 +45,13 @@ public class EdbGraphTest extends GraphTest {
 
     public void testEdgeTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new EdgeTestSuite(this));
+        doTestSuite(new EdgeTestSuite(this));
         printTestPerformance("EdgeTestSuite", this.stopWatch());
     }
 
     public void testGraphTestSuite() throws Exception {
         this.stopWatch();
-       // doTestSuite(new GraphTestSuite(this));
+        doTestSuite(new GraphTestSuite(this));
         printTestPerformance("GraphTestSuite", this.stopWatch());
     }
 
@@ -114,7 +114,7 @@ public class EdbGraphTest extends GraphTest {
         deleteDirectory(f);
 
         	f.mkdir();
-        EdbTransactionalGraph graph = new EdbTransactionalGraph(directory + "/" + graphDirectoryName);
+        EdbGraph graph = new EdbGraph(directory + "/" + graphDirectoryName);
         return graph;
     }
 

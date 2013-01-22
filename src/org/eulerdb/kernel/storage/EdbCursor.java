@@ -35,7 +35,9 @@ public class EdbCursor {
 
 	public boolean hasNext() {
 		if (cnt >= max) {
-			mCur.close();
+			DatabaseEntry key = new DatabaseEntry();
+			DatabaseEntry data = new DatabaseEntry();//rewind
+			hasNext = mCur.getFirst(key, data, LockMode.DEFAULT);//mCur.close();
 			return false;
 		}
 
@@ -114,11 +116,6 @@ public class EdbCursor {
 
 	public void remove() {
 		mCur.delete();
-	}
-	
-	@Override
-	public void finalize(){
-		mCur.close();
 	}
 
 }

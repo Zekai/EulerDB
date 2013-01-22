@@ -34,7 +34,7 @@ public class EdbGraph implements Graph {
 	protected boolean mTransactional;
 	protected static Transaction mTx = null;
 	protected EdbStorage mStorage = null;
-	protected EulerDBHelper mEdbHelper = null;
+	protected static EulerDBHelper mEdbHelper = null;
 
 	protected static final Features FEATURES = new Features();
 
@@ -123,7 +123,7 @@ public class EdbGraph implements Graph {
 		if (arg0 == null)
 			throw new IllegalArgumentException("Get id shouldn't be null");
 		EdbEdge e = (EdbEdge) mStorage.getObj(storeType.EDGE, mTx,
-				(String) arg0);
+				String.valueOf(arg0));
 
 		return e;
 	}

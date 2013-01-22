@@ -26,6 +26,8 @@ public class EdbStorage {
 	private static EdbCaching mCache;
 	private static EulerDBHelper mEdbHelper = null;
 	private static boolean mTransactional;
+	private static EdbCursor mEdgeCursor;
+	private static EdbCursor mNodeCursor;
 	
 	private EdbStorage(String path){
 		mCache = EdbCaching.getInstance();
@@ -77,6 +79,7 @@ public class EdbStorage {
 		try {
 			getStore(type).put(tx,ByteArrayHelper.serialize(n.getId()),
 					ByteArrayHelper.serialize(n));
+			invalidateCursor();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -93,6 +96,7 @@ public class EdbStorage {
 	public void delete(storeType type,Transaction tx,Element o){
 		try {
 			getStore(type).delete(tx,ByteArrayHelper.serialize(o.getId()));
+			invalidateCursor();
 			if(type == storeType.VERTEX) 
 				mCache.remove((String)o.getId(),getTransactionId(tx));
 		} catch (IOException e) {
@@ -119,8 +123,28 @@ public class EdbStorage {
 		return o;
 	}
 	
-	public Cursor getCursor(storeType type,Transaction tx) {
-		return getStore(type).getCursor(tx);
+	public EdbCursor getCursor(storeType type,Transaction tx) {
+		switch(type)
+		{
+		case EDGE:
+		{
+			mEdgeCursor = new EdbCursor(getStore(type).getCursor(tx));
+			return mEdgeCursor;
+		}
+		case VERTEX:
+		{
+			mNodeCursor = new EdbCursor(getStore(type).getCursor(tx));
+			return mNodeCursor;
+		}
+		default:
+			return null;
+			
+		} 
+	}
+	
+	private void invalidateCursor() {
+		mEdgeCursor = null;
+		mNodeCursor = null;
 	}
 	
 	public boolean containsKey(storeType type,Transaction tx,String key) {
@@ -135,6 +159,14 @@ public class EdbStorage {
 		return false;
 	}
 	public void close() {
+		if(mEdgeCursor!=null){
+			mEdgeCursor.close();
+			mEdgeCursor = null;
+		}
+		if(mNodeCursor!=null){
+			mNodeCursor.close();
+			mNodeCursor = null;
+		}
 		mNodePairs.close();
 		mEdgePairs.close();
 		mNodePairs = null;
