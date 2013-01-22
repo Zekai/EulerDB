@@ -4,6 +4,6 @@ import java.util.Iterator;
 
 import com.tinkerpop.blueprints.Vertex;
 
-public abstract class EdbVertexIterator implements Iterable<Vertex>{
+public abstract class EdbVertexIterable implements Iterable<Vertex>{
 
 }

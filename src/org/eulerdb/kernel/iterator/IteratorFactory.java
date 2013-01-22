@@ -9,22 +9,26 @@ import org.eulerdb.kernel.EdbVertex;
 import org.eulerdb.kernel.storage.EdbCursor;
 
 public class IteratorFactory {
-	public static EdbVertexIterator getVertexIterator(Object arg0) {
+	public static EdbVertexIterable getVertexIterator(Object arg0) {
 
 		if (arg0 instanceof EdbCursor) {
-			return (new EdbVertexIteratorFromDatabase((EdbCursor)arg0));
+			return (new EdbVertexIterableFromDatabase((EdbCursor)arg0));
+		} else if (arg0 instanceof Collection){
+			return (new EdbVertexIterableFromCollection((Collection<EdbVertex>) arg0));
 		} else {
-			return (new EdbVertexIteratorFromCollection((Collection<EdbVertex>) arg0));
+			return (new EdbVertexIterableFromIterator((Iterator<EdbVertex>) arg0));
 		}
 	}
 	
 	
-	public static EdbEdgeIterator getEdgeIterator(Object arg0) {
+	public static EdbEdgeIterable getEdgeIterator(Object arg0) {
 
 		if (arg0 instanceof EdbCursor) {
-			return (new EdbEdgeIteratorFromDatabase((EdbCursor)arg0));
+			return (new EdbEdgeIterableFromDatabase((EdbCursor)arg0));
+		} else if (arg0 instanceof Collection){
+			return (new EdbEdgeIterableFromCollection((Collection<EdbEdge>) arg0));
 		} else {
-			return (new EdbEdgeIteratorFromCollection((Collection<EdbEdge>) arg0));
+			return (new EdbEdgeIterableFromIterator((Iterator<EdbEdge>) arg0));
 		}
 	}
 }

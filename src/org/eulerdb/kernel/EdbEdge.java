@@ -108,6 +108,8 @@ public class EdbEdge implements Edge, Serializable {
 			return true;
 		if (obj == null)
 			return false;
+		if(mId==null)
+			return false;
 		if (!(obj.getClass() == getClass()))
 			return false;
 		EdbEdge other = (EdbEdge) obj;

@@ -4,21 +4,24 @@ package org.eulerdb.kernel.iterator;
 import java.util.Iterator;
 import org.eulerdb.kernel.storage.EdbCursor;
 
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 
 
-public class EdbVertexIteratorFromDatabase extends EdbVertexIterator {
+public class EdbEdgeIterableFromDatabase extends EdbEdgeIterable {
 	
 	EdbCursor mCur;
 	
-	public EdbVertexIteratorFromDatabase(EdbCursor cur) {
+	public EdbEdgeIterableFromDatabase(EdbCursor cur) {
 		mCur = cur;
 	}
 
 	@Override
-	public Iterator<Vertex> iterator() {
+	public Iterator<Edge> iterator() {
 		
-		 return new Iterator<Vertex>() {
+		mCur.getFirst();
+		
+		 return new Iterator<Edge>() {
 
 			@Override
 			public boolean hasNext() {
@@ -26,8 +29,8 @@ public class EdbVertexIteratorFromDatabase extends EdbVertexIterator {
 			}
 
 			@Override
-			public Vertex next() {
-				return (Vertex) mCur.next();
+			public Edge next() {
+				return (Edge) mCur.next();
 			}
 
 			@Override

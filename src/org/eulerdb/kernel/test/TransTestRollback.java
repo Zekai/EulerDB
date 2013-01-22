@@ -46,7 +46,7 @@ public class TransTestRollback {
 		
 		testloading(path);
 		
-		System.out.println("g:" + g.mNodePairs.count());
+		//System.out.println("g:" + g.mNodePairs.count());
 		g.shutdown();
 	}
 

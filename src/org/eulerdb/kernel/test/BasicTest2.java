@@ -6,16 +6,35 @@ import org.eulerdb.kernel.EdbEdge;
 import org.eulerdb.kernel.EdbGraph;
 import org.eulerdb.kernel.EdbVertex;
 import org.eulerdb.kernel.helper.FileHelper;
+import org.junit.Assert;
 
+import com.tinkerpop.blueprints.BaseTest;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Graph;
+import com.tinkerpop.blueprints.Vertex;
 
 public class BasicTest2 {
 	public static void main(String[] args) {
 
 		String path = "./temp/BasicTest2";
-
+		
 		FileHelper.deleteDir(path);
+		
+		Graph graph = new EdbGraph(path);
+        Vertex a = graph.addVertex(null);
+        Vertex b  = graph.addVertex(null);
+        Vertex c  =  graph.addVertex(null);
+        for (Vertex vertex : graph.getVertices()) {
+            graph.addEdge(null, vertex, a, "x");
+            graph.addEdge(null, vertex, a, "y");
+        }
+        for (Vertex vertex : graph.getVertices()) {
+        	System.out.println(vertex.getId()+":"+BaseTest.count(vertex.getEdges(Direction.OUT)));
+            //assertEquals(BaseTest.count(vertex.getEdges(Direction.OUT)), 2);
+        }
+
+		/*FileHelper.deleteDir(path);
 
 		EdbGraph g = new EdbGraph(path);
 
@@ -37,7 +56,7 @@ public class BasicTest2 {
 		
 		g.addEdge(1, v2, v3, "likes");
 		
-		System.out.println("\nAll edges");
+		System.out.println("\nAll edges");*/
 		/*for (Edge e : g.getEdges()) {
 			System.out.println(e.getVertex(Direction.IN).getId()+" "+((EdbEdge) e).getLabel()+" "+e.getVertex(Direction.OUT).getId());
 		}*/

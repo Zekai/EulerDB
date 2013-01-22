@@ -55,10 +55,11 @@ public class EdbCursor {
 	}
 
 	public Object getFirst() {
+		cnt = 0;
 		Object v = null;
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
-		mCur.getFirst(key, data, LockMode.DEFAULT);
+		hasNext = mCur.getFirst(key, data, LockMode.DEFAULT);
 		try {
 			v = ByteArrayHelper.deserialize(data.getData());
 		} catch (IOException e) {

@@ -4,6 +4,6 @@ import java.util.Iterator;
 
 import com.tinkerpop.blueprints.Edge;
 
-public abstract class EdbEdgeIterator implements Iterable<Edge>{
+public abstract class EdbEdgeIterable implements Iterable<Edge>{
 
 }

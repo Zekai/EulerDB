@@ -93,11 +93,20 @@ public class EdbGraph implements Graph {
 	public Edge addEdge(Object id, Vertex n1, Vertex n2, String relation) {
 
 		EdbEdge e = new EdbEdge(n1, n2, id, relation);
-		mStorage.store(storeType.EDGE, mTx, e);
-		((EdbVertex) n1).addOutEdge(e);
-		((EdbVertex) n2).addInEdge(e);
-		mStorage.store(storeType.VERTEX, mTx, n1);// store(mNodePairs,n1);
-		mStorage.store(storeType.VERTEX, mTx, n2);// store(mNodePairs,n2);
+		if(n1.equals(n2)){//self loop
+			mStorage.store(storeType.EDGE, mTx, e);
+			((EdbVertex) n2).addOutEdge(e);
+			((EdbVertex) n2).addInEdge(e);
+			mStorage.store(storeType.VERTEX, mTx, n2);
+		}
+		else
+		{
+			mStorage.store(storeType.EDGE, mTx, e);
+			((EdbVertex) n1).addOutEdge(e);
+			((EdbVertex) n2).addInEdge(e);
+			mStorage.store(storeType.VERTEX, mTx, n1);// store(mNodePairs,n1);
+			mStorage.store(storeType.VERTEX, mTx, n2);// store(mNodePairs,n2);
+		}
 		return e;
 	}
 
@@ -137,8 +146,25 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public Iterable<Edge> getEdges(String arg0, Object arg1) {
+		final String key = arg0;
+		final String value = (String) arg1;
 
-		return null;
+		Predicate<Edge> relationFilter = new Predicate<Edge>() {
+			public boolean apply(Edge v) {
+				if (null == v.getProperty(key))
+					return false;
+				else
+					return v.getProperty(key).equals(value);
+				// return true;
+			}
+		};
+
+		Iterable<Edge> its = IteratorFactory.getEdgeIterator(Iterators
+				.filter(IteratorFactory.getEdgeIterator(
+						mStorage.getCursor(storeType.EDGE, mTx)).iterator(),
+						relationFilter));
+
+		return its;
 	}
 
 	@Override
@@ -178,9 +204,21 @@ public class EdbGraph implements Graph {
 			}
 		};
 
+		/*Iterable<Vertex> its = 
+				IteratorFactory.getVertexIterator(
+						Iterators.filter(
+								IteratorFactory.getVertexIterator(
+										mStorage.getCursor(
+												storeType.VERTEX, mTx
+												)
+										).iterator(), relationFilter
+								)
+						);*/
+		
 		Iterable<Vertex> its = IteratorFactory.getVertexIterator(Iterators
 				.filter(IteratorFactory.getVertexIterator(mStorage.getCursor(
-						storeType.VERTEX, mTx)).iterator(), relationFilter));
+						storeType.VERTEX, mTx
+						)).iterator(), relationFilter));
 
 		return its;
 	}

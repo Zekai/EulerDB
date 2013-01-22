@@ -7,23 +7,21 @@ import java.util.List;
 
 import org.eulerdb.kernel.EdbEdge;
 import org.eulerdb.kernel.EdbVertex;
-
-import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 
-public class EdbEdgeIteratorFromCollection extends EdbEdgeIterator {
+public class EdbVertexIterableFromCollection extends EdbVertexIterable {
 	
-	private Collection<EdbEdge> mIt;
+	private Collection<EdbVertex> mIt;
 
-	public EdbEdgeIteratorFromCollection(Collection<EdbEdge> it) {
+	public EdbVertexIterableFromCollection(Collection<EdbVertex> it) {
 		mIt = it;
 	}
 
 	@Override
-	public Iterator<Edge> iterator() {
-		final Iterator<EdbEdge> it = mIt.iterator();
+	public Iterator<Vertex> iterator() {
+		final Iterator<EdbVertex> it = mIt.iterator();
 		
-		 return new Iterator<Edge>() {
+		 return new Iterator<Vertex>() {
 
 			@Override
 			public boolean hasNext() {
@@ -31,7 +29,7 @@ public class EdbEdgeIteratorFromCollection extends EdbEdgeIterator {
 			}
 
 			@Override
-			public Edge next() {
+			public Vertex next() {
 				return it.next();
 			}
 

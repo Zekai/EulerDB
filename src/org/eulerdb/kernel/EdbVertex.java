@@ -302,6 +302,8 @@ public class EdbVertex implements Vertex, Serializable {
 			return true;
 		if (obj == null)
 			return false;
+		if(mId==null)
+			return false;
 		if (!(obj.getClass() == getClass()))
 			return false;
 		EdbVertex other = (EdbVertex) obj;
