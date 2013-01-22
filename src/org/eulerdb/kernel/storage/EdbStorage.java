@@ -79,7 +79,7 @@ public class EdbStorage {
 		try {
 			getStore(type).put(tx,ByteArrayHelper.serialize(n.getId()),
 					ByteArrayHelper.serialize(n));
-			invalidateCursor();
+			//getCursor(type,tx);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -96,7 +96,7 @@ public class EdbStorage {
 	public void delete(storeType type,Transaction tx,Element o){
 		try {
 			getStore(type).delete(tx,ByteArrayHelper.serialize(o.getId()));
-			invalidateCursor();
+			//getCursor(type,tx);
 			if(type == storeType.VERTEX) 
 				mCache.remove((String)o.getId(),getTransactionId(tx));
 		} catch (IOException e) {
@@ -128,11 +128,13 @@ public class EdbStorage {
 		{
 		case EDGE:
 		{
+			if(mEdgeCursor!=null) mEdgeCursor.close();
 			mEdgeCursor = new EdbCursor(getStore(type).getCursor(tx));
 			return mEdgeCursor;
 		}
 		case VERTEX:
 		{
+			if(mNodeCursor!=null) mNodeCursor.close();
 			mNodeCursor = new EdbCursor(getStore(type).getCursor(tx));
 			return mNodeCursor;
 		}
@@ -140,11 +142,6 @@ public class EdbStorage {
 			return null;
 			
 		} 
-	}
-	
-	private void invalidateCursor() {
-		mEdgeCursor = null;
-		mNodeCursor = null;
 	}
 	
 	public boolean containsKey(storeType type,Transaction tx,String key) {

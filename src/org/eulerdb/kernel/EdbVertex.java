@@ -105,20 +105,18 @@ public class EdbVertex implements Vertex, Serializable {
 			if (arg0 == Direction.IN) {
 				List<EdbEdge> in = new CopyOnWriteArrayList<EdbEdge>();
 				in.addAll(mInEdges.values());
-				return IteratorFactory.getEdgeIterator(in
-						.iterator());// return// new
+				return IteratorFactory.getEdgeIterator(in);// return// new
 										// EdbEdgeIteratorFromCollection(mInEdges.iterator());
 			} else if (arg0 == Direction.OUT) {
 				List<EdbEdge> out = new CopyOnWriteArrayList<EdbEdge>();
 				out.addAll(mOutEdges.values());
-				return IteratorFactory.getEdgeIterator(out
-						.iterator());// return new
+				return IteratorFactory.getEdgeIterator(out);// return new
 										// EdbEdgeIteratorFromCollection(mOutEdges.iterator());
 			} else if (arg0 == Direction.BOTH) {
 				List<EdbEdge> total = new CopyOnWriteArrayList<EdbEdge>();//
 				total.addAll(mInEdges.values());
 				total.addAll(mOutEdges.values());
-				return IteratorFactory.getEdgeIterator(total.iterator());// return
+				return IteratorFactory.getEdgeIterator(total);// return
 																			// new
 																			// EdbEdgeIteratorFromCollection(total.iterator());
 			}
@@ -135,15 +133,13 @@ public class EdbVertex implements Vertex, Serializable {
 			if (arg0 == Direction.IN) {
 				List<EdbEdge> in = new CopyOnWriteArrayList<EdbEdge>();//
 				in.addAll(mInEdges.values());
-				return IteratorFactory.getEdgeIterator(Collections2.filter(in,
-						relationFilter).iterator());
+				return IteratorFactory.getEdgeIterator(Collections2.filter(in,relationFilter));
 				// new
 				// EdbEdgeIteratorFromCollection(mInEdges.iterator());
 			} else if (arg0 == Direction.OUT) {
 				List<EdbEdge> out = new CopyOnWriteArrayList<EdbEdge>();//
 				out.addAll(mOutEdges.values());
-				return IteratorFactory.getEdgeIterator(Collections2.filter(out,
-						relationFilter).iterator());
+				return IteratorFactory.getEdgeIterator(Collections2.filter(out,relationFilter));
 				// return
 				// new
 				// EdbEdgeIteratorFromCollection(mOutEdges.iterator());
@@ -152,7 +148,7 @@ public class EdbVertex implements Vertex, Serializable {
 				total.addAll(mInEdges.values());
 				total.addAll(mOutEdges.values());
 				return IteratorFactory.getEdgeIterator(Collections2.filter(
-						total, relationFilter).iterator());// return new
+						total, relationFilter));// return new
 															// EdbEdgeIteratorFromCollection(total.iterator());
 			}
 		}
@@ -181,16 +177,16 @@ public class EdbVertex implements Vertex, Serializable {
 
 				List<EdbVertex> in = new CopyOnWriteArrayList<EdbVertex>();//
 				in.addAll(mInEdges.keys());
-				return IteratorFactory.getVertexIterator(in.iterator());
+				return IteratorFactory.getVertexIterator(in);
 			} else if (arg0 == Direction.OUT) {
 				List<EdbVertex> out = new CopyOnWriteArrayList<EdbVertex>();//
 				out.addAll(mOutEdges.keys());
-				return IteratorFactory.getVertexIterator(out.iterator());
+				return IteratorFactory.getVertexIterator(out);
 			} else if (arg0 == Direction.BOTH) {
 				List<EdbVertex> total = new CopyOnWriteArrayList<EdbVertex>();//
 				total.addAll(mInEdges.keys());
 				total.addAll(mOutEdges.keys());
-				return IteratorFactory.getVertexIterator(total.iterator());// new
+				return IteratorFactory.getVertexIterator(total);// new
 																			// EdbVertexIteratorFromCollection(total.iterator());
 			}
 
@@ -229,13 +225,13 @@ public class EdbVertex implements Vertex, Serializable {
 				return IteratorFactory.getVertexIterator(Collections2
 						.transform(
 								Collections2.filter(mInEdges.values(),
-										relationFilter), inF).iterator());// new
+										relationFilter), inF));// new
 				// EdbEdgeIteratorFromCollection(mInEdges.iterator());
 			} else if (arg0 == Direction.OUT) {
 				return IteratorFactory.getVertexIterator(Collections2
 						.transform(
 								Collections2.filter(mOutEdges.values(),
-										relationFilter), outF).iterator());// return
+										relationFilter), outF));// return
 				// new
 				// EdbEdgeIteratorFromCollection(mOutEdges.iterator());
 			} else if (arg0 == Direction.BOTH) {
@@ -246,7 +242,7 @@ public class EdbVertex implements Vertex, Serializable {
 				total.addAll(Collections2.transform(
 						Collections2.filter(mOutEdges.values(), relationFilter),
 						outF));
-				return IteratorFactory.getVertexIterator(total.iterator());
+				return IteratorFactory.getVertexIterator(total);
 			}
 		}
 		return null;

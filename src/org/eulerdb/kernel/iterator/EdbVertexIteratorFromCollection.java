@@ -1,38 +1,44 @@
 package org.eulerdb.kernel.iterator;
 
 
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+
+import org.eulerdb.kernel.EdbEdge;
 import org.eulerdb.kernel.EdbVertex;
 import com.tinkerpop.blueprints.Vertex;
 
 public class EdbVertexIteratorFromCollection extends EdbVertexIterator {
 	
-	private Iterator<EdbVertex> mIt;
+	private Collection<EdbVertex> mIt;
 
-	public EdbVertexIteratorFromCollection(Iterator<EdbVertex> it) {
+	public EdbVertexIteratorFromCollection(Collection<EdbVertex> it) {
 		mIt = it;
 	}
 
 	@Override
-	public boolean hasNext() {
-		return mIt.hasNext();
-	}
-
-	@Override
-	public Vertex next() {
-		
-		return mIt.next();
-	}
-
-	@Override
-	public void remove() {
-		mIt.remove();
-		
-	}
-
-	@Override
 	public Iterator<Vertex> iterator() {
+		final Iterator<EdbVertex> it = mIt.iterator();
 		
-		return this;
+		 return new Iterator<Vertex>() {
+
+			@Override
+			public boolean hasNext() {
+				return it.hasNext();
+			}
+
+			@Override
+			public Vertex next() {
+				return it.next();
+			}
+
+			@Override
+			public void remove() {
+				it.remove();
+				
+			}
+			 
+		 };
 	}
 }

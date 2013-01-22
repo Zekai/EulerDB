@@ -180,7 +180,7 @@ public class EdbGraph implements Graph {
 
 		Iterable<Vertex> its = IteratorFactory.getVertexIterator(Iterators
 				.filter(IteratorFactory.getVertexIterator(mStorage.getCursor(
-						storeType.VERTEX, mTx)), relationFilter));
+						storeType.VERTEX, mTx)).iterator(), relationFilter));
 
 		return its;
 	}

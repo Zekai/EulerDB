@@ -11,7 +11,6 @@ import com.sleepycat.je.OperationStatus;
 public class EdbCursor {
 
 	private Cursor mCur;
-
 	private OperationStatus hasNext;
 
 	private long cnt;
