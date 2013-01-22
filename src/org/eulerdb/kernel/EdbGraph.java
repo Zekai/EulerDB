@@ -32,7 +32,7 @@ public class EdbGraph implements Graph {
 			.getCanonicalName());
 
 	protected boolean mTransactional;
-	protected Transaction mTx = null;
+	protected static Transaction mTx = null;
 	protected EdbStorage mStorage = null;
 	protected EulerDBHelper mEdbHelper = null;
 
@@ -112,7 +112,7 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public Vertex addVertex(Object id) {
-		EdbVertex v = new EdbVertex(String.valueOf(id));
+		EdbVertex v = new EdbVertex(id);
 		mStorage.store(storeType.VERTEX, mTx, v);
 
 		return v;

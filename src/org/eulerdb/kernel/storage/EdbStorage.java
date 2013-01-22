@@ -92,7 +92,7 @@ public class EdbStorage {
 	
 	public void delete(storeType type,Transaction tx,Element o){
 		try {
-			mEdgePairs.delete(tx,ByteArrayHelper.serialize(o.getId()));
+			getStore(type).delete(tx,ByteArrayHelper.serialize(o.getId()));
 			if(type == storeType.VERTEX) 
 				mCache.remove((String)o.getId(),getTransactionId(tx));
 		} catch (IOException e) {

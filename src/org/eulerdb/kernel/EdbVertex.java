@@ -10,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eulerdb.kernel.iterator.IteratorFactory;
 import org.eulerdb.kernel.storage.EdbStorage;
@@ -33,7 +35,7 @@ public class EdbVertex implements Vertex, Serializable {
 	 */
 	private static final long serialVersionUID = 5653068124792462590L;
 
-	public static Long Id = 0L;//FIXME put the autoincreament storage
+	private static final AtomicInteger uniqueId = new AtomicInteger(0);
 	
 	protected transient static EdbStorage mStorage = null;
 
@@ -48,11 +50,10 @@ public class EdbVertex implements Vertex, Serializable {
 	private Multimap<EdbVertex, EdbEdge> mOutEdges;
 	private Map<String, Object> mProps;
 
-	public EdbVertex(String id) {
+	public EdbVertex(Object id) {
 
-		generateId();
 
-		mId = id == null ? String.valueOf(Id) : id;
+		mId = id == null ? String.valueOf(uniqueId.getAndIncrement()) : String.valueOf(id);
 		// mInRelationMap = HashMultimap.create();
 		// mOutRelationMap = HashMultimap.create();
 		
@@ -61,10 +62,6 @@ public class EdbVertex implements Vertex, Serializable {
 		mInEdges = HashMultimap.create();// new LinkedList<EdbEdge> ();
 		mOutEdges = HashMultimap.create();// new LinkedList<EdbEdge> ();\
 		mProps = new HashMap<String, Object>();
-	}
-
-	private synchronized Long generateId() {
-		return Id++;
 	}
 
 	@Override
@@ -98,7 +95,7 @@ public class EdbVertex implements Vertex, Serializable {
 			throw new IllegalArgumentException(arg0
 					+ " is not allowed to be used as property name");
 		mProps.put(arg0, arg1);
-		mStorage.store(storeType.VERTEX, null, this);//FIXME this code make it nontransactional
+		mStorage.store(storeType.VERTEX, EdbGraph.mTx, this);//FIXME this code make it nontransactional
 	}
 
 	@Override
@@ -106,15 +103,19 @@ public class EdbVertex implements Vertex, Serializable {
 
 		if (arg1 == null || arg1.length == 0) {
 			if (arg0 == Direction.IN) {
-				return IteratorFactory.getEdgeIterator(mInEdges.values()
-						.iterator());// new
+				List<EdbEdge> in = new CopyOnWriteArrayList<EdbEdge>();
+				in.addAll(mInEdges.values());
+				return IteratorFactory.getEdgeIterator(in
+						.iterator());// return// new
 										// EdbEdgeIteratorFromCollection(mInEdges.iterator());
 			} else if (arg0 == Direction.OUT) {
-				return IteratorFactory.getEdgeIterator(mOutEdges.values()
+				List<EdbEdge> out = new CopyOnWriteArrayList<EdbEdge>();
+				out.addAll(mOutEdges.values());
+				return IteratorFactory.getEdgeIterator(out
 						.iterator());// return new
 										// EdbEdgeIteratorFromCollection(mOutEdges.iterator());
 			} else if (arg0 == Direction.BOTH) {
-				List<EdbEdge> total = new ArrayList<EdbEdge>();//
+				List<EdbEdge> total = new CopyOnWriteArrayList<EdbEdge>();//
 				total.addAll(mInEdges.values());
 				total.addAll(mOutEdges.values());
 				return IteratorFactory.getEdgeIterator(total.iterator());// return
@@ -132,16 +133,22 @@ public class EdbVertex implements Vertex, Serializable {
 			};
 
 			if (arg0 == Direction.IN) {
-				return IteratorFactory.getEdgeIterator(Collections2.filter(
-						mInEdges.values(), relationFilter).iterator());// new
-																		// EdbEdgeIteratorFromCollection(mInEdges.iterator());
+				List<EdbEdge> in = new CopyOnWriteArrayList<EdbEdge>();//
+				in.addAll(mInEdges.values());
+				return IteratorFactory.getEdgeIterator(Collections2.filter(in,
+						relationFilter).iterator());
+				// new
+				// EdbEdgeIteratorFromCollection(mInEdges.iterator());
 			} else if (arg0 == Direction.OUT) {
-				return IteratorFactory.getEdgeIterator(Collections2.filter(
-						mOutEdges.values(), relationFilter).iterator());// return
-																		// new
-																		// EdbEdgeIteratorFromCollection(mOutEdges.iterator());
+				List<EdbEdge> out = new CopyOnWriteArrayList<EdbEdge>();//
+				out.addAll(mOutEdges.values());
+				return IteratorFactory.getEdgeIterator(Collections2.filter(out,
+						relationFilter).iterator());
+				// return
+				// new
+				// EdbEdgeIteratorFromCollection(mOutEdges.iterator());
 			} else if (arg0 == Direction.BOTH) {
-				List<EdbEdge> total = new ArrayList<EdbEdge>();//
+				List<EdbEdge> total = new CopyOnWriteArrayList<EdbEdge>();//
 				total.addAll(mInEdges.values());
 				total.addAll(mOutEdges.values());
 				return IteratorFactory.getEdgeIterator(Collections2.filter(
@@ -170,15 +177,17 @@ public class EdbVertex implements Vertex, Serializable {
 
 		if (arg1 == null || arg1.length == 0) {
 
-			if (arg0 == Direction.IN)
-				return IteratorFactory.getVertexIterator(mInEdges.keys()
-						.iterator());// new
-										// EdbVertexIteratorFromCollection(mInRelationMap.values().iterator());
-			else if (arg0 == Direction.OUT)
-				return IteratorFactory.getVertexIterator(mOutEdges.keys()
-						.iterator());// EdbVertexIteratorFromCollection(mOutRelationMap.values().iterator());
-			else if (arg0 == Direction.BOTH) {
-				List<EdbVertex> total = new ArrayList<EdbVertex>();//
+			if (arg0 == Direction.IN) {
+
+				List<EdbVertex> in = new CopyOnWriteArrayList<EdbVertex>();//
+				in.addAll(mInEdges.keys());
+				return IteratorFactory.getVertexIterator(in.iterator());
+			} else if (arg0 == Direction.OUT) {
+				List<EdbVertex> out = new CopyOnWriteArrayList<EdbVertex>();//
+				out.addAll(mOutEdges.keys());
+				return IteratorFactory.getVertexIterator(out.iterator());
+			} else if (arg0 == Direction.BOTH) {
+				List<EdbVertex> total = new CopyOnWriteArrayList<EdbVertex>();//
 				total.addAll(mInEdges.keys());
 				total.addAll(mOutEdges.keys());
 				return IteratorFactory.getVertexIterator(total.iterator());// new

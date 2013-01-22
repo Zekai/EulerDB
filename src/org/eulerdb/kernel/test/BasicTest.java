@@ -40,7 +40,7 @@ public class BasicTest {
 		
 		
 		
-		g.removeVertex(v1);
+		g.removeVertex(v2);
 		
 		
 		
