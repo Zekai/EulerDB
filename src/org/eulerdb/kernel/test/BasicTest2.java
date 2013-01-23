@@ -30,8 +30,12 @@ public class BasicTest2 {
             graph.addEdge(null, vertex, a, "y");
         }
         for (Vertex vertex : graph.getVertices()) {
-        	System.out.println(vertex.getId()+":"+BaseTest.count(vertex.getEdges(Direction.OUT)));
+        	//System.out.println(vertex.getId()+":"+BaseTest.count(vertex.getEdges(Direction.OUT)));
             //assertEquals(BaseTest.count(vertex.getEdges(Direction.OUT)), 2);
+        	System.out.println(vertex.getId()+"-----");
+        	for(Edge e:vertex.getEdges(Direction.OUT)){
+        		System.out.println(e.getId());
+        	}
         }
 
 		/*FileHelper.deleteDir(path);

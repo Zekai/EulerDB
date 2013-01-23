@@ -95,9 +95,9 @@ public class EdbGraph implements Graph {
 		EdbEdge e = new EdbEdge(n1, n2, id, relation);
 		if(n1.equals(n2)){//self loop
 			mStorage.store(storeType.EDGE, mTx, e);
-			((EdbVertex) n2).addOutEdge(e);
-			((EdbVertex) n2).addInEdge(e);
-			mStorage.store(storeType.VERTEX, mTx, n2);
+			((EdbVertex) n1).addOutEdge(e);
+			((EdbVertex) n1).addInEdge(e);
+			mStorage.store(storeType.VERTEX, mTx, n1);
 		}
 		else
 		{

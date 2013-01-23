@@ -122,11 +122,11 @@ public class EdbVertex implements Vertex, Serializable {
 			}
 		} else {
 
-			final String relation = arg1[0];// FIXME should allows more than one
+			final List<String> relation = Arrays.asList(arg1);// FIXME should allows more than one
 											// labels
 			Predicate<Edge> relationFilter = new Predicate<Edge>() {
 				public boolean apply(Edge e) {
-					return e.getLabel().equals(relation);
+					return relation.contains(e.getLabel());//e.getLabel().equals(relation);
 				}
 			};
 
