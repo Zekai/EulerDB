@@ -5,8 +5,11 @@ import javax.transaction.xa.XAException;
 import org.eulerdb.kernel.storage.EulerDBHelper;
 
 import com.sleepycat.je.Transaction;
+import com.sleepycat.je.Transaction.State;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.TransactionalGraph;
+import com.tinkerpop.blueprints.Vertex;
 
 /**
  * Check this out for 2-phase commit
@@ -41,8 +44,8 @@ public class EdbTransactionalGraph extends EdbGraph implements
 
 	public EdbTransactionalGraph(String path) {
 		super(path, true);
+		autoStartTransaction();
 		mStatus = Status.FRESH;
-		mTx = mEdbHelper.getEnvironment().beginTransaction(null, null);
 	}
 
 	@Override
@@ -50,6 +53,72 @@ public class EdbTransactionalGraph extends EdbGraph implements
 		return FEATURES;
 	}
 
+	private void autoStartTransaction(){
+		if(mTx == null) mTx = mEdbHelper.getEnvironment().beginTransaction(null, null);
+	}
+
+	@Override
+	public Edge addEdge(Object id, Vertex n1, Vertex n2, String relation) {
+		autoStartTransaction();
+		return super.addEdge(id, n1, n2, relation);
+	}
+
+	@Override
+	public Vertex addVertex(Object id) {
+		autoStartTransaction();
+		return super.addVertex(id);
+	}
+
+	@Override
+	public Edge getEdge(Object arg0) {
+		autoStartTransaction();
+		return super.getEdge(arg0);
+	}
+
+	@Override
+	public Iterable<Edge> getEdges() {
+		autoStartTransaction();
+		return super.getEdges();
+	}
+
+	@Override
+	public Iterable<Edge> getEdges(String arg0, Object arg1) {
+		autoStartTransaction();
+		return super.getEdges(arg0, arg1);
+	}
+
+	@Override
+	public Vertex getVertex(Object arg0) {
+		autoStartTransaction();
+		return super.getVertex(arg0);
+	}
+
+	@Override
+	public Iterable<Vertex> getVertices() {
+		autoStartTransaction();
+		return super.getVertices();
+	}
+
+	@Override
+	public Iterable<Vertex> getVertices(String arg0, Object arg1) {
+		autoStartTransaction();
+		return super.getVertices(arg0, arg1);
+	}
+
+	@Override
+	public void removeEdge(Edge arg0) {
+		autoStartTransaction();
+		super.removeEdge(arg0);
+		
+	}
+
+	@Override
+	public void removeVertex(Vertex arg0) {
+		autoStartTransaction();
+		super.removeVertex(arg0);
+		
+	}
+	
 	@Override
 	public void startTransaction() throws IllegalStateException {
 
@@ -58,7 +127,7 @@ public class EdbTransactionalGraph extends EdbGraph implements
 					"previous transaction has not ended.");
 		else if (mStatus == Status.END) {
 			try {
-				mTx = mEdbHelper.getEnvironment().beginTransaction(null, null);
+				autoStartTransaction();
 				mStatus = Status.NEW;
 			} catch (IllegalStateException e) {
 
@@ -70,6 +139,7 @@ public class EdbTransactionalGraph extends EdbGraph implements
 
 	@Override
 	public void stopTransaction(Conclusion conclusion) {
+		mStorage.closeCursor();
 		try {
 			if (Conclusion.SUCCESS == conclusion)
 				commit();
@@ -82,12 +152,14 @@ public class EdbTransactionalGraph extends EdbGraph implements
 	}
 
 	private void commit() throws XAException {
+		if(mTx==null) return;
 		mTx.commit();
 		mTx = null;
 		mStatus = Status.END;
 	}
 
 	private void abort() throws XAException {
+		if(mTx==null) return;
 		mTx.abort();
 		mTx = null;
 		mStorage.resetCache(mTx);
@@ -96,6 +168,7 @@ public class EdbTransactionalGraph extends EdbGraph implements
 
 	@Override
 	public void shutdown() {
+		mStorage.closeCursor();
 		if (mTx != null) {
 			try {
 				commit();

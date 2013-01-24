@@ -16,7 +16,7 @@ import com.tinkerpop.blueprints.Vertex;
 
 public class BasicTest2 {
 	public static void main(String[] args) {
-
+		//failed case, cross update
 		String path = "./temp/BasicTest2";
 		
 		FileHelper.deleteDir(path);

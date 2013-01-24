@@ -155,7 +155,7 @@ public class EdbStorage {
 		}
 		return false;
 	}
-	public void close() {
+	public void closeCursor(){
 		if(mEdgeCursor!=null){
 			mEdgeCursor.close();
 			mEdgeCursor = null;
@@ -164,6 +164,9 @@ public class EdbStorage {
 			mNodeCursor.close();
 			mNodeCursor = null;
 		}
+	}
+	public void close() {
+		closeCursor();
 		mNodePairs.close();
 		mEdgePairs.close();
 		mNodePairs = null;

@@ -2,6 +2,7 @@ package org.eulerdb.kernel.storage;
 
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 import com.sleepycat.je.Cursor;
+import com.sleepycat.je.CursorConfig;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.LockMode;
@@ -78,8 +79,9 @@ public class EdbKeyPairStore {
 	}
 
 	public Cursor getCursor(Transaction tx) {
-
-		return mStore.openCursor(tx, null);
+		CursorConfig curconf = new CursorConfig();
+		curconf.setReadUncommitted(true);
+		return mStore.openCursor(tx, curconf);
 	}
 
 	public void append(byte[] key, byte[] value) {
