@@ -279,11 +279,13 @@ public class EdbVertex implements Vertex, Serializable {
 	void addInEdge(EdbEdge e) {
 		// mInRelationMap.put(e.getLabel(),
 		// (EdbVertex)e.getVertex(Direction.IN));
+		mInEdges.remove(e);
 		mInEdges.add(e);
 	}
 
 	void addOutEdge(EdbEdge e) {
 		// mOutRelationMap.put(e.getLabel(), (EdbVertex) e.getToVertex());
+		mOutEdges.remove(e);
 		mOutEdges.add(e);
 	}
 

@@ -58,7 +58,7 @@ public class EulerDBHelper {
 				// db will be created if not exits
 				dbConf.setAllowCreate(true);
 				dbConf.setDeferredWrite(true);
-				dbConf.setSortedDuplicates(true);
+				//dbConf.setSortedDuplicates(true);
 			}
 		} else {
 
@@ -86,7 +86,7 @@ public class EulerDBHelper {
 				}
 				dbConf.setTransactional(true);
 				dbConf.setAllowCreate(true);
-				dbConf.setSortedDuplicates(true);
+				//dbConf.setSortedDuplicates(true);
 				dbConf.setKeyPrefixing(keyPrefixing);
 			}
 		}

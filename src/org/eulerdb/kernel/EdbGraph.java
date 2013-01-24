@@ -38,7 +38,7 @@ public class EdbGraph implements Graph {
 	protected static final Features FEATURES = new Features();
 
 	static {
-		FEATURES.supportsDuplicateEdges = true; // duplicated edge mean
+		FEATURES.supportsDuplicateEdges = false; // duplicated edge mean
 													// completely duplicated
 		FEATURES.supportsSelfLoops = true;
 		FEATURES.isPersistent = true;

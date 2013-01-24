@@ -3,11 +3,13 @@ package org.eulerdb.kernel.test;
 import org.eulerdb.kernel.EdbTransactionalGraph;
 import org.junit.Assert;
 
+import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.TransactionalGraph;
+import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.TransactionalGraph.Conclusion;
 
-public class BasicTest3 {
+public class failedCase2 {
 	//failed case, cross update
 	public static void main(String[] args) {
 		EdbTransactionalGraph graph = new EdbTransactionalGraph(
@@ -19,5 +21,6 @@ public class BasicTest3 {
 		Assert.assertEquals("failure", edge.getProperty("transaction-2"));
 		graph.stopTransaction(Conclusion.FAILURE);
 		Assert.assertNull(edge.getProperty("transaction-2"));
+		
 	}
 }
