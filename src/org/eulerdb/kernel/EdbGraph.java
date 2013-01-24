@@ -227,7 +227,7 @@ public class EdbGraph implements Graph {
 		EdbEdge e2 = (EdbEdge) arg0;
 
 		EdbVertex n = (EdbVertex) e2.getVertex(Direction.OUT);
-		if (mStorage.containsKey(storeType.VERTEX, getTransaction(), n.getId())) {// check
+		if (n!=null) {// check
 																		// whether
 																		// vertex
 																		// still
@@ -245,7 +245,7 @@ public class EdbGraph implements Graph {
 		}
 
 		EdbVertex n2 = (EdbVertex) e2.getVertex(Direction.IN);
-		if (mStorage.containsKey(storeType.VERTEX, getTransaction(), n2.getId())) {// check
+		if (n2!=null) {// check
 																		// whether
 																		// vertex
 																		// still
@@ -276,11 +276,11 @@ public class EdbGraph implements Graph {
 			e1.printStackTrace();
 		}
 
-		for (Edge e : arg0.getEdges(Direction.IN, null)) {
+		for (Edge e : arg0.getEdges(Direction.IN)) {
 			removeEdge(e);
 		}
 
-		for (Edge e : arg0.getEdges(Direction.OUT, null)) {
+		for (Edge e : arg0.getEdges(Direction.OUT)) {
 			removeEdge(e);
 		}
 

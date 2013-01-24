@@ -45,7 +45,7 @@ public class EdbGraphTest extends GraphTest {
 
     public void testEdgeTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new EdgeTestSuite(this));
+        doTestSuite(new EdgeTestSuite(this));
         printTestPerformance("EdgeTestSuite", this.stopWatch());
     }
 

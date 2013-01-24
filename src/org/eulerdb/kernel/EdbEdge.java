@@ -22,16 +22,16 @@ public class EdbEdge implements Edge, Serializable {
 	private static final long serialVersionUID = 1034618974276848252L;
 	private static List<String> sBlackList = Arrays.asList(new String[] { "id",
 			"label" });
-	private EdbVertex mFromVertex; // head/in
-	private EdbVertex mToVertex; // tail/out
+	private String mFromVertex; // head/in
+	private String mToVertex; // tail/out
 	private String mRelation;
 	private String mId;
 	private Map<String, Object> mProps;
 	protected transient static EdbStorage mStorage = null;
 
 	public EdbEdge(Vertex n1, Vertex n2, Object id, String relation) {
-		mFromVertex = (EdbVertex) n1;
-		mToVertex = (EdbVertex) n2;
+		mFromVertex = (String) n1.getId();
+		mToVertex =	(String) n2.getId();
 		mRelation = relation;
 		mId = n1.getId() + "_" + relation + "_" + n2.getId();// FIXME id is not
 																// used here
@@ -82,16 +82,16 @@ public class EdbEdge implements Edge, Serializable {
 		if (arg0 == Direction.BOTH)
 			throw new IllegalArgumentException("direction should be both");
 		else if (arg0 == Direction.IN)
-			return mToVertex;
+			return (Vertex) mStorage.getObj(storeType.VERTEX, EdbTransactionalGraph.txs.get(), mToVertex);
 		else if (arg0 == Direction.OUT)
-			return mFromVertex;
+			return (Vertex) mStorage.getObj(storeType.VERTEX, EdbTransactionalGraph.txs.get(), mFromVertex);
 
 		return null;
 	}
 
 	public Vertex getToVertex() {
 
-		return mToVertex;
+		return (Vertex) mStorage.getObj(storeType.VERTEX, EdbTransactionalGraph.txs.get(), mFromVertex);
 	}
 
 	@Override
