@@ -18,6 +18,6 @@ public class BasicTest3 {
 		edge.setProperty("transaction-2", "failure");
 		Assert.assertEquals("failure", edge.getProperty("transaction-2"));
 		graph.stopTransaction(Conclusion.FAILURE);
-		System.out.println(edge.getProperty("transaction-2"));
+		Assert.assertNull(edge.getProperty("transaction-2"));
 	}
 }

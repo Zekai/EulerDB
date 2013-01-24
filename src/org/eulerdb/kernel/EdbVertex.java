@@ -95,7 +95,7 @@ public class EdbVertex implements Vertex, Serializable {
 			throw new IllegalArgumentException(arg0
 					+ " is not allowed to be used as property name");
 		mProps.put(arg0, arg1);
-		mStorage.store(storeType.VERTEX, EdbGraph.mTx, this);//FIXME this code make it nontransactional
+		mStorage.store(storeType.VERTEX, EdbTransactionalGraph.mTx.get(), this);//FIXME this code make it nontransactional
 	}
 
 	@Override
