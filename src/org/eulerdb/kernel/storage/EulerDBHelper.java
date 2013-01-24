@@ -58,6 +58,7 @@ public class EulerDBHelper {
 				// db will be created if not exits
 				dbConf.setAllowCreate(true);
 				dbConf.setDeferredWrite(true);
+				dbConf.setSortedDuplicates(true);
 			}
 		} else {
 
