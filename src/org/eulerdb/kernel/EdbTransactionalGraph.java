@@ -33,7 +33,7 @@ import com.tinkerpop.blueprints.util.ExceptionFactory;
 public class EdbTransactionalGraph extends EdbGraph implements
 		TransactionalGraph {
 
-	protected final static ThreadLocal<Transaction> mTx = new ThreadLocal<Transaction>() {
+	protected final static ThreadLocal<Transaction> txs = new ThreadLocal<Transaction>() {
 		protected Transaction initialValue() {
 			return null;
 		}
@@ -51,7 +51,6 @@ public class EdbTransactionalGraph extends EdbGraph implements
 
 	public EdbTransactionalGraph(String path) {
 		super(path, true);
-		autoStartTransaction();
 		mStatus = Status.FRESH;
 	}
 
@@ -74,37 +73,37 @@ public class EdbTransactionalGraph extends EdbGraph implements
 
 	@Override
 	public Edge getEdge(Object arg0) {
-		autoStartTransaction();
+		//autoStartTransaction();
 		return super.getEdge(arg0);
 	}
 
 	@Override
 	public Iterable<Edge> getEdges() {
-		autoStartTransaction();
+		//autoStartTransaction();
 		return super.getEdges();
 	}
 
 	@Override
 	public Iterable<Edge> getEdges(String arg0, Object arg1) {
-		autoStartTransaction();
+		//autoStartTransaction();
 		return super.getEdges(arg0, arg1);
 	}
 
 	@Override
 	public Vertex getVertex(Object arg0) {
-		autoStartTransaction();
+		//autoStartTransaction();
 		return super.getVertex(arg0);
 	}
 
 	@Override
 	public Iterable<Vertex> getVertices() {
-		autoStartTransaction();
+		//autoStartTransaction();
 		return super.getVertices();
 	}
 
 	@Override
 	public Iterable<Vertex> getVertices(String arg0, Object arg1) {
-		autoStartTransaction();
+		//autoStartTransaction();
 		return super.getVertices(arg0, arg1);
 	}
 
@@ -123,71 +122,64 @@ public class EdbTransactionalGraph extends EdbGraph implements
 	}
 
 	private void autoStartTransaction() {
-
-		if (mTx.get() == null) {
-
-			mTx.set(mEdbHelper.getEnvironment().beginTransaction(null, null));
+		if (txs.get() == null) {
+			txs.set(mEdbHelper.getEnvironment().beginTransaction(null, null));
 		}
-		//mTx.get();
 	}
 
 	@Override
 	public void startTransaction() throws IllegalStateException {
-		if (mTx.get() == null) {
-			mTx.set(mEdbHelper.getEnvironment().beginTransaction(null, null));
-
+		if (txs.get() == null) {
+			txs.set(mEdbHelper.getEnvironment().beginTransaction(null, null));
 		} else
 			throw ExceptionFactory.transactionAlreadyStarted();
 
-		//mTx = mTx.get();
 	}
 
 	@Override
 	public void stopTransaction(Conclusion conclusion) {
 		mStorage.closeCursor();
-		if (null == mTx.get()) {
+		if (null == txs.get()) {
 			return;
 		}
 
 		try {
 			if (conclusion.equals(Conclusion.SUCCESS))
-				mTx.get().commit();
+				commit();
 			else
-				mTx.get().abort();
-		} finally {
-			mTx.remove();
+				abort();
+		} catch (XAException e)
+		{
+			
+		}finally {
+			txs.remove();
 		}
 
 	}
+	
+	@Override
+	protected Transaction getTransaction(){
+		return txs.get();
+	}
 
 	private void commit() throws XAException {
-		if (mTx == null)
-			return;
-		mTx.get().commit();
-		//mTx = null;
-		mTx.remove();
+		txs.get().commit();
 		mStatus = Status.END;
 	}
 
 	private void abort() throws XAException {
-		// if(mTx==null) return;
-		mTx.get().abort();
-		//mTx = null;
-		mTx.remove();
-		mStorage.resetCache(mTx.get());
+		txs.get().abort();
+		mStorage.resetCache(txs.get());
 		mStatus = Status.END;
 	}
 
 	@Override
 	public void shutdown() {
 		mStorage.closeCursor();
-		// if (mTx != null)
-
-		if (null != mTx.get()) {
-			mTx.get().commit();
-			mTx.remove();
+		if (null != txs.get()) {
+			txs.get().commit();
+			txs.remove();
 		}
-
 		super.shutdown();
 	}
 

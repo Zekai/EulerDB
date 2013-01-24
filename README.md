@@ -16,7 +16,7 @@ Copyright 2013 Zekai Huang
    limitations under the License.
    
 
-EulerDB is a Graph Database, and it started with a story about connecting the dots. Steve Jobs said "you have to trust that the dots will somehow connect in your future". So mine are about 3 dots.
+EulerDB is a Graph Database, and it started with a story about connecting the dots. Steve Jobs said "you have to trust that the dots will somehow connect in your future". And mine are about 3 dots.
 
 Dot 1: Passion: Robotics and AI
 
@@ -31,10 +31,10 @@ Dot 3: Career: Graph Database (GD) or Google's Devil
 Google lusted me for an interview. Thus I read some books about some profound topics on Graph. While I was waiting for the result, I made a prototype of this project. After a long wait, I got declined, but I think it would be a good idea to connect the dots.
 
 
-This would be a graph database with a focus of knowledge representation.
+This would be a graph database with a focus of knowledge representation (also interest network).
 
 EulerDB is 
 
- * NoSQL graph-based database (Since V0.1.0)
+ * A NoSQL graph-based database (Since V0.1.0)
  * Transactional database (will be from V0.2.0)
  * With an application focus on Knowledge Representation (planing after V1.0)

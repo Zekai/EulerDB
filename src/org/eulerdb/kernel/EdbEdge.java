@@ -65,7 +65,7 @@ public class EdbEdge implements Edge, Serializable {
 			throw new IllegalArgumentException(arg0
 					+ " is not allowed to be used as property name");
 		mProps.put(arg0, arg1);
-		mStorage.store(storeType.EDGE, EdbTransactionalGraph.mTx.get(), this);
+		mStorage.store(storeType.EDGE, EdbTransactionalGraph.txs.get(), this);
 
 	}
 
