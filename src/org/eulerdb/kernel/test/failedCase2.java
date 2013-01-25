@@ -1,5 +1,6 @@
 package org.eulerdb.kernel.test;
 
+import org.eulerdb.kernel.EdbGraph;
 import org.eulerdb.kernel.EdbTransactionalGraph;
 import org.eulerdb.kernel.helper.EdbHelper;
 import org.junit.Assert;
@@ -13,7 +14,7 @@ import com.tinkerpop.blueprints.TransactionalGraph.Conclusion;
 public class failedCase2 {
 	//failed case, cross update
 	public static void main(String[] args) {
-		EdbTransactionalGraph graph = new EdbTransactionalGraph(
+		EdbGraph graph = new EdbGraph(
 				"./temp/basicTest3");
 		/*Edge edge = graph.addEdge(null, graph.addVertex(null),
 				graph.addVertex(null), "test");

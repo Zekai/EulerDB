@@ -195,13 +195,13 @@ public class EdbVertex implements Vertex, Serializable {
 	}
 
 	void removeInEdge(EdbEdge e) {
-		mStorage.delete(storeType.VERTEX_IN, null, e.getVertexId(Direction.IN));
+		mStorage.delete(storeType.VERTEX_IN, null, mId);
 		// mInRelationMap.remove(e.getLabel(), e.getVertex(Direction.IN));
 
 	}
 
 	void removeOutEdge(EdbEdge e) {
-		mStorage.delete(storeType.VERTEX_OUT, null, e.getVertexId(Direction.OUT));
+		mStorage.delete(storeType.VERTEX_OUT, null, mId);
 		// mOutRelationMap.remove(e.getLabel(), e.getVertex(Direction.OUT));
 
 	}

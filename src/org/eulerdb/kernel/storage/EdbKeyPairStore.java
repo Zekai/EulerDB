@@ -63,6 +63,7 @@ public class EdbKeyPairStore {
 	public OperationStatus delete(Transaction tx,byte[] id) {
 		DatabaseEntry key = new DatabaseEntry(id);
 		return mStore.delete(tx, key);
+		
 	}
 
 	public long count() {
