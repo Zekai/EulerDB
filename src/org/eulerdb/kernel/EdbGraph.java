@@ -93,18 +93,18 @@ public class EdbGraph implements Graph {
 
 		EdbEdge e = new EdbEdge(n1, n2, id, relation);
 		if(n1.equals(n2)){//self loop
-			mStorage.store(storeType.EDGE, getTransaction(), e);
+			mStorage.store(storeType.EDGE, getTransaction(), (String)e.getId(),e);
 			((EdbVertex) n1).addOutEdge(e);
 			((EdbVertex) n1).addInEdge(e);
-			mStorage.store(storeType.VERTEX, getTransaction(), n1);
+			mStorage.store(storeType.VERTEX, getTransaction(), (String)n1.getId(),n1);
 		}
 		else
 		{
-			mStorage.store(storeType.EDGE, getTransaction(), e);
+			mStorage.store(storeType.EDGE, getTransaction(),(String)e.getId(), e);
 			((EdbVertex) n1).addOutEdge(e);
 			((EdbVertex) n2).addInEdge(e);
-			mStorage.store(storeType.VERTEX, getTransaction(), n1);// store(mNodePairs,n1);
-			mStorage.store(storeType.VERTEX, getTransaction(), n2);// store(mNodePairs,n2);
+			mStorage.store(storeType.VERTEX, getTransaction(),(String)n1.getId(), n1);// store(mNodePairs,n1);
+			mStorage.store(storeType.VERTEX, getTransaction(),(String)n2.getId(), n2);// store(mNodePairs,n2);
 		}
 		return e;
 	}
@@ -121,7 +121,7 @@ public class EdbGraph implements Graph {
 	@Override
 	public Vertex addVertex(Object id) {
 		EdbVertex v = new EdbVertex(id);
-		mStorage.store(storeType.VERTEX, getTransaction(), v);
+		mStorage.store(storeType.VERTEX, getTransaction(),(String)v.getId(), v);
 
 		return v;
 	}
@@ -241,7 +241,7 @@ public class EdbGraph implements Graph {
 																		// the
 																		// edge
 			n.removeOutEdge(e2);
-			mStorage.store(storeType.VERTEX, getTransaction(), n);
+			mStorage.store(storeType.VERTEX, getTransaction(),(String)n.getId(), n);
 		}
 
 		EdbVertex n2 = (EdbVertex) e2.getVertex(Direction.IN);
@@ -259,7 +259,7 @@ public class EdbGraph implements Graph {
 																		// the
 																		// edge
 			n2.removeInEdge(e2);
-			mStorage.store(storeType.VERTEX, getTransaction(), n2);
+			mStorage.store(storeType.VERTEX, getTransaction(),(String)n2.getId(), n2);
 		}
 
 		mStorage.delete(storeType.EDGE, getTransaction(), e2);
@@ -284,7 +284,7 @@ public class EdbGraph implements Graph {
 			removeEdge(e);
 		}
 
-		mStorage.delete(storeType.VERTEX, getTransaction(), arg0);// remove(key);
+		mStorage.delete(storeType.VERTEX, getTransaction(), arg0.getId());// remove(key);
 
 	}
 

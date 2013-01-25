@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,8 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eulerdb.kernel.iterator.EdbNodeEdgeProIterable;
+import org.eulerdb.kernel.iterator.EdbNodeProIterable;
 import org.eulerdb.kernel.iterator.IteratorFactory;
 import org.eulerdb.kernel.storage.EdbStorage;
 import org.eulerdb.kernel.storage.EdbStorage.storeType;
@@ -21,6 +24,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Multimap;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
@@ -46,8 +50,7 @@ public class EdbVertex implements Vertex, Serializable {
 	// private Multimap<String, EdbVertex> mInRelationMap;
 	// private Multimap<String, EdbVertex> mOutRelationMap;
 
-	private List<EdbEdge> mInEdges;
-	private List<EdbEdge> mOutEdges;
+	//private List<EdbEdge> mInEdges;
 	private Map<String, Object> mProps;
 
 	public EdbVertex(Object id) {
@@ -60,8 +63,8 @@ public class EdbVertex implements Vertex, Serializable {
 		if (mStorage == null)
 			mStorage = EdbStorage.getInstance();
 
-		mInEdges = new CopyOnWriteArrayList<EdbEdge>();
-		mOutEdges = new CopyOnWriteArrayList<EdbEdge>();
+		//mInEdges = new CopyOnWriteArrayList<EdbEdge>();
+		//mOutEdges = new CopyOnWriteArrayList<EdbEdge>();
 		mProps = new HashMap<String, Object>();
 	}
 
@@ -96,7 +99,7 @@ public class EdbVertex implements Vertex, Serializable {
 			throw new IllegalArgumentException(arg0
 					+ " is not allowed to be used as property name");
 		mProps.put(arg0, arg1);
-		mStorage.store(storeType.VERTEX, EdbTransactionalGraph.txs.get(), this);// FIXME
+		mStorage.store(storeType.VERTEX, EdbTransactionalGraph.txs.get(), mId,this);// FIXME
 																				// this
 																				// code
 																				// make
@@ -109,48 +112,20 @@ public class EdbVertex implements Vertex, Serializable {
 
 		if (arg1 == null || arg1.length == 0) {
 			if (arg0 == Direction.IN) {
-				return IteratorFactory.getEdgeIterator(mInEdges);// return// new
-				// EdbEdgeIteratorFromCollection(mInEdges.iterator());
+				return new EdbNodeEdgeProIterable(mStorage.getDupCursor(storeType.VERTEX_IN, EdbTransactionalGraph.txs.get()),mId);
 			} else if (arg0 == Direction.OUT) {
-				return IteratorFactory.getEdgeIterator(mOutEdges);// return new
-				// EdbEdgeIteratorFromCollection(mOutEdges.iterator());
+				return new EdbNodeEdgeProIterable(mStorage.getDupCursor(storeType.VERTEX_OUT, EdbTransactionalGraph.txs.get()),mId);// return new
 			} else if (arg0 == Direction.BOTH) {
-				List<EdbEdge> total = new CopyOnWriteArrayList<EdbEdge>();//
+				/*List<EdbEdge> total = new CopyOnWriteArrayList<EdbEdge>();//
 				total.addAll(mInEdges);
 				total.addAll(mOutEdges);
-				return IteratorFactory.getEdgeIterator(total);// return
+				return IteratorFactory.getEdgeIterator(total);*/// return
 																// new
 																// EdbEdgeIteratorFromCollection(total.iterator());
 			}
 		} else {
 
-			final List<String> relation = Arrays.asList(arg1);
-			// labels
-			Predicate<Edge> relationFilter = new Predicate<Edge>() {
-				public boolean apply(Edge e) {
-					return relation.contains(e.getLabel());// e.getLabel().equals(relation);
-				}
-			};
-
-			if (arg0 == Direction.IN) {
-				return IteratorFactory.getEdgeIterator(Collections2.filter(
-						mInEdges, relationFilter));
-				// new
-				// EdbEdgeIteratorFromCollection(mInEdges.iterator());
-			} else if (arg0 == Direction.OUT) {
-				return IteratorFactory.getEdgeIterator(Collections2.filter(
-						mOutEdges, relationFilter));
-				// return
-				// new
-				// EdbEdgeIteratorFromCollection(mOutEdges.iterator());
-			} else if (arg0 == Direction.BOTH) {
-				List<EdbEdge> total = new CopyOnWriteArrayList<EdbEdge>();//
-				total.addAll(mInEdges);
-				total.addAll(mOutEdges);
-				return IteratorFactory.getEdgeIterator(Collections2.filter(
-						total, relationFilter));// return new
-												// EdbEdgeIteratorFromCollection(total.iterator());
-			}
+			
 		}
 
 		return null;
@@ -173,93 +148,25 @@ public class EdbVertex implements Vertex, Serializable {
 
 		if (arg1 == null || arg1.length == 0) {
 
-			Function<EdbEdge, EdbVertex> inF = new Function<EdbEdge, EdbVertex>() {
-				@Override
-				public EdbVertex apply(final EdbEdge edge) {
-					return (EdbVertex) edge.getVertex(Direction.OUT);// that is
-																		// the
-																		// from
-																		// vertex
-				}
-			};
-
-			Function<EdbEdge, EdbVertex> outF = new Function<EdbEdge, EdbVertex>() {
-				@Override
-				public EdbVertex apply(final EdbEdge edge) {
-					return (EdbVertex) edge.getVertex(Direction.IN);// that is
-																	// the to
-																	// vertex
-				}
-			};
-
 			if (arg0 == Direction.IN) {
-				return IteratorFactory.getVertexIterator(Collections2
-						.transform(mInEdges, inF));// new
-				// EdbEdgeIteratorFromCollection(mInEdges.iterator());
+				return new EdbNodeProIterable(mStorage.getDupCursor(storeType.VERTEX_IN,null),Direction.OUT,mId);
 			} else if (arg0 == Direction.OUT) {
-				return IteratorFactory.getVertexIterator(Collections2
-						.transform(mOutEdges, outF));// return
+						
+				return new EdbNodeProIterable(mStorage.getDupCursor(storeType.VERTEX_OUT,null),Direction.IN,mId);
+						
 				// new
 				// EdbEdgeIteratorFromCollection(mOutEdges.iterator());
 			} else if (arg0 == Direction.BOTH) {
-				List<EdbVertex> total = new ArrayList<EdbVertex>();//
+				/*List<EdbVertex> total = new ArrayList<EdbVertex>();//
 				total.addAll(Collections2.transform(mInEdges, inF));
 				total.addAll(Collections2.transform(mOutEdges, outF));
-				return IteratorFactory.getVertexIterator(total);
+				return IteratorFactory.getVertexIterator(total);*/
 			}
 
 			throw new IllegalArgumentException("Wrong direction type: "
 					+ arg0.toString());
 		} else {
-			final String relation = arg1[0];// FIXME should allows more than one
-											// labels
-
-			Predicate<Edge> relationFilter = new Predicate<Edge>() {
-				public boolean apply(Edge e) {
-					return e.getLabel().equals(relation);
-				}
-			};
-
-			Function<EdbEdge, EdbVertex> inF = new Function<EdbEdge, EdbVertex>() {
-				@Override
-				public EdbVertex apply(final EdbEdge edge) {
-					return (EdbVertex) edge.getVertex(Direction.OUT);// that is
-																		// the
-																		// from
-																		// vertex
-				}
-			};
-
-			Function<EdbEdge, EdbVertex> outF = new Function<EdbEdge, EdbVertex>() {
-				@Override
-				public EdbVertex apply(final EdbEdge edge) {
-					return (EdbVertex) edge.getVertex(Direction.IN);// that is
-																	// the to
-																	// vertex
-				}
-			};
-
-			if (arg0 == Direction.IN) {
-				return IteratorFactory.getVertexIterator(Collections2
-						.transform(
-								Collections2.filter(mInEdges, relationFilter),
-								inF));// new
-				// EdbEdgeIteratorFromCollection(mInEdges.iterator());
-			} else if (arg0 == Direction.OUT) {
-				return IteratorFactory.getVertexIterator(Collections2
-						.transform(
-								Collections2.filter(mOutEdges, relationFilter),
-								outF));// return
-				// new
-				// EdbEdgeIteratorFromCollection(mOutEdges.iterator());
-			} else if (arg0 == Direction.BOTH) {
-				List<EdbVertex> total = new ArrayList<EdbVertex>();//
-				total.addAll(Collections2.transform(
-						Collections2.filter(mInEdges, relationFilter), inF));
-				total.addAll(Collections2.transform(
-						Collections2.filter(mOutEdges, relationFilter), outF));
-				return IteratorFactory.getVertexIterator(total);
-			}
+			
 		}
 		return null;
 
@@ -279,24 +186,22 @@ public class EdbVertex implements Vertex, Serializable {
 	void addInEdge(EdbEdge e) {
 		// mInRelationMap.put(e.getLabel(),
 		// (EdbVertex)e.getVertex(Direction.IN));
-		mInEdges.remove(e);
-		mInEdges.add(e);
+		mStorage.store(storeType.VERTEX_IN, null, mId,e);
 	}
 
 	void addOutEdge(EdbEdge e) {
 		// mOutRelationMap.put(e.getLabel(), (EdbVertex) e.getToVertex());
-		mOutEdges.remove(e);
-		mOutEdges.add(e);
+		mStorage.store(storeType.VERTEX_OUT, null, mId,e);
 	}
 
 	void removeInEdge(EdbEdge e) {
-		mInEdges.remove(e);
+		mStorage.delete(storeType.VERTEX_IN, null, e.getVertexId(Direction.IN));
 		// mInRelationMap.remove(e.getLabel(), e.getVertex(Direction.IN));
 
 	}
 
 	void removeOutEdge(EdbEdge e) {
-		mOutEdges.remove(e);
+		mStorage.delete(storeType.VERTEX_OUT, null, e.getVertexId(Direction.OUT));
 		// mOutRelationMap.remove(e.getLabel(), e.getVertex(Direction.OUT));
 
 	}

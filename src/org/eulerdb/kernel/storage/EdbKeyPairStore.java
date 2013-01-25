@@ -37,11 +37,11 @@ public class EdbKeyPairStore {
 	
 	
 	
-	public EdbKeyPairStore(EulerDBHelper edbHelper,String name) {
+	public EdbKeyPairStore(EulerDBHelper edbHelper,String name,boolean dup) {
 		mEdbHelper = edbHelper;
 		//Transaction txn0 =  edbHelper.getEnvironment().beginTransaction(null, null);
 		mStore = mEdbHelper.getEnvironment().openDatabase(null, name,
-				mEdbHelper.getDatabaseConfig());
+				dup?mEdbHelper.getDatabaseConfig2():mEdbHelper.getDatabaseConfig());
 		//txn0.commit();
 		
 	};
@@ -50,7 +50,7 @@ public class EdbKeyPairStore {
 		
 		DatabaseEntry d_key = new DatabaseEntry(key);
 		DatabaseEntry d_value = new DatabaseEntry(value);
-		mStore.delete(tx, d_key);
+		//mStore.delete(tx, d_key);
 		return mStore.put(tx, d_key, d_value);
 	}
 
@@ -75,7 +75,6 @@ public class EdbKeyPairStore {
 
 	public void sync() {
 		mStore.sync();
-
 	}
 
 	public Cursor getCursor(Transaction tx) {

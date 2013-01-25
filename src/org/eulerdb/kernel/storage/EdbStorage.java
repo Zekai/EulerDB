@@ -20,9 +20,11 @@ import com.tinkerpop.blueprints.Element;
 public class EdbStorage {
 	private static EdbStorage instance = null;
 	
-	public static enum storeType {VERTEX,EDGE};
+	public static enum storeType {VERTEX,EDGE,VERTEX_OUT,VERTEX_IN};
 	private static EdbKeyPairStore mNodePairs;
 	private static EdbKeyPairStore mEdgePairs;
+	private static EdbKeyPairStore mNodeOutPairs;
+	private static EdbKeyPairStore mNodeInPairs;
 	private static EdbCaching mCache;
 	private static EulerDBHelper mEdbHelper = null;
 	private static boolean mTransactional;
@@ -55,11 +57,19 @@ public class EdbStorage {
 			mEdbHelper = EulerDBHelper.getInstance(path,mTransactional);
 		}
 		if (mNodePairs == null) {
-			mNodePairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXSTORE);
+			mNodePairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXSTORE,false);
 		}
 		
 		if (mEdgePairs == null) {
-			mEdgePairs = new EdbKeyPairStore(mEdbHelper,Common.EDGESTORE);
+			mEdgePairs = new EdbKeyPairStore(mEdbHelper,Common.EDGESTORE,false);
+		}
+		
+		if (mNodeOutPairs == null) {
+			mNodeOutPairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXOUTSTORE,true);
+		}
+		
+		if (mNodeInPairs == null) {
+			mNodeInPairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXINSTORE,true);
 		}
 
 	}
@@ -70,16 +80,19 @@ public class EdbStorage {
 			return mNodePairs;
 		case EDGE:
 			return mEdgePairs;
+		case VERTEX_OUT:
+			return mNodeOutPairs;
+		case VERTEX_IN:
+			return mNodeInPairs;
 		default:
 			throw new IllegalArgumentException("Type "+ type +" is unknown.");
 		}
 	}
 	
-	public void store(storeType type,Transaction tx,Element n) {
+	public void store(storeType type,Transaction tx,String id,Element n) {
 		try {
-			getStore(type).put(tx,ByteArrayHelper.serialize(n.getId()),
+			getStore(type).put(tx,ByteArrayHelper.serialize(id),
 					ByteArrayHelper.serialize(n));
-			//getCursor(type,tx);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -93,12 +106,12 @@ public class EdbStorage {
 		return tx==null?0:tx.getId();
 	}
 	
-	public void delete(storeType type,Transaction tx,Element o){
+	public void delete(storeType type,Transaction tx,Object id){
 		try {
-			getStore(type).delete(tx,ByteArrayHelper.serialize(o.getId()));
+			getStore(type).delete(tx,ByteArrayHelper.serialize(id));
 			//getCursor(type,tx);
 			if(type == storeType.VERTEX) 
-				mCache.remove((String)o.getId(),getTransactionId(tx));
+				mCache.remove((String)id,getTransactionId(tx));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -144,6 +157,23 @@ public class EdbStorage {
 		} 
 	}
 	
+	public Cursor getDupCursor(storeType type,Transaction tx){
+		switch(type)
+		{
+		case VERTEX_OUT:
+		{
+			return mNodeOutPairs.getCursor(tx);
+		}
+		case VERTEX_IN:
+		{
+			return mNodeInPairs.getCursor(tx);
+		}
+		default:
+			break;
+		}
+		return null;
+	}
+	
 	public boolean containsKey(storeType type,Transaction tx,String key) {
 		try {
 			if(getStore(type).get(tx, ByteArrayHelper.serialize(key))!=null)
@@ -171,6 +201,10 @@ public class EdbStorage {
 		mEdgePairs.close();
 		mNodePairs = null;
 		mEdgePairs = null;
+		mNodeOutPairs.close();
+		mNodeOutPairs = null;
+		mNodeInPairs.close();
+		mNodeInPairs = null;
 		mEdbHelper.closeEnv();
 		mEdbHelper = null;
 		mCache = null;
@@ -178,6 +212,8 @@ public class EdbStorage {
 	}
 	
 	public void commit() {
+		mNodeOutPairs.sync();
+		mNodeInPairs.sync();
 		mNodePairs.sync();
 		mEdgePairs.sync();
 	}

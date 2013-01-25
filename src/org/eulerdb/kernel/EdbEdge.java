@@ -65,7 +65,7 @@ public class EdbEdge implements Edge, Serializable {
 			throw new IllegalArgumentException(arg0
 					+ " is not allowed to be used as property name");
 		mProps.put(arg0, arg1);
-		mStorage.store(storeType.EDGE, EdbTransactionalGraph.txs.get(), this);
+		mStorage.store(storeType.EDGE, EdbTransactionalGraph.txs.get(), mId,this);
 
 	}
 
@@ -82,16 +82,27 @@ public class EdbEdge implements Edge, Serializable {
 		if (arg0 == Direction.BOTH)
 			throw new IllegalArgumentException("direction should be both");
 		else if (arg0 == Direction.IN)
-			return (Vertex) mStorage.getObj(storeType.VERTEX, EdbTransactionalGraph.txs.get(), mToVertex);
+			return (Vertex) mStorage.getObj(storeType.VERTEX, null, mToVertex);
 		else if (arg0 == Direction.OUT)
-			return (Vertex) mStorage.getObj(storeType.VERTEX, EdbTransactionalGraph.txs.get(), mFromVertex);
+			return (Vertex) mStorage.getObj(storeType.VERTEX, null, mFromVertex);
+
+		return null;
+	}
+	
+	public String getVertexId(Direction arg0) {
+		if (arg0 == Direction.BOTH)
+			throw new IllegalArgumentException("direction should be both");
+		else if (arg0 == Direction.IN)
+			return mToVertex;
+		else if (arg0 == Direction.OUT)
+			return mFromVertex;
 
 		return null;
 	}
 
 	public Vertex getToVertex() {
 
-		return (Vertex) mStorage.getObj(storeType.VERTEX, EdbTransactionalGraph.txs.get(), mFromVertex);
+		return (Vertex) mStorage.getObj(storeType.VERTEX, null, mFromVertex);
 	}
 
 	@Override

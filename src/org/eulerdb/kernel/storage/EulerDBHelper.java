@@ -20,6 +20,7 @@ public class EulerDBHelper {
 	private static Environment dbEnv = null;
 
 	private static DatabaseConfig dbConf = null;
+	private static DatabaseConfig dbConf2 = null;
 
 	private static boolean mTransactional;
 
@@ -90,6 +91,12 @@ public class EulerDBHelper {
 				dbConf.setKeyPrefixing(keyPrefixing);
 			}
 		}
+		
+		dbConf2 = new DatabaseConfig();
+		dbConf2.setAllowCreate(true);
+		dbConf2.setSortedDuplicates(true);
+		dbConf2.setKeyPrefixing(keyPrefixing);
+		dbConf2.setDeferredWrite(true);
 
 	}
 	
@@ -109,6 +116,10 @@ public class EulerDBHelper {
 
 	public DatabaseConfig getDatabaseConfig() {
 		return dbConf;
+	}
+	
+	public DatabaseConfig getDatabaseConfig2() {
+		return dbConf2;
 	}
 
 }
