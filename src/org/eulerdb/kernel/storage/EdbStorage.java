@@ -106,7 +106,7 @@ public class EdbStorage {
 	}
 	
 	public Object getObj(storeType type,Transaction tx, String id){
-		Object o = null; //mCache.get(id, tx.getId());
+		Object o = mCache.get(id, getTransactionId(tx));
 		if(o!=null) return o;
 		
 		try {

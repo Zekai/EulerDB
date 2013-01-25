@@ -36,6 +36,8 @@ public class failedCase2 {
         Assert.assertEquals(1, EdbHelper.count(graph.getVertices()));
         
         Assert.assertEquals(0, EdbHelper.count(v2.getEdges(Direction.IN)));
+        
+        System.out.print("Done===");
 		
 	}
 }
