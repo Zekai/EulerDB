@@ -14,6 +14,7 @@ public class EdbThreadedTransactionalGraph extends EdbTransactionalGraph impleme
 	@Override
 	public TransactionalGraph startThreadTransaction() {
 		// TODO Auto-generated method stub
+		this.mEdbHelper.getEnvironment().getThreadTransaction();
 		return null;
 	}
 	

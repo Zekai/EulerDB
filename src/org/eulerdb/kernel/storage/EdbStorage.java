@@ -3,8 +3,10 @@ package org.eulerdb.kernel.storage;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
+import org.eulerdb.kernel.EdbTransactionalGraph;
 import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
+import org.eulerdb.kernel.helper.EdbHelper;
 
 import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
@@ -79,11 +81,13 @@ public class EdbStorage {
 	private void initCache() {
 		CacheLoader<String, Optional<Vertex>> vertexLoader = new CacheLoader<String, Optional<Vertex>>() {
 			public Optional<Vertex> load(String key) {
+				String id = getRealId(key);
+				System.out.println("real "+ id);
 				Vertex o = null;
 				try {
 					o = (Vertex) ByteArrayHelper.deserialize(getStore(
-							storeType.VERTEX).get(null,
-							ByteArrayHelper.serialize(key)));
+							storeType.VERTEX).get(EdbTransactionalGraph.txs.get(),
+							ByteArrayHelper.serialize(id)));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -100,11 +104,12 @@ public class EdbStorage {
 
 		CacheLoader<String, Optional<Edge>> edgeLoader = new CacheLoader<String, Optional<Edge>>() {
 			public Optional<Edge> load(String key) {
+				String id = getRealId(key);
 				Edge o = null;
 				try {
 					o = (Edge) ByteArrayHelper.deserialize(getStore(
-							storeType.EDGE).get(null,
-							ByteArrayHelper.serialize(key)));
+							storeType.EDGE).get(EdbTransactionalGraph.txs.get(),
+							ByteArrayHelper.serialize(id)));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -150,7 +155,7 @@ public class EdbStorage {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		getCache(type).put((String) n.getId(), Optional.fromNullable(n));
+		getCache(type).put(getCacheId(EdbHelper.getTransactionId(tx),(String) n.getId()), Optional.fromNullable(n));
 	}
 
 	public void delete(storeType type, Transaction tx, Element o) {
@@ -161,13 +166,13 @@ public class EdbStorage {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		getCache(type).invalidate(o.getId());
+		getCache(type).invalidate(getCacheId(EdbHelper.getTransactionId(tx),(String)o.getId()));
 	}
 
 	public Object getObj(storeType type, Transaction tx, String id) {
 		Optional<Object> o = null;
 		try {
-			o = (Optional<Object>) getCache(type).get(id);
+			o = (Optional<Object>) getCache(type).get(getCacheId(EdbHelper.getTransactionId(tx),id));
 		} catch (ExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -198,7 +203,7 @@ public class EdbStorage {
 
 		}
 	}
-
+/*
 	public boolean containsKey(storeType type, Transaction tx, String key) {
 		try {
 			if (getStore(type).get(tx, ByteArrayHelper.serialize(key)) != null)
@@ -210,7 +215,7 @@ public class EdbStorage {
 		}
 		return false;
 	}
-
+*/
 	public void closeCursor() {
 		if (mEdgeCursor != null) {
 			mEdgeCursor.close();
@@ -246,6 +251,14 @@ public class EdbStorage {
 		mVertexCache.cleanUp();// FIXME shoudn't clear all, should clear for
 								// transaction, use region
 		mEdgeCache.cleanUp();
+	}
+	
+	private String getCacheId(Long tid,String id){
+		return tid+Common.SEPARATOR_CAHCEID+id;
+	}
+	
+	private String getRealId(String cacheId){
+		return cacheId.substring(cacheId.indexOf(Common.SEPARATOR_CAHCEID)+1);
 	}
 
 }

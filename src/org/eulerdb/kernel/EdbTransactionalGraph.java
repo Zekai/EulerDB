@@ -33,7 +33,7 @@ import com.tinkerpop.blueprints.util.ExceptionFactory;
 public class EdbTransactionalGraph extends EdbGraph implements
 		TransactionalGraph {
 
-	protected final static ThreadLocal<Transaction> txs = new ThreadLocal<Transaction>() {
+	public final static ThreadLocal<Transaction> txs = new ThreadLocal<Transaction>() {
 		protected Transaction initialValue() {
 			return null;
 		}

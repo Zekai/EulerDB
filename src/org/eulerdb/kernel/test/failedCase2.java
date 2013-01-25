@@ -15,16 +15,17 @@ public class failedCase2 {
 	public static void main(String[] args) {
 		EdbTransactionalGraph graph = new EdbTransactionalGraph(
 				"./temp/basicTest3");
-		/*Edge edge = graph.addEdge(null, graph.addVertex(null),
-				graph.addVertex(null), "test");
+		graph.startTransaction();
+		Edge edge = graph.addEdge(null, graph.addVertex(null),graph.addVertex(null), "test");
+		graph.stopTransaction(Conclusion.SUCCESS);
 		graph.startTransaction();
 		edge.setProperty("transaction-2", "failure");
 		Assert.assertEquals("failure", edge.getProperty("transaction-2"));
 		graph.stopTransaction(Conclusion.FAILURE);
-		Assert.assertNull(edge.getProperty("transaction-2"));*/
+		System.out.println(edge.getProperty("transaction-2"));
 		
-		
-		Vertex v1 = graph.addVertex( "1");
+		graph.shutdown();
+		/*Vertex v1 = graph.addVertex( "1");
         Vertex v2 = graph.addVertex( "2");
         graph.addEdge(null, v1, v2,  "knows");
 
@@ -37,7 +38,7 @@ public class failedCase2 {
         
         Assert.assertEquals(0, EdbHelper.count(v2.getEdges(Direction.IN)));
         
-        System.out.print("Done===");
+        System.out.print("Done===");*/
 		
 	}
 }
