@@ -3,24 +3,32 @@ package org.eulerdb.kernel.storage;
 import java.io.IOException;
 
 import org.eulerdb.kernel.helper.ByteArrayHelper;
+import org.eulerdb.kernel.helper.EdbHelper;
+
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
+import com.sleepycat.je.Transaction;
+import com.tinkerpop.blueprints.Vertex;
+
+import com.tinkerpop.blueprints.Element;
 
 public class EdbCursor {
 
 	private Cursor mCur;
 	private OperationStatus hasNext;
-
+	private static EdbCaching mCache;
 	private long cnt;
 	private long max;
+	private Transaction mTx;
 
-	public EdbCursor(Cursor cur) {
+	public EdbCursor(Cursor cur,Transaction tx) {
 		this.mCur = cur;
-
+		mCache = EdbCaching.getInstance();
 		max = cur.getDatabase().count();
 		cnt = 0;
+		mTx = tx;
 
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
@@ -111,7 +119,9 @@ public class EdbCursor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return v;
+		Object u = mCache.get((String)((Element)v).getId(),EdbHelper.getTransactionId(mTx));
+		if(u!=null) return u;
+		else return v;
 	}
 
 	public void remove() {

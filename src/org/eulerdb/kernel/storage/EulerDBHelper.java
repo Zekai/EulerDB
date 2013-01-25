@@ -49,7 +49,7 @@ public class EulerDBHelper {
 				envConf.setAllowCreate(true);
 				File f = new File(path);
 				if (!f.exists())
-					f.mkdir();
+					f.mkdirs();
 				dbEnv = new Environment(new File(path), envConf);
 			}
 			if (dbConf == null) {

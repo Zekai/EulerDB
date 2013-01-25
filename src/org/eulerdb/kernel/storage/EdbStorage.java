@@ -6,6 +6,7 @@ import org.eulerdb.kernel.EdbGraph;
 import org.eulerdb.kernel.EdbVertex;
 import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
+import org.eulerdb.kernel.helper.EdbHelper;
 
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.Transaction;
@@ -84,21 +85,15 @@ public class EdbStorage {
 			e.printStackTrace();
 		}
 		
-		if(type==storeType.VERTEX){
-			mCache.put((String)n.getId(),getTransactionId(tx), (EdbVertex)n);
-		}
+		mCache.put((String)n.getId(),EdbHelper.getTransactionId(tx), n);
 	}
 	
-	public Long getTransactionId(Transaction tx){
-		return tx==null?0:tx.getId();
-	}
+	
 	
 	public void delete(storeType type,Transaction tx,Element o){
 		try {
 			getStore(type).delete(tx,ByteArrayHelper.serialize(o.getId()));
-			//getCursor(type,tx);
-			if(type == storeType.VERTEX) 
-				mCache.remove((String)o.getId(),getTransactionId(tx));
+				mCache.remove((String)o.getId(),EdbHelper.getTransactionId(tx));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -106,7 +101,7 @@ public class EdbStorage {
 	}
 	
 	public Object getObj(storeType type,Transaction tx, String id){
-		Object o = mCache.get(id, getTransactionId(tx));
+		Object o = mCache.get(id, EdbHelper.getTransactionId(tx));
 		if(o!=null) return o;
 		
 		try {
@@ -118,7 +113,7 @@ public class EdbStorage {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(type == storeType.VERTEX) mCache.put(id, getTransactionId(tx), (EdbVertex) o);
+		mCache.put(id, EdbHelper.getTransactionId(tx), (EdbVertex) o);
 		
 		return o;
 	}
@@ -129,13 +124,13 @@ public class EdbStorage {
 		case EDGE:
 		{
 			if(mEdgeCursor!=null) mEdgeCursor.close();
-			mEdgeCursor = new EdbCursor(getStore(type).getCursor(tx));
+			mEdgeCursor = new EdbCursor(getStore(type).getCursor(tx),tx);
 			return mEdgeCursor;
 		}
 		case VERTEX:
 		{
 			if(mNodeCursor!=null) mNodeCursor.close();
-			mNodeCursor = new EdbCursor(getStore(type).getCursor(tx));
+			mNodeCursor = new EdbCursor(getStore(type).getCursor(tx),tx);
 			return mNodeCursor;
 		}
 		default:
@@ -183,7 +178,7 @@ public class EdbStorage {
 	}
 	
 	public void resetCache(Transaction tx){
-		mCache.clear(getTransactionId(tx));//FIXME shoudn't clear all, should clear for transaction, use region
+		mCache.clear(EdbHelper.getTransactionId(tx));//FIXME shoudn't clear all, should clear for transaction, use region
 	}
 
 

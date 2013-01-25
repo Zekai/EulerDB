@@ -13,6 +13,8 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.eulerdb.kernel.EdbVertex;
 
+import com.tinkerpop.blueprints.Element;
+
 import com.sleepycat.je.Transaction;
 
 class EdbCaching {
@@ -68,7 +70,7 @@ class EdbCaching {
 		return instance;
 	}
 
-	public void put(String id, Long tid,EdbVertex n) {
+	public void put(String id, Long tid,Element n) {
 		String key = regionKey + id+"_"+tid;
 		try {
 			// if it isn't null, insert it
@@ -81,9 +83,9 @@ class EdbCaching {
 		}
 	}
 
-	public EdbVertex get(String id,Long tid) {
+	public Element get(String id,Long tid) {
 		String key = regionKey + id+"_"+tid;
-		return (EdbVertex) cache.get(key);
+		return (Element) cache.get(key);
 	}
 
 	public void remove(String id,Long tid) {
