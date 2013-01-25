@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 import org.eulerdb.kernel.helper.EdbHelper;
+import org.eulerdb.kernel.storage.EdbStorage.storeType;
 
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.DatabaseEntry;
@@ -17,19 +18,21 @@ import com.tinkerpop.blueprints.Element;
 public class EdbCursor {
 
 	private Cursor mCur;
+	private storeType mType;
 	private OperationStatus hasNext;
-	private static EdbCaching mCache;
+	private static EdbStorage mStorage;
 	private long cnt;
 	private long max;
 	private Transaction mTx;
 
-	public EdbCursor(Cursor cur,Transaction tx) {
+	public EdbCursor(storeType type,Cursor cur,Transaction tx) {
+		mType = type;
 		this.mCur = cur;
-		mCache = EdbCaching.getInstance();
+		//mCache = EdbCaching.getInstance();
 		max = cur.getDatabase().count();
 		cnt = 0;
 		mTx = tx;
-
+		mStorage = EdbStorage.getInstance();
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
 		hasNext = mCur.getFirst(key, data, LockMode.DEFAULT);
@@ -102,7 +105,7 @@ public class EdbCursor {
 
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
-		Object v = null;
+		String v = null;
 
 		if (cnt == 0) {
 			mCur.getFirst(key, data, LockMode.DEFAULT);
@@ -111,7 +114,7 @@ public class EdbCursor {
 		}
 		cnt++;
 		try {
-			v = ByteArrayHelper.deserialize(data.getData());
+			v = (String) ByteArrayHelper.deserialize(key.getData());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -119,9 +122,8 @@ public class EdbCursor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Object u = mCache.get((String)((Element)v).getId(),EdbHelper.getTransactionId(mTx));
-		if(u!=null) return u;
-		else return v;
+		Object u = mStorage.getObj(mType, mTx, v);
+		return u;
 	}
 
 	public void remove() {

@@ -81,7 +81,7 @@ public class EdbGraphTest extends GraphTest {
 
     public void testTransactionalGraphTestSuite() throws Exception {
         this.stopWatch();
-        doTestSuite(new TransactionalGraphTestSuite(this));
+        //doTestSuite(new TransactionalGraphTestSuite(this));
         printTestPerformance("TransactionalGraphTestSuite", this.stopWatch());
     }
 
@@ -114,7 +114,7 @@ public class EdbGraphTest extends GraphTest {
         //deleteDirectory(f);
 
         f.mkdir();
-        EdbTransactionalGraph graph = new EdbTransactionalGraph(directory + "/" + graphDirectoryName);
+        EdbGraph graph = new EdbGraph(directory + "/" + graphDirectoryName);
         return graph;
     }
 
