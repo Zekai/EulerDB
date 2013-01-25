@@ -10,6 +10,7 @@ import org.eulerdb.kernel.helper.ByteArrayHelper;
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.Transaction;
 import com.tinkerpop.blueprints.Element;
+import com.tinkerpop.blueprints.Vertex;
 
 /**
  * Why this can be a singleton even while we are supporting multiple isolated EdbGraph instant and transactions?
@@ -89,7 +90,7 @@ public class EdbStorage {
 		}
 	}
 	
-	public void store(storeType type,Transaction tx,String id,Element n) {
+	public void store(storeType type,Transaction tx,String id,Object n) {
 		try {
 			getStore(type).put(tx,ByteArrayHelper.serialize(id),
 					ByteArrayHelper.serialize(n));
@@ -98,7 +99,7 @@ public class EdbStorage {
 		}
 		
 		if(type==storeType.VERTEX){
-			mCache.put((String)n.getId(),getTransactionId(tx), (EdbVertex)n);
+			mCache.put((String)((Vertex) n).getId(),getTransactionId(tx), (EdbVertex)n);
 		}
 	}
 	
