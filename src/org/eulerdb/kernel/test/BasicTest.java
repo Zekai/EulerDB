@@ -49,7 +49,7 @@ public class BasicTest {
 		for (Vertex v : g.getVertices()) {
 			System.out.println(v.getId() + " : ");
 			
-			for (Vertex u: ((EdbVertex)v).getVertices(Direction.IN, null))
+			for (Vertex u: ((EdbVertex)v).getVertices(Direction.OUT, null))
 			{
 				System.out.println("     "+u.getId()+" connects to "+ v.getId());
 			}
@@ -58,7 +58,7 @@ public class BasicTest {
 		
 		System.out.println("\nAll edges");
 		for (Edge e : g.getEdges()) {
-			System.out.println(e.getVertex(Direction.IN).getId()+" "+((EdbEdge) e).getLabel()+" "+e.getVertex(Direction.OUT).getId());
+			System.out.println(e.getVertex(Direction.OUT).getId()+" "+((EdbEdge) e).getLabel()+" "+e.getVertex(Direction.IN).getId());
 		}
 		
 	}
