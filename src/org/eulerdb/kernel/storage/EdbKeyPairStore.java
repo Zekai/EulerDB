@@ -41,7 +41,7 @@ public class EdbKeyPairStore {
 		mEdbHelper = edbHelper;
 		//Transaction txn0 =  edbHelper.getEnvironment().beginTransaction(null, null);
 		mStore = mEdbHelper.getEnvironment().openDatabase(null, name,
-				dup?mEdbHelper.getDatabaseConfig2():mEdbHelper.getDatabaseConfig());
+				mEdbHelper.getDatabaseConfig());
 		//txn0.commit();
 		
 	};

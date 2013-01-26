@@ -11,15 +11,15 @@ import com.tinkerpop.blueprints.Vertex;
 
 public class EdbVertexIterableFromCollection extends EdbVertexIterable {
 	
-	private Collection<EdbVertex> mIt;
+	private Collection<Vertex> mIt;
 
-	public EdbVertexIterableFromCollection(Collection<EdbVertex> it) {
+	public EdbVertexIterableFromCollection(Collection<Vertex> it) {
 		mIt = it;
 	}
 
 	@Override
 	public Iterator<Vertex> iterator() {
-		final Iterator<EdbVertex> it = mIt.iterator();
+		final Iterator<Vertex> it = mIt.iterator();
 		
 		 return new Iterator<Vertex>() {
 

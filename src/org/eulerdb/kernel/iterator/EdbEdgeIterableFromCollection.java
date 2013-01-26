@@ -13,15 +13,15 @@ import com.tinkerpop.blueprints.Vertex;
 
 public class EdbEdgeIterableFromCollection extends EdbEdgeIterable {
 	
-	private Collection<EdbEdge> mIt;
+	private Collection<Edge> mIt;
 
-	public EdbEdgeIterableFromCollection(Collection<EdbEdge> it) {
+	public EdbEdgeIterableFromCollection(Collection<Edge> it) {
 		mIt = it;
 	}
 
 	@Override
 	public Iterator<Edge> iterator() {
-		final Iterator<EdbEdge> it = mIt.iterator();
+		final Iterator<Edge> it = mIt.iterator();
 		
 		 return new Iterator<Edge>() {
 

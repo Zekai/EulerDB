@@ -3,6 +3,7 @@ package org.eulerdb.kernel.test;
 import org.eulerdb.kernel.EdbEdge;
 import org.eulerdb.kernel.EdbGraph;
 import org.eulerdb.kernel.EdbVertex;
+import org.eulerdb.kernel.helper.EdbHelper;
 import org.eulerdb.kernel.helper.FileHelper;
 
 import com.tinkerpop.blueprints.Direction;
@@ -41,7 +42,7 @@ public class BasicTest {
 		
 		
 		
-		g.nontransactionalCommit();
+		//g.nontransactionalCommit();
 		System.out.println("All nodes:");
 		for (Vertex v : g.getVertices()) {
 			System.out.println(v.getId() + " : ");
@@ -53,11 +54,12 @@ public class BasicTest {
 			
 		}
 		
-		/*
+		
 		System.out.println("\nAll edges");
+		System.out.println(EdbHelper.count( g.getEdges()));
 		for (Edge e : g.getEdges()) {
 			System.out.println(e.getVertex(Direction.IN).getId()+" "+((EdbEdge) e).getLabel()+" "+e.getVertex(Direction.OUT).getId());
-		}*/
+		}
 		
 	}
 }

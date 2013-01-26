@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.iterator.EdbEdgeIterableFromCollection;
 import org.eulerdb.kernel.iterator.EdbVertexIterableFromCollection;
 import org.eulerdb.kernel.iterator.IteratorFactory;
@@ -66,6 +67,7 @@ public class EdbVertex implements Vertex, Serializable {
 		// mInEdges = new CopyOnWriteArrayList<EdbEdge>();
 		// mOutEdges = new CopyOnWriteArrayList<EdbEdge>();
 		mProps = new HashMap<String, Object>();
+		initSaving();
 	}
 
 	@Override
@@ -108,40 +110,77 @@ public class EdbVertex implements Vertex, Serializable {
 		// nontransactional
 	}
 
+	
+	private String getAdjacent(storeType type,String edgeId,Direction dir,String... arg1){
+		int firstIndex = edgeId.indexOf(Common.SEPARATOR_VERTEX);
+		int secondIndex = edgeId.lastIndexOf(Common.SEPARATOR_VERTEX);
+		String fromId = edgeId.substring(0,firstIndex);
+		String relation = edgeId.substring(firstIndex+1,secondIndex);
+		String toId = edgeId.substring(secondIndex+1);
+
+		String resultId = null;
+
+		if(arg1==null||arg1.length==0){
+			if (dir == Direction.IN) {
+				resultId=(type==storeType.EDGE)?edgeId:toId;
+			} else if (dir == Direction.OUT) {
+				resultId=(type==storeType.EDGE)?edgeId:fromId;
+			} 
+		}
+		else{
+			List<String> relations = Arrays.asList(arg1);
+			if(relations.contains(relation))
+				if (dir == Direction.IN) {
+					resultId=(type==storeType.EDGE)?edgeId:toId;
+				} else if (dir == Direction.OUT) {
+					resultId=(type==storeType.EDGE)?edgeId:fromId;
+				} 
+		}
+		return resultId;
+	}
+	
 	@Override
 	public Iterable<Edge> getEdges(Direction arg0, String... arg1) {
 
-		if (arg1 == null || arg1.length == 0) {
-			if (arg0 == Direction.IN) {
-				@SuppressWarnings("unchecked")
-				Collection<EdbEdge> es = (Collection<EdbEdge>) mStorage.getObj(
-						storeType.VERTEX_IN, EdbTransactionalGraph.txs.get(),
-						mId);
-				if (es == null)
-					es = new CopyOnWriteArrayList<EdbEdge>();
-				return new EdbEdgeIterableFromCollection(es);
-			} else if (arg0 == Direction.OUT) {
-				@SuppressWarnings("unchecked")
-				Collection<EdbEdge> es = (Collection<EdbEdge>) mStorage.getObj(
-						storeType.VERTEX_OUT, EdbTransactionalGraph.txs.get(),
-						mId);
-				if (es == null)
-					es = new CopyOnWriteArrayList<EdbEdge>();
-				return new EdbEdgeIterableFromCollection(es);
-			} else if (arg0 == Direction.BOTH) {
-				/*
-				 * List<EdbEdge> total = new CopyOnWriteArrayList<EdbEdge>();//
-				 * total.addAll(mInEdges); total.addAll(mOutEdges); return
-				 * IteratorFactory.getEdgeIterator(total);
-				 */// return
-					// new
-					// EdbEdgeIteratorFromCollection(total.iterator());
+		
+		List<Edge> res = new ArrayList<Edge>();
+		if (arg0 == Direction.IN) {
+			List<String> inEdges  = (List<String>) mStorage.getObj(storeType.VERTEX_IN, null,mId);
+			for (String s : inEdges) {
+				String r = getAdjacent(storeType.EDGE,s, arg0, arg1);
+				if (r != null)
+				{
+					res.add((Edge) mStorage.getObj(storeType.EDGE, null, r));
+				}
 			}
-		} else {
-
+		} else if (arg0 == Direction.OUT) {
+			List<String> outEdges  = (List<String>) mStorage.getObj(storeType.VERTEX_OUT, null,mId);
+			for (String s : outEdges) {
+				String r = getAdjacent(storeType.EDGE,s, arg0, arg1);
+				if (r != null)
+				{
+					res.add((Edge) mStorage.getObj(storeType.EDGE, null, r));
+				}
+			}
+		} else if (arg0 == Direction.BOTH) {
+			List<String> inEdges  = (List<String>) mStorage.getObj(storeType.VERTEX_IN, null,mId);
+			for (String s : inEdges) {
+				String r = getAdjacent(storeType.EDGE,s,  Direction.IN, arg1);
+				if (r != null)
+				{
+					res.add((Edge) mStorage.getObj(storeType.EDGE, null, r));
+				}
+			}
+			List<String> outEdges  = (List<String>) mStorage.getObj(storeType.VERTEX_OUT, null,mId);
+			for (String s : outEdges) {
+				String r = getAdjacent(storeType.EDGE,s,  Direction.OUT, arg1);
+				if (r != null)
+				{
+					res.add((Edge) mStorage.getObj(storeType.EDGE, null, r));
+				}
+			}
 		}
-
-		return null;
+		return new EdbEdgeIterableFromCollection(res);
 
 	}
 
@@ -159,65 +198,59 @@ public class EdbVertex implements Vertex, Serializable {
 	@Override
 	public Iterable<Vertex> getVertices(Direction arg0, String... arg1) {
 
-		Function<EdbEdge, EdbVertex> inF = new Function<EdbEdge, EdbVertex>() {
-			@Override
-			public EdbVertex apply(final EdbEdge edge) {
-				return (EdbVertex) edge.getVertex(Direction.OUT);// that is
-																	// the
-																	// from
-																	// vertex
+		List<Vertex> res = new ArrayList<Vertex>();
+		if (arg0 == Direction.IN) {
+			List<String> inEdges  = (List<String>) mStorage.getObj(storeType.VERTEX_IN, null,mId);
+			for (String s : inEdges) {
+				String r = getAdjacent(storeType.VERTEX,s, Direction.OUT, arg1);
+				if (r != null)
+				{
+					res.add((Vertex) mStorage.getObj(storeType.VERTEX, null, r));
+				}
 			}
-		};
-
-		Function<EdbEdge, EdbVertex> outF = new Function<EdbEdge, EdbVertex>() {
-			@Override
-			public EdbVertex apply(final EdbEdge edge) {
-				return (EdbVertex) edge.getVertex(Direction.IN);// that is
-																// the to
-																// vertex
+		} else if (arg0 == Direction.OUT) {
+			List<String> outEdges  = (List<String>) mStorage.getObj(storeType.VERTEX_OUT, null,mId);
+			for (String s : outEdges) {
+				String r = getAdjacent(storeType.VERTEX,s, Direction.IN, arg1);
+				if (r != null)
+				{
+					res.add((Vertex) mStorage.getObj(storeType.VERTEX, null, r));
+				}
 			}
-		};
-
-		if (arg1 == null || arg1.length == 0) {
-
-			if (arg0 == Direction.IN) {
-				@SuppressWarnings("unchecked")
-				Collection<EdbEdge> es = (Collection<EdbEdge>) mStorage.getObj(
-						storeType.VERTEX_IN, null, mId);
-				if (es == null)
-					es = new CopyOnWriteArrayList<EdbEdge>();
-
-				return new EdbVertexIterableFromCollection(
-						Collections2.transform(es, inF));
-			} else if (arg0 == Direction.OUT) {
-				@SuppressWarnings("unchecked")
-				Collection<EdbEdge> es = (Collection<EdbEdge>) mStorage.getObj(
-						storeType.VERTEX_OUT, null, mId);
-				if (es == null)
-					es = new CopyOnWriteArrayList<EdbEdge>();
-				return new EdbVertexIterableFromCollection(
-						Collections2.transform(es, outF));
-			} else if (arg0 == Direction.BOTH) {
-				/*
-				 * List<EdbVertex> total = new ArrayList<EdbVertex>();//
-				 * total.addAll(Collections2.transform(mInEdges, inF));
-				 * total.addAll(Collections2.transform(mOutEdges, outF)); return
-				 * IteratorFactory.getVertexIterator(total);
-				 */
+		} else if (arg0 == Direction.BOTH) {
+			List<String> inEdges  = (List<String>) mStorage.getObj(storeType.VERTEX_IN, null,mId);
+			for (String s : inEdges) {
+				String r = getAdjacent(storeType.VERTEX,s, Direction.OUT, arg1);
+				if (r != null)
+				{
+					res.add((Vertex) mStorage.getObj(storeType.VERTEX, null, r));
+				}
 			}
-
-			throw new IllegalArgumentException("Wrong direction type: "
-					+ arg0.toString());
-		} else {
-
+			List<String> outEdges  = (List<String>) mStorage.getObj(storeType.VERTEX_OUT, null,mId);
+			for (String s : outEdges) {
+				String r = getAdjacent(storeType.VERTEX,s, Direction.IN, arg1);
+				if (r != null)
+				{
+					res.add((Vertex) mStorage.getObj(storeType.VERTEX, null, r));
+				}
+			}
 		}
-		return null;
+
+		return new EdbVertexIterableFromCollection(res);
 
 	}
 
 	@Override
 	public Query query() {
 		return new DefaultQuery(this);
+	}
+	
+	private void initSaving() {
+		List<String> inEdge = new CopyOnWriteArrayList<String>();
+		mStorage.store(storeType.VERTEX_IN, null, mId, inEdge);
+		
+		List<String> OutEdge = new CopyOnWriteArrayList<String>();
+		mStorage.store(storeType.VERTEX_OUT, null, mId, OutEdge);
 	}
 
 	/**
@@ -230,33 +263,36 @@ public class EdbVertex implements Vertex, Serializable {
 		// mInRelationMap.put(e.getLabel(),
 		// (EdbVertex)e.getVertex(Direction.IN));
 		@SuppressWarnings("unchecked")
-		List<Edge> inEdge = (CopyOnWriteArrayList<Edge>) mStorage.getObj(
+		List<String> inEdge = (CopyOnWriteArrayList<String>) mStorage.getObj(
 				storeType.VERTEX_IN, null, mId);
-		if (inEdge == null)
-			inEdge = new CopyOnWriteArrayList<Edge>();
-		inEdge.add(e);
+		if (inEdge.contains(e.getId())) return;
+		inEdge.add((String) e.getId());
 		mStorage.store(storeType.VERTEX_IN, null, mId, inEdge);
 	}
 
 	void addOutEdge(EdbEdge e) {
 		// mOutRelationMap.put(e.getLabel(), (EdbVertex) e.getToVertex());
 		@SuppressWarnings("unchecked")
-		List<Edge> ouEdge = (CopyOnWriteArrayList<Edge>) mStorage.getObj(
+		List<String> ouEdge = (CopyOnWriteArrayList<String>) mStorage.getObj(
 				storeType.VERTEX_OUT, null, mId);
-		if (ouEdge == null)
-			ouEdge = new CopyOnWriteArrayList<Edge>();
-		ouEdge.add(e);
+		if (ouEdge.contains(e.getId())) return;
+		ouEdge.add((String) e.getId());
 		mStorage.store(storeType.VERTEX_OUT, null, mId, ouEdge);
 	}
 
 	void removeInEdge(EdbEdge e) {
-		mStorage.delete(storeType.VERTEX_IN, null, mId);
+		List<String> ouEdge = (CopyOnWriteArrayList<String>) mStorage.getObj(
+				storeType.VERTEX_IN, null, mId);
+		ouEdge.remove(e.getId());
+		mStorage.store(storeType.VERTEX_IN, null, mId, ouEdge);
 		// mInRelationMap.remove(e.getLabel(), e.getVertex(Direction.IN));
 	}
 
 	void removeOutEdge(EdbEdge e) {
-		mStorage.delete(storeType.VERTEX_OUT, null, mId);
-		// mOutRelationMap.remove(e.getLabel(), e.getVertex(Direction.OUT));
+		List<String> ouEdge = (CopyOnWriteArrayList<String>) mStorage.getObj(
+				storeType.VERTEX_OUT, null, mId);
+		ouEdge.remove(e.getId());
+		mStorage.store(storeType.VERTEX_OUT, null, mId, ouEdge);
 	}
 
 	@Override

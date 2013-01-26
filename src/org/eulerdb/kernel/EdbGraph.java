@@ -262,7 +262,7 @@ public class EdbGraph implements Graph {
 			mStorage.store(storeType.VERTEX, getTransaction(),(String)n2.getId(), n2);
 		}
 
-		mStorage.delete(storeType.EDGE, getTransaction(), e2);
+		mStorage.delete(storeType.EDGE, getTransaction(), e2.getId());
 
 	}
 
