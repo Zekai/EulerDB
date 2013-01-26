@@ -52,7 +52,7 @@ public class EdbVertex implements Vertex, Serializable {
 	// private Multimap<String, EdbVertex> mOutRelationMap;
 
 	// private List<EdbEdge> mInEdges;
-	private Map<String, Object> mProps;
+	//private Map<String, Object> mProps;
 
 	public EdbVertex(Object id) {
 
@@ -66,7 +66,6 @@ public class EdbVertex implements Vertex, Serializable {
 
 		// mInEdges = new CopyOnWriteArrayList<EdbEdge>();
 		// mOutEdges = new CopyOnWriteArrayList<EdbEdge>();
-		mProps = new HashMap<String, Object>();
 		initSaving();
 	}
 
@@ -78,20 +77,28 @@ public class EdbVertex implements Vertex, Serializable {
 
 	@Override
 	public Object getProperty(String arg0) {
+		
+		@SuppressWarnings("unchecked")
+		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
 
-		return mProps.get(arg0);
+		return props.get(arg0);
 	}
 
 	@Override
 	public Set<String> getPropertyKeys() {
+		@SuppressWarnings("unchecked")
+		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
 
-		return mProps.keySet();
+		return props.keySet();
 	}
 
 	@Override
 	public Object removeProperty(String arg0) {
-
-		return mProps.remove(arg0);
+		@SuppressWarnings("unchecked")
+		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+		Object o = props.remove(arg0);
+		mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);
+		return o;
 	}
 
 	// FIXME property is currently not saved.
@@ -100,14 +107,10 @@ public class EdbVertex implements Vertex, Serializable {
 		if (sBlackList.contains(arg0))
 			throw new IllegalArgumentException(arg0
 					+ " is not allowed to be used as property name");
-		mProps.put(arg0, arg1);
-		mStorage.store(storeType.VERTEX, EdbTransactionalGraph.txs.get(), mId,
-				this);// FIXME
-		// this
-		// code
-		// make
-		// it
-		// nontransactional
+		@SuppressWarnings("unchecked")
+		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+		props.put(arg0, arg1);
+		mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);
 	}
 
 	
@@ -251,6 +254,10 @@ public class EdbVertex implements Vertex, Serializable {
 		
 		List<String> OutEdge = new CopyOnWriteArrayList<String>();
 		mStorage.store(storeType.VERTEX_OUT, EdbTransactionalGraph.txs.get(), mId, OutEdge);
+		
+		HashMap<String, Object> props = new HashMap<String, Object>();
+		mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);
+		
 	}
 
 	/**

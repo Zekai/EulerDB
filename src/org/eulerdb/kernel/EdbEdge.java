@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eulerdb.kernel.storage.EdbStorage;
 import org.eulerdb.kernel.storage.EdbStorage.storeType;
@@ -26,7 +27,7 @@ public class EdbEdge implements Edge, Serializable {
 	private String mToVertex; // tail/out
 	private String mRelation;
 	private String mId;
-	private Map<String, Object> mProps;
+	//private Map<String, Object> mProps;
 	protected transient static EdbStorage mStorage = null;
 
 	public EdbEdge(Vertex n1, Vertex n2, Object id, String relation) {
@@ -36,7 +37,8 @@ public class EdbEdge implements Edge, Serializable {
 		mId = n1.getId() + "_" + relation + "_" + n2.getId();// FIXME id is not
 																// used here
 		if(mStorage==null) mStorage = EdbStorage.getInstance();
-		mProps = new HashMap<String, Object>();
+		//mProps = new HashMap<String, Object>();
+		initSaving();
 	}
 
 	@Override
@@ -46,17 +48,27 @@ public class EdbEdge implements Edge, Serializable {
 
 	@Override
 	public Object getProperty(String arg0) {
-		return mProps.get(arg0);
+		@SuppressWarnings("unchecked")
+		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+
+		return props.get(arg0);
 	}
 
 	@Override
 	public Set<String> getPropertyKeys() {
-		return mProps.keySet();
+		@SuppressWarnings("unchecked")
+		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+
+		return props.keySet();
 	}
 
 	@Override
 	public Object removeProperty(String arg0) {
-		return mProps.remove(arg0);
+		@SuppressWarnings("unchecked")
+		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+		Object o = props.remove(arg0);
+		mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);
+		return o;
 	}
 
 	@Override
@@ -64,8 +76,10 @@ public class EdbEdge implements Edge, Serializable {
 		if (sBlackList.contains(arg0))
 			throw new IllegalArgumentException(arg0
 					+ " is not allowed to be used as property name");
-		mProps.put(arg0, arg1);
-		mStorage.store(storeType.EDGE, EdbTransactionalGraph.txs.get(), mId,this);
+		@SuppressWarnings("unchecked")
+		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+		props.put(arg0, arg1);
+		mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);
 
 	}
 
@@ -87,6 +101,13 @@ public class EdbEdge implements Edge, Serializable {
 			return (Vertex) mStorage.getObj(storeType.VERTEX, EdbTransactionalGraph.txs.get(), mFromVertex);
 
 		return null;
+	}
+	
+	private void initSaving() {
+		
+		HashMap<String, Object> props = new HashMap<String, Object>();
+		mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);
+		
 	}
 	
 	public String getVertexId(Direction arg0) {

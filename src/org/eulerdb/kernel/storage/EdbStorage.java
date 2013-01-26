@@ -21,11 +21,12 @@ import com.tinkerpop.blueprints.Vertex;
 public class EdbStorage {
 	private static EdbStorage instance = null;
 	
-	public static enum storeType {VERTEX,EDGE,VERTEX_OUT,VERTEX_IN};
+	public static enum storeType {VERTEX,EDGE,VERTEX_OUT,VERTEX_IN,PROPERTY};
 	private static EdbKeyPairStore mNodePairs;
 	private static EdbKeyPairStore mEdgePairs;
 	private static EdbKeyPairStore mNodeOutPairs;
 	private static EdbKeyPairStore mNodeInPairs;
+	private static EdbKeyPairStore mPropertyPairs;
 	private static EdbCaching mCache;
 	private static EulerDBHelper mEdbHelper = null;
 	private static boolean mTransactional;
@@ -72,6 +73,10 @@ public class EdbStorage {
 		if (mNodeInPairs == null) {
 			mNodeInPairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXINSTORE,true);
 		}
+		
+		if (mPropertyPairs == null) {
+			mPropertyPairs = new EdbKeyPairStore(mEdbHelper,Common.PROPERTY,true);
+		}
 
 	}
 	
@@ -85,6 +90,8 @@ public class EdbStorage {
 			return mNodeOutPairs;
 		case VERTEX_IN:
 			return mNodeInPairs;
+		case PROPERTY:
+			return mPropertyPairs;
 		default:
 			throw new IllegalArgumentException("Type "+ type +" is unknown.");
 		}
@@ -158,23 +165,6 @@ public class EdbStorage {
 		} 
 	}
 	
-	public Cursor getDupCursor(storeType type,Transaction tx){
-		switch(type)
-		{
-		case VERTEX_OUT:
-		{
-			return mNodeOutPairs.getCursor(tx);
-		}
-		case VERTEX_IN:
-		{
-			return mNodeInPairs.getCursor(tx);
-		}
-		default:
-			break;
-		}
-		return null;
-	}
-	
 	public boolean containsKey(storeType type,Transaction tx,String key) {
 		try {
 			if(getStore(type).get(tx, ByteArrayHelper.serialize(key))!=null)
@@ -206,6 +196,8 @@ public class EdbStorage {
 		mNodeOutPairs = null;
 		mNodeInPairs.close();
 		mNodeInPairs = null;
+		mPropertyPairs.close();
+		mPropertyPairs = null;
 		mEdbHelper.closeEnv();
 		mEdbHelper = null;
 		mCache = null;
@@ -215,6 +207,7 @@ public class EdbStorage {
 	public void commit() {
 		mNodeOutPairs.sync();
 		mNodeInPairs.sync();
+		mPropertyPairs.sync();
 		mNodePairs.sync();
 		mEdgePairs.sync();
 	}
