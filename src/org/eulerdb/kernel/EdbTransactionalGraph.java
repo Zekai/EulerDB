@@ -169,7 +169,6 @@ public class EdbTransactionalGraph extends EdbGraph implements
 
 	private void abort() throws XAException {
 		txs.get().abort();
-		mStorage.resetCache(txs.get());
 		mStatus = Status.END;
 	}
 
