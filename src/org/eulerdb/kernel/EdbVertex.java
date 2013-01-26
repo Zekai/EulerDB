@@ -48,24 +48,15 @@ public class EdbVertex implements Vertex, Serializable {
 
 	private transient final static List<String> sBlackList = Arrays
 			.asList(new String[] { "id" });
-	// private Multimap<String, EdbVertex> mInRelationMap;
-	// private Multimap<String, EdbVertex> mOutRelationMap;
-
-	// private List<EdbEdge> mInEdges;
-	//private Map<String, Object> mProps;
 
 	public EdbVertex(Object id) {
 
 		mId = id == null ? String.valueOf(uniqueId.getAndIncrement()) : String
 				.valueOf(id);
-		// mInRelationMap = HashMultimap.create();
-		// mOutRelationMap = HashMultimap.create();
 
 		if (mStorage == null)
 			mStorage = EdbStorage.getInstance();
 
-		// mInEdges = new CopyOnWriteArrayList<EdbEdge>();
-		// mOutEdges = new CopyOnWriteArrayList<EdbEdge>();
 		initSaving();
 	}
 
@@ -77,7 +68,6 @@ public class EdbVertex implements Vertex, Serializable {
 
 	@Override
 	public Object getProperty(String arg0) {
-		
 		@SuppressWarnings("unchecked")
 		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
 
@@ -101,7 +91,6 @@ public class EdbVertex implements Vertex, Serializable {
 		return o;
 	}
 
-	// FIXME property is currently not saved.
 	@Override
 	public void setProperty(String arg0, Object arg1) {
 		if (sBlackList.contains(arg0))
@@ -144,7 +133,6 @@ public class EdbVertex implements Vertex, Serializable {
 	
 	@Override
 	public Iterable<Edge> getEdges(Direction arg0, String... arg1) {
-
 		
 		List<Edge> res = new ArrayList<Edge>();
 		if (arg0 == Direction.IN) {
@@ -187,17 +175,6 @@ public class EdbVertex implements Vertex, Serializable {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.tinkerpop.blueprints.Vertex#getVertices(com.tinkerpop.blueprints.
-	 * Direction, java.lang.String[])
-	 * 
-	 * the mInRelationMap.values().iterator() might contain duplicate keys when
-	 * there are more than one edge between two vertices this is what it
-	 * supposed to be, don't fix it
-	 */
 	@Override
 	public Iterable<Vertex> getVertices(Direction arg0, String... arg1) {
 
@@ -278,7 +255,6 @@ public class EdbVertex implements Vertex, Serializable {
 	}
 
 	void addOutEdge(EdbEdge e) {
-		// mOutRelationMap.put(e.getLabel(), (EdbVertex) e.getToVertex());
 		@SuppressWarnings("unchecked")
 		List<String> ouEdge = (CopyOnWriteArrayList<String>) mStorage.getObj(
 				storeType.VERTEX_OUT, EdbTransactionalGraph.txs.get(), mId);
@@ -292,7 +268,6 @@ public class EdbVertex implements Vertex, Serializable {
 				storeType.VERTEX_IN, EdbTransactionalGraph.txs.get(), mId);
 		ouEdge.remove(e.getId());
 		mStorage.store(storeType.VERTEX_IN, EdbTransactionalGraph.txs.get(), mId, ouEdge);
-		// mInRelationMap.remove(e.getLabel(), e.getVertex(Direction.IN));
 	}
 
 	void removeOutEdge(EdbEdge e) {

@@ -14,7 +14,7 @@ import com.tinkerpop.blueprints.Vertex;
 
 /**
  * Why this can be a singleton even while we are supporting multiple isolated EdbGraph instant and transactions?
- * We don't really implement the low level ACID, instead, the BerkeleyDB simulate it. 
+ * We don't really implement the low level ACID, instead, we simulate it by using BerkeleyDB's transaction. 
  * @author Zekai Huang
  *
  */
@@ -27,14 +27,12 @@ public class EdbStorage {
 	private static EdbKeyPairStore mNodeOutPairs;
 	private static EdbKeyPairStore mNodeInPairs;
 	private static EdbKeyPairStore mPropertyPairs;
-	private static EdbCaching mCache;
 	private static EulerDBHelper mEdbHelper = null;
 	private static boolean mTransactional;
 	private static EdbCursor mEdgeCursor;
 	private static EdbCursor mNodeCursor;
 	
 	private EdbStorage(String path){
-		mCache = EdbCaching.getInstance();
 		initStores(path);
 	}
 
@@ -105,9 +103,6 @@ public class EdbStorage {
 			e.printStackTrace();
 		}
 		
-		if(type==storeType.VERTEX){
-			mCache.put((String)((Vertex) n).getId(),getTransactionId(tx), (EdbVertex)n);
-		}
 	}
 	
 	public Long getTransactionId(Transaction tx){
@@ -117,9 +112,6 @@ public class EdbStorage {
 	public void delete(storeType type,Transaction tx,Object id){
 		try {
 			getStore(type).delete(tx,ByteArrayHelper.serialize(id));
-			//getCursor(type,tx);
-			if(type == storeType.VERTEX) 
-				mCache.remove((String)id,getTransactionId(tx));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -139,7 +131,6 @@ public class EdbStorage {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(type == storeType.VERTEX) mCache.put(id, getTransactionId(tx), (EdbVertex) o);
 		
 		return o;
 	}
@@ -200,7 +191,6 @@ public class EdbStorage {
 		mPropertyPairs = null;
 		mEdbHelper.closeEnv();
 		mEdbHelper = null;
-		mCache = null;
 		instance = null;
 	}
 	
@@ -211,10 +201,5 @@ public class EdbStorage {
 		mNodePairs.sync();
 		mEdgePairs.sync();
 	}
-	
-	public void resetCache(Transaction tx){
-		mCache.clear(getTransactionId(tx));//FIXME shoudn't clear all, should clear for transaction, use region
-	}
-
 
 }

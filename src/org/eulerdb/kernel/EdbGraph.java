@@ -202,17 +202,6 @@ public class EdbGraph implements Graph {
 				// return true;
 			}
 		};
-
-		/*Iterable<Vertex> its = 
-				IteratorFactory.getVertexIterator(
-						Iterators.filter(
-								IteratorFactory.getVertexIterator(
-										mStorage.getCursor(
-												storeType.VERTEX, mTx
-												)
-										).iterator(), relationFilter
-								)
-						);*/
 		
 		Iterable<Vertex> its = IteratorFactory.getVertexIterator(Iterators
 				.filter(IteratorFactory.getVertexIterator(mStorage.getCursor(
@@ -227,37 +216,14 @@ public class EdbGraph implements Graph {
 		EdbEdge e2 = (EdbEdge) arg0;
 
 		EdbVertex n = (EdbVertex) e2.getVertex(Direction.OUT);
-		if (n!=null) {// check
-																		// whether
-																		// vertex
-																		// still
-																		// exist,
-																		// we
-																		// might
-																		// have
-																		// remove
-																		// vertex
-																		// before
-																		// the
-																		// edge
+		if (n!=null) {
+			// check whether vertex still exist, we might have remove vertex before the edge
 			n.removeOutEdge(e2);
 			mStorage.store(storeType.VERTEX, getTransaction(),(String)n.getId(), n);
 		}
 
 		EdbVertex n2 = (EdbVertex) e2.getVertex(Direction.IN);
-		if (n2!=null) {// check
-																		// whether
-																		// vertex
-																		// still
-																		// exist,
-																		// we
-																		// might
-																		// have
-																		// remove
-																		// vertex
-																		// before
-																		// the
-																		// edge
+		if (n2!=null) {
 			n2.removeInEdge(e2);
 			mStorage.store(storeType.VERTEX, getTransaction(),(String)n2.getId(), n2);
 		}

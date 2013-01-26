@@ -27,7 +27,6 @@ public class EdbEdge implements Edge, Serializable {
 	private String mToVertex; // tail/out
 	private String mRelation;
 	private String mId;
-	//private Map<String, Object> mProps;
 	protected transient static EdbStorage mStorage = null;
 
 	public EdbEdge(Vertex n1, Vertex n2, Object id, String relation) {
@@ -37,7 +36,6 @@ public class EdbEdge implements Edge, Serializable {
 		mId = n1.getId() + "_" + relation + "_" + n2.getId();// FIXME id is not
 																// used here
 		if(mStorage==null) mStorage = EdbStorage.getInstance();
-		//mProps = new HashMap<String, Object>();
 		initSaving();
 	}
 
@@ -149,7 +147,5 @@ public class EdbEdge implements Edge, Serializable {
 			return false;
 		return true;
 	}
-	
-	
 
 }
