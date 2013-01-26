@@ -82,9 +82,9 @@ public class EdbEdge implements Edge, Serializable {
 		if (arg0 == Direction.BOTH)
 			throw new IllegalArgumentException("direction should be both");
 		else if (arg0 == Direction.IN)
-			return (Vertex) mStorage.getObj(storeType.VERTEX, null, mToVertex);
+			return (Vertex) mStorage.getObj(storeType.VERTEX, EdbTransactionalGraph.txs.get(), mToVertex);
 		else if (arg0 == Direction.OUT)
-			return (Vertex) mStorage.getObj(storeType.VERTEX, null, mFromVertex);
+			return (Vertex) mStorage.getObj(storeType.VERTEX, EdbTransactionalGraph.txs.get(), mFromVertex);
 
 		return null;
 	}
@@ -102,7 +102,7 @@ public class EdbEdge implements Edge, Serializable {
 
 	public Vertex getToVertex() {
 
-		return (Vertex) mStorage.getObj(storeType.VERTEX, null, mFromVertex);
+		return (Vertex) mStorage.getObj(storeType.VERTEX, EdbTransactionalGraph.txs.get(), mFromVertex);
 	}
 
 	@Override
