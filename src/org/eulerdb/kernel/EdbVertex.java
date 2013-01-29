@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -69,7 +70,7 @@ public class EdbVertex implements Vertex, Serializable {
 	@Override
 	public Object getProperty(String arg0) {
 		@SuppressWarnings("unchecked")
-		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+		Map<String,Object> props =  (Hashtable<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
 
 		return props.get(arg0);
 	}
@@ -77,7 +78,7 @@ public class EdbVertex implements Vertex, Serializable {
 	@Override
 	public Set<String> getPropertyKeys() {
 		@SuppressWarnings("unchecked")
-		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+		Map<String,Object> props =  (Hashtable<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
 
 		return props.keySet();
 	}
@@ -97,7 +98,8 @@ public class EdbVertex implements Vertex, Serializable {
 			throw new IllegalArgumentException(arg0
 					+ " is not allowed to be used as property name");
 		@SuppressWarnings("unchecked")
-		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+		Map<String,Object> props =  (Hashtable<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+		if(props==null) props = new Hashtable<String,Object>();
 		props.put(arg0, arg1);
 		mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);
 	}
@@ -232,8 +234,8 @@ public class EdbVertex implements Vertex, Serializable {
 		List<String> OutEdge = new CopyOnWriteArrayList<String>();
 		mStorage.store(storeType.VERTEX_OUT, EdbTransactionalGraph.txs.get(), mId, OutEdge);
 		
-		HashMap<String, Object> props = new HashMap<String, Object>();
-		mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);
+		//Map<String, Object> props = new Hashtable<String, Object>();
+		//mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);//FIXME
 		
 	}
 

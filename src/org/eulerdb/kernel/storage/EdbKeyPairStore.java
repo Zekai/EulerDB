@@ -1,18 +1,25 @@
 package org.eulerdb.kernel.storage;
 
 import org.eulerdb.kernel.helper.ByteArrayHelper;
+
+import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.CursorConfig;
 import com.sleepycat.je.Database;
+import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.DatabaseEntry;
+import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
+import com.sleepycat.je.SecondaryConfig;
+import com.sleepycat.je.SecondaryDatabase;
 import com.sleepycat.je.Transaction;
 
 public class EdbKeyPairStore {
 
 	private Database mStore;
 	private EulerDBHelper mEdbHelper = null;
+	private SecondaryDatabase itemNameIndexDb;
 	
 	
 	//private static EdbKeyPairStore instance = null;
@@ -37,12 +44,13 @@ public class EdbKeyPairStore {
 	
 	
 	
-	public EdbKeyPairStore(EulerDBHelper edbHelper,String name,boolean dup) {
+	public EdbKeyPairStore(EulerDBHelper edbHelper,String name,boolean secondary) {
 		mEdbHelper = edbHelper;
 		//Transaction txn0 =  edbHelper.getEnvironment().beginTransaction(null, null);
 		mStore = mEdbHelper.getEnvironment().openDatabase(null, name,
 				mEdbHelper.getDatabaseConfig());
 		//txn0.commit();
+		if(secondary) setup(false);
 		
 	};
 
@@ -51,6 +59,11 @@ public class EdbKeyPairStore {
 		DatabaseEntry d_key = new DatabaseEntry(key);
 		DatabaseEntry d_value = new DatabaseEntry(value);
 		//mStore.delete(tx, d_key);
+		return mStore.put(tx, d_key, d_value);
+	}
+	
+public OperationStatus put(Transaction tx,DatabaseEntry d_key, DatabaseEntry d_value) {
+		
 		return mStore.put(tx, d_key, d_value);
 	}
 
@@ -97,5 +110,53 @@ public class EdbKeyPairStore {
 					new DatabaseEntry(ByteArrayHelper.concatByteArrays(
 							d_data.getData(), value)));
 	}
+	
+	 public void setup(boolean readOnly){
+
+		        EnvironmentConfig myEnvConfig = new EnvironmentConfig();
+		        DatabaseConfig myDbConfig = new DatabaseConfig();
+		        SecondaryConfig mySecConfig = new SecondaryConfig();
+
+		        // If the environment is read-only, then
+		        // make the databases read-only too.
+		        myEnvConfig.setReadOnly(readOnly);
+		        myDbConfig.setReadOnly(readOnly);
+		        mySecConfig.setReadOnly(readOnly);
+
+		        // If the environment is opened for write, then we want to be
+		        // able to create the environment and databases if
+		        // they do not exist.
+		        myEnvConfig.setAllowCreate(!readOnly);
+		        myDbConfig.setAllowCreate(!readOnly);
+		        mySecConfig.setAllowCreate(!readOnly);
+
+		        
+		        // Environment and database opens omitted for brevity
+
+
+		        // Open the secondary database. We use this to create a
+		        // secondary index for the inventory database
+
+		        // We want to maintain an index for the inventory entries based
+		        // on the item name. So, instantiate the appropriate key creator
+		        // and open a secondary database.
+		        PropertyKeyCreator keyCreator =
+		            new PropertyKeyCreator(new PropertyBinding());
+
+		        // Set up the secondary properties
+		        mySecConfig.setAllowPopulate(true); // Allow autopopulate
+		        mySecConfig.setKeyCreator(keyCreator);
+		        // Need to allow duplicates for our secondary database
+		        mySecConfig.setSortedDuplicates(true);
+
+		        // Now open it
+		        itemNameIndexDb =
+		        		mEdbHelper.getEnvironment().openSecondaryDatabase(
+		                    null,     
+		                    "itemNameIndex", // Index name
+		                    mStore,     // Primary database handle. This is
+		                                     // the db that we're indexing. 
+		                    mySecConfig);    // The secondary config
+		    } 
 
 }

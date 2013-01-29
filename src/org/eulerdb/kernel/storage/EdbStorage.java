@@ -8,6 +8,7 @@ import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 
 import com.sleepycat.je.Cursor;
+import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.Transaction;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
@@ -65,11 +66,11 @@ public class EdbStorage {
 		}
 		
 		if (mNodeOutPairs == null) {
-			mNodeOutPairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXOUTSTORE,true);
+			mNodeOutPairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXOUTSTORE,false);
 		}
 		
 		if (mNodeInPairs == null) {
-			mNodeInPairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXINSTORE,true);
+			mNodeInPairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXINSTORE,false);
 		}
 		
 		if (mPropertyPairs == null) {
@@ -97,8 +98,18 @@ public class EdbStorage {
 	
 	public void store(storeType type,Transaction tx,String id,Object n) {
 		try {
-			getStore(type).put(tx,ByteArrayHelper.serialize(id),
-					ByteArrayHelper.serialize(n));
+			if(type!=storeType.PROPERTY)
+			{
+				getStore(type).put(tx,ByteArrayHelper.serialize(id),
+						ByteArrayHelper.serialize(n));
+			}
+			else{
+				DatabaseEntry theKey = new DatabaseEntry(ByteArrayHelper.serialize(id));
+			    DatabaseEntry theData = new DatabaseEntry();
+				PropertyBinding dataBinding = new PropertyBinding();
+				dataBinding.objectToEntry(n, theData);
+				mPropertyPairs.put(tx, theKey, theData);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

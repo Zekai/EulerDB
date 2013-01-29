@@ -3,6 +3,7 @@ package org.eulerdb.kernel;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +48,7 @@ public class EdbEdge implements Edge, Serializable {
 	@Override
 	public Object getProperty(String arg0) {
 		@SuppressWarnings("unchecked")
-		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+		Map<String,Object> props =  (Hashtable<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
 
 		return props.get(arg0);
 	}
@@ -55,7 +56,7 @@ public class EdbEdge implements Edge, Serializable {
 	@Override
 	public Set<String> getPropertyKeys() {
 		@SuppressWarnings("unchecked")
-		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+		Map<String,Object> props = (Hashtable<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
 
 		return props.keySet();
 	}
@@ -63,7 +64,7 @@ public class EdbEdge implements Edge, Serializable {
 	@Override
 	public Object removeProperty(String arg0) {
 		@SuppressWarnings("unchecked")
-		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+		Map<String,Object> props =  (Hashtable<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
 		Object o = props.remove(arg0);
 		mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);
 		return o;
