@@ -148,14 +148,14 @@ public class EdbVertex implements Vertex, Serializable {
 			}
 		} else if (arg0 == Direction.BOTH) {
 			for (String s : this.mInEdges) {
-				String r = getAdjacent(storeType.EDGE,s, arg0, arg1);
+				String r = getAdjacent(storeType.EDGE,s, Direction.IN, arg1);
 				if (r != null)
 				{
 					res.add((Edge) mStorage.getObj(storeType.EDGE, null, r));
 				}
 			}
 			for (String s : this.mOutEdges) {
-				String r = getAdjacent(storeType.EDGE,s, arg0, arg1);
+				String r = getAdjacent(storeType.EDGE,s, Direction.OUT, arg1);
 				if (r != null)
 				{
 					res.add((Edge) mStorage.getObj(storeType.EDGE, null, r));
@@ -231,24 +231,24 @@ public class EdbVertex implements Vertex, Serializable {
 	void addInEdge(EdbEdge e) {
 		// mInRelationMap.put(e.getLabel(),
 		// (EdbVertex)e.getVertex(Direction.IN));
-		mInEdges.remove(e);
+		mInEdges.remove(e.getId());
 		mInEdges.add((String) e.getId());
 	}
 
 	void addOutEdge(EdbEdge e) {
 		// mOutRelationMap.put(e.getLabel(), (EdbVertex) e.getToVertex());
-		mOutEdges.remove(e);
+		mOutEdges.remove(e.getId());
 		mOutEdges.add((String) e.getId());
 	}
 
 	void removeInEdge(EdbEdge e) {
-		mInEdges.remove(e);
+		mInEdges.remove(e.getId());
 		// mInRelationMap.remove(e.getLabel(), e.getVertex(Direction.IN));
 
 	}
 
 	void removeOutEdge(EdbEdge e) {
-		mOutEdges.remove(e);
+		mOutEdges.remove(e.getId());
 		// mOutRelationMap.remove(e.getLabel(), e.getVertex(Direction.OUT));
 
 	}

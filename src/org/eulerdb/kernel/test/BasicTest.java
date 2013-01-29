@@ -49,7 +49,7 @@ public class BasicTest {
 		for (Vertex v : g.getVertices()) {
 			System.out.println(v.getId() + " : ");
 			
-			for (Vertex u: ((EdbVertex)v).getVertices(Direction.OUT, null))
+			for (Vertex u: ((EdbVertex)v).getVertices(Direction.OUT))
 			{
 				System.out.println("     "+u.getId()+" connects to "+ v.getId());
 			}
