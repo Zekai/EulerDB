@@ -33,6 +33,7 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Query;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.util.DefaultQuery;
+import com.tinkerpop.blueprints.util.ExceptionFactory;
 
 public class EdbVertex implements Vertex, Serializable {
 
@@ -86,7 +87,7 @@ public class EdbVertex implements Vertex, Serializable {
 	@Override
 	public Object removeProperty(String arg0) {
 		@SuppressWarnings("unchecked")
-		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+		Map<String,Object> props =  (Hashtable<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
 		Object o = props.remove(arg0);
 		mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);
 		return o;
@@ -95,11 +96,9 @@ public class EdbVertex implements Vertex, Serializable {
 	@Override
 	public void setProperty(String arg0, Object arg1) {
 		if (sBlackList.contains(arg0))
-			throw new IllegalArgumentException(arg0
-					+ " is not allowed to be used as property name");
+			throw ExceptionFactory.propertyKeyIdIsReserved(); 
 		@SuppressWarnings("unchecked")
 		Map<String,Object> props =  (Hashtable<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
-		if(props==null) props = new Hashtable<String,Object>();
 		props.put(arg0, arg1);
 		mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);
 	}
@@ -234,8 +233,8 @@ public class EdbVertex implements Vertex, Serializable {
 		List<String> OutEdge = new CopyOnWriteArrayList<String>();
 		mStorage.store(storeType.VERTEX_OUT, EdbTransactionalGraph.txs.get(), mId, OutEdge);
 		
-		//Map<String, Object> props = new Hashtable<String, Object>();
-		//mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);//FIXME
+		Map<String, Object> props = new Hashtable<String, Object>();
+		mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);//FIXME
 		
 	}
 

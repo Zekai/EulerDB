@@ -23,8 +23,9 @@ public class BasicTest {
 		
 		EdbVertex v1 = (EdbVertex) g.addVertex(1);
 		v1.setProperty("name", "AAAAA");
+		v1.setProperty("gender", "male");
 		
-		/*EdbVertex v2 = (EdbVertex) g.addVertex(2);
+		EdbVertex v2 = (EdbVertex) g.addVertex(2);
 		EdbVertex v3 = (EdbVertex) g.addVertex(3);
 		EdbVertex v4 = (EdbVertex) g.addVertex(4);
 		//EdbVertex vx = (EdbVertex) g.getVertex(1);
@@ -36,7 +37,7 @@ public class BasicTest {
 		
 		
 		
-		g.removeVertex(v3);*/
+		g.removeVertex(v3);
 		
 		
 		

@@ -26,14 +26,13 @@ public class EulerDBHelper {
 	protected Comparator<byte[]> btreeComparisonFunction = null;
 
 	protected boolean keyPrefixing = true;
-	
+
 	protected static EulerDBHelper instance = null;
-	
-	
-	public static EulerDBHelper getInstance(String path,boolean transactional) {
+
+	public static EulerDBHelper getInstance(String path, boolean transactional) {
 		mTransactional = transactional;
 		if (instance == null) {
-			instance = new EulerDBHelper(path,transactional);
+			instance = new EulerDBHelper(path, transactional);
 		}
 		return instance;
 	}
@@ -58,7 +57,7 @@ public class EulerDBHelper {
 				// db will be created if not exits
 				dbConf.setAllowCreate(true);
 				dbConf.setDeferredWrite(true);
-				//dbConf.setSortedDuplicates(true);
+				// dbConf.setSortedDuplicates(true);
 			}
 		} else {
 
@@ -86,21 +85,21 @@ public class EulerDBHelper {
 				}
 				dbConf.setTransactional(true);
 				dbConf.setAllowCreate(true);
-				//dbConf.setSortedDuplicates(true);
+				// dbConf.setSortedDuplicates(true);
 				dbConf.setKeyPrefixing(keyPrefixing);
 			}
 		}
 
 	}
-	
-	public void closeEnv(){
+
+	public void closeEnv() {
 		dbEnv.close();
 		dbEnv = null;
 		instance = null;
 	}
 
 	public Environment getEnvironment() {
-			return dbEnv;
+		return dbEnv;
 	}
 
 	/*

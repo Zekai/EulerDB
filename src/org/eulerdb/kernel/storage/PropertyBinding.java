@@ -24,17 +24,20 @@ public class PropertyBinding extends TupleBinding {
 
 		str = str.substring(1, str.length() - 1);
 
-		String[] part = str.split("},");
+		String[] part = str.split(",");
 		//if(part.length<2) return m;
 		String main = null;
 		for (int i = 0; i < part.length; i++) {
 			main = part[i];
 
+			/*
 			if (i < part.length - 1) {
 				main += "}";
-			}
+			}*/
 
 			String[] subArray = main.split("=");
+			
+			if(subArray.length!=2) continue; 
 
 			String key = subArray[0].substring(0, subArray[0].length() );
 			Object e =subArray[1];
@@ -51,7 +54,7 @@ public class PropertyBinding extends TupleBinding {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append("{");
-		Iterator<java.util.Map.Entry<String, Object>> it = ((Map) map).entrySet()
+		Iterator<java.util.Map.Entry<String, Object>> it = ((Hashtable<String,Object>) map).entrySet()
 				.iterator();
 		int size = ((Map) map).size();
 		int index = 0;

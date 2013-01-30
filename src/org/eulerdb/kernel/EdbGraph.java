@@ -34,6 +34,7 @@ public class EdbGraph implements Graph {
 	protected boolean mTransactional;
 	protected EdbStorage mStorage = null;
 	protected static EulerDBHelper mEdbHelper = null;
+	protected boolean mIsRunning = false;
 
 	protected static final Features FEATURES = new Features();
 
@@ -71,11 +72,14 @@ public class EdbGraph implements Graph {
 
 	public EdbGraph(String path) {
 		mTransactional = false;
+		
 		if(mEdbHelper==null) 
 			mEdbHelper = EulerDBHelper.getInstance(path, false);
 		
 		if (mStorage == null)
 			mStorage = EdbStorage.getInstance(path, false);
+		
+		mIsRunning = true;
 	}
 
 	public EdbGraph(String path, boolean transactional) {
@@ -86,6 +90,8 @@ public class EdbGraph implements Graph {
 		
 		if (mStorage == null)
 			mStorage = EdbStorage.getInstance(path, mTransactional);
+		
+		mIsRunning = true;
 	}
 
 	@Override
@@ -257,9 +263,12 @@ public class EdbGraph implements Graph {
 	@Override
 	public void shutdown() {
 		// nontransactionalCommit();
-		mStorage.close();
-		mStorage = null;
-		mEdbHelper = null;
+		if(mIsRunning){
+			mStorage.close();
+			mStorage = null;
+			mEdbHelper = null;
+			mIsRunning = false;
+		}
 	}
 
 	public void nontransactionalCommit() {

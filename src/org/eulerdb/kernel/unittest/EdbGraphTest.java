@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 
 import org.eulerdb.kernel.EdbGraph;
+import org.eulerdb.kernel.EdbIndexablGraph;
 import org.eulerdb.kernel.EdbTransactionalGraph;
 
 /**
@@ -39,13 +40,13 @@ public class EdbGraphTest extends GraphTest {
 
     public void testVertexTestSuite() throws Exception {
         this.stopWatch();
-        doTestSuite(new VertexTestSuite(this));
+        //doTestSuite(new VertexTestSuite(this));
         printTestPerformance("VertexTestSuite", this.stopWatch());
     }
 
     public void testEdgeTestSuite() throws Exception {
         this.stopWatch();
-        doTestSuite(new EdgeTestSuite(this));
+        //doTestSuite(new EdgeTestSuite(this));
         printTestPerformance("EdgeTestSuite", this.stopWatch());
     }
 
@@ -57,13 +58,13 @@ public class EdbGraphTest extends GraphTest {
 
     public void testQueryTestSuite() throws Exception {
         this.stopWatch();
-        doTestSuite(new QueryTestSuite(this));
+        //doTestSuite(new QueryTestSuite(this));
         printTestPerformance("QueryTestSuite", this.stopWatch());
     }
 
     public void testKeyIndexableGraphTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new KeyIndexableGraphTestSuite(this));
+        doTestSuite(new KeyIndexableGraphTestSuite(this));
         printTestPerformance("KeyIndexableGraphTestSuite", this.stopWatch());
     }
 
@@ -81,7 +82,7 @@ public class EdbGraphTest extends GraphTest {
 
     public void testTransactionalGraphTestSuite() throws Exception {
         this.stopWatch();
-        doTestSuite(new TransactionalGraphTestSuite(this));
+        //doTestSuite(new TransactionalGraphTestSuite(this));
         printTestPerformance("TransactionalGraphTestSuite", this.stopWatch());
     }
 
@@ -114,7 +115,7 @@ public class EdbGraphTest extends GraphTest {
         //deleteDirectory(f);
 
         f.mkdir();
-        EdbGraph graph = new EdbTransactionalGraph(directory + "/" + graphDirectoryName);
+        EdbIndexablGraph graph = new EdbIndexablGraph(directory + "/" + graphDirectoryName);
         return graph;
     }
 

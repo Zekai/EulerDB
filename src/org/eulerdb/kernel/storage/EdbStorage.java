@@ -1,17 +1,13 @@
 package org.eulerdb.kernel.storage;
 
 import java.io.IOException;
+import java.util.Set;
 
-import org.eulerdb.kernel.EdbGraph;
-import org.eulerdb.kernel.EdbVertex;
 import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 
-import com.sleepycat.je.Cursor;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.Transaction;
-import com.tinkerpop.blueprints.Element;
-import com.tinkerpop.blueprints.Vertex;
 
 /**
  * Why this can be a singleton even while we are supporting multiple isolated EdbGraph instant and transactions?
@@ -22,12 +18,13 @@ import com.tinkerpop.blueprints.Vertex;
 public class EdbStorage {
 	private static EdbStorage instance = null;
 	
-	public static enum storeType {VERTEX,EDGE,VERTEX_OUT,VERTEX_IN,PROPERTY};
+	public static enum storeType {VERTEX,EDGE,VERTEX_OUT,VERTEX_IN,PROPERTY,NODEPROPERTY,EDGEPROPERTY};
 	private static EdbKeyPairStore mNodePairs;
 	private static EdbKeyPairStore mEdgePairs;
 	private static EdbKeyPairStore mNodeOutPairs;
 	private static EdbKeyPairStore mNodeInPairs;
-	private static EdbKeyPairStore mPropertyPairs;
+	private static EdbKeyPairStore mNodePropertyPairs;
+	private static EdbKeyPairStore mEdgePropertyPairs;
 	private static EulerDBHelper mEdbHelper = null;
 	private static boolean mTransactional;
 	private static EdbCursor mEdgeCursor;
@@ -73,8 +70,12 @@ public class EdbStorage {
 			mNodeInPairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXINSTORE,false);
 		}
 		
-		if (mPropertyPairs == null) {
-			mPropertyPairs = new EdbKeyPairStore(mEdbHelper,Common.PROPERTY,true);
+		if (mNodePropertyPairs == null) {
+			mNodePropertyPairs = new EdbKeyPairStore(mEdbHelper,Common.PROPERTY,true);
+		}
+		
+		if (mEdgePropertyPairs == null) {
+			mEdgePropertyPairs = new EdbKeyPairStore(mEdbHelper,Common.PROPERTY,true);
 		}
 
 	}
@@ -89,8 +90,10 @@ public class EdbStorage {
 			return mNodeOutPairs;
 		case VERTEX_IN:
 			return mNodeInPairs;
-		case PROPERTY:
-			return mPropertyPairs;
+		case NODEPROPERTY:
+			return mNodePropertyPairs;
+		case EDGEPROPERTY:
+			return mEdgePropertyPairs;
 		default:
 			throw new IllegalArgumentException("Type "+ type +" is unknown.");
 		}
@@ -98,17 +101,22 @@ public class EdbStorage {
 	
 	public void store(storeType type,Transaction tx,String id,Object n) {
 		try {
-			if(type!=storeType.PROPERTY)
-			{
+			switch(type){
+			case VERTEX:
+			case EDGE:
+			case VERTEX_OUT:
+			case VERTEX_IN:
 				getStore(type).put(tx,ByteArrayHelper.serialize(id),
-						ByteArrayHelper.serialize(n));
-			}
-			else{
+				ByteArrayHelper.serialize(n));
+				break;
+			case NODEPROPERTY:
+			case EDGEPROPERTY:
 				DatabaseEntry theKey = new DatabaseEntry(ByteArrayHelper.serialize(id));
 			    DatabaseEntry theData = new DatabaseEntry();
 				PropertyBinding dataBinding = new PropertyBinding();
 				dataBinding.objectToEntry(n, theData);
-				mPropertyPairs.put(tx, theKey, theData);
+				getStore(type).put(tx, theKey, theData);
+				break;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -129,20 +137,34 @@ public class EdbStorage {
 		}
 	}
 	
-	public Object getObj(storeType type,Transaction tx, String id){
-		Object o = null; //mCache.get(id, tx.getId());
-		if(o!=null) return o;
+	public Object getObj(storeType type, Transaction tx, String id) {
+		Object o = null; // mCache.get(id, tx.getId());
 		
-		try {
-			o = ByteArrayHelper.deserialize(getStore(type).get(tx, ByteArrayHelper.serialize(id)));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (type != storeType.PROPERTY) {
+			try {
+				o = ByteArrayHelper.deserialize(getStore(type).get(tx,
+						ByteArrayHelper.serialize(id)));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			DatabaseEntry theKey = null;
+			try {
+				theKey = new DatabaseEntry(ByteArrayHelper.serialize(id));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		    DatabaseEntry theData = getStore(type).get(tx,theKey);
+					
+			PropertyBinding dataBinding = new PropertyBinding();
+			o = dataBinding.entryToObject(theData);
 		}
-		
+
 		return o;
 	}
 	
@@ -198,8 +220,10 @@ public class EdbStorage {
 		mNodeOutPairs = null;
 		mNodeInPairs.close();
 		mNodeInPairs = null;
-		mPropertyPairs.close();
-		mPropertyPairs = null;
+		mNodePropertyPairs.close();
+		mNodePropertyPairs = null;
+		mEdgePropertyPairs.close();
+		mEdgePropertyPairs = null;
 		mEdbHelper.closeEnv();
 		mEdbHelper = null;
 		instance = null;
@@ -208,9 +232,22 @@ public class EdbStorage {
 	public void commit() {
 		mNodeOutPairs.sync();
 		mNodeInPairs.sync();
-		mPropertyPairs.sync();
+		mNodePropertyPairs.sync();
+		mEdgePropertyPairs.sync();
 		mNodePairs.sync();
 		mEdgePairs.sync();
 	}
+	
+	public void openSecondary(String key, storeType type){
+		getStore(type).openSecondary(key);
+	}
+	
+	public Set<String> getKeys(storeType type){
+		return getStore(type).getKeys();
+	}
+	public void deleteSecondary(storeType type,Transaction tx,String dbName){
+		getStore(type).deleteSecondary(tx, dbName);
+	}
+	
 
 }

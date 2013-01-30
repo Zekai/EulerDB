@@ -76,7 +76,7 @@ public class EdbEdge implements Edge, Serializable {
 			throw new IllegalArgumentException(arg0
 					+ " is not allowed to be used as property name");
 		@SuppressWarnings("unchecked")
-		HashMap<String,Object> props =  (HashMap<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
+		Map<String,Object> props =  (Hashtable<String,Object>) mStorage.getObj(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId);
 		props.put(arg0, arg1);
 		mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);
 
@@ -104,7 +104,7 @@ public class EdbEdge implements Edge, Serializable {
 	
 	private void initSaving() {
 		
-		HashMap<String, Object> props = new HashMap<String, Object>();
+		Map<String, Object> props = new Hashtable<String, Object>();
 		mStorage.store(storeType.PROPERTY, EdbTransactionalGraph.txs.get(), mId, props);
 		
 	}
