@@ -27,13 +27,16 @@ public class EdbIterableFromSecondaryDatabase<T>  implements Iterable<T> {
 
 			@Override
 			public boolean hasNext() {
-				return mCur.hasNext();
+				boolean r = mCur.hasNext();
+				if(!r) mCur.close();
+				
+				return r;
 			}
 
 			@Override
 			public T next() {
-				//FIXME: this is not a good idea, it works only because my current EdbVertex only store id
-				return (T) mStorage.getObj(storeType.VERTEX, null, (String)mCur.next());
+				//FIXME: 
+				return (T) mCur.next();
 			}
 
 			@Override

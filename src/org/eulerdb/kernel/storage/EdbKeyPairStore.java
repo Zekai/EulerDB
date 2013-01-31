@@ -159,8 +159,9 @@ public class EdbKeyPairStore {
 		mySecConfig.setSortedDuplicates(true);
 
 		// Now open it
+		String primarydbname = mStore.getDatabaseName();
 		SecondaryDatabase secondDb = mEdbHelper.getEnvironment()
-				.openSecondaryDatabase(null, key, // Index name
+				.openSecondaryDatabase(null, primarydbname+Common.SEPARATOR_PRIME2ND+key, // Index name
 						mStore, // Primary database handle. This is
 								// the db that we're indexing.
 						mySecConfig); // The secondary config
@@ -185,35 +186,7 @@ public class EdbKeyPairStore {
 
 		SecondaryDatabase secondDb = secondDBs.get(dbName);
 
-		SecondaryCursor mySecCursor = secondDb.openSecondaryCursor(tx, null);// openSecondaryCursor(null,
-		
-		/*DatabaseEntry searchKey = null;
-		try {
-			searchKey = new DatabaseEntry(ByteArrayHelper.serialize("Female"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		DatabaseEntry primaryKey = new DatabaseEntry();
-		DatabaseEntry primaryData = new DatabaseEntry();
-		OperationStatus hasNext = mySecCursor.getSearchKey(searchKey,primaryKey, primaryData, LockMode.DEFAULT);									// null)
-		
-		hasNext = mySecCursor.getNextDup(searchKey,primaryKey, primaryData, LockMode.DEFAULT);
-		hasNext = mySecCursor.getNextDup(searchKey,primaryKey, primaryData, LockMode.DEFAULT);
-		hasNext = mySecCursor.getNextDup(searchKey,primaryKey, primaryData, LockMode.DEFAULT);
-		hasNext = mySecCursor.getNextDup(searchKey,primaryKey, primaryData, LockMode.DEFAULT);
-		
-		SecondaryDatabase secondDb2 = secondDBs.get(dbName);
-		SecondaryCursor mySecCursor2 = secondDb2.openSecondaryCursor(tx, null);
-		try {
-			searchKey = new DatabaseEntry(ByteArrayHelper.serialize("Female"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		primaryKey = new DatabaseEntry();
-		primaryData = new DatabaseEntry();
-		hasNext = mySecCursor2.getSearchKey(searchKey,primaryKey, primaryData, LockMode.DEFAULT);*/
+		SecondaryCursor mySecCursor = secondDb.openCursor(tx, null);// openSecondaryCursor(null,
 		
 		return mySecCursor;
 	}

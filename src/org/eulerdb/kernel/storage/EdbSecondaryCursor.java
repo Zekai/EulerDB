@@ -72,7 +72,7 @@ public class EdbSecondaryCursor {
 
 	public boolean hasNext() {
 		if (cnt >= max) {
-			
+			//mCur.close();
 			return false;
 		}
 		else{
@@ -115,6 +115,11 @@ public class EdbSecondaryCursor {
 
 	public void remove() {
 		mCur.delete();
+	}
+	
+    @Override
+	public void finalize(){
+		mCur.close();
 	}
 
 }

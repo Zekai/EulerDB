@@ -4,7 +4,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.eulerdb.kernel.EdbGraph;
-import org.eulerdb.kernel.EdbIndexablGraph;
+import org.eulerdb.kernel.EdbIndexableGraph;
 import org.eulerdb.kernel.EdbVertex;
 import org.eulerdb.kernel.helper.FileHelper;
 
@@ -24,7 +24,7 @@ public class IndexTesting {
 		String gender = "gender"; 
 		String location = "location";
 
-		EdbIndexablGraph g = new EdbIndexablGraph(path);
+		EdbIndexableGraph g = new EdbIndexableGraph(path);
 		Vertex v1 = g.addVertex(1);
 		Vertex v2 = g.addVertex(2);
 		Vertex v3 = g.addVertex(3);

@@ -9,4 +9,5 @@ public class Common {
 	public static final String EDGEPROPERTY = "EDGEPropertyPairs";
 	public static final String SEPARATOR_CAHCEID = ".";//not allowed to be used in user name
 	public static final String SEPARATOR_VERTEX = "_";
+	public static final String SEPARATOR_PRIME2ND  = "_";
 }

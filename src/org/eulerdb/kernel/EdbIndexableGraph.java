@@ -1,23 +1,18 @@
 package org.eulerdb.kernel;
 
+
 import java.util.Set;
 
-import org.eulerdb.kernel.iterator.EdbIterableFromDatabase;
 import org.eulerdb.kernel.iterator.EdbIterableFromSecondaryDatabase;
-import org.eulerdb.kernel.storage.EdbCursor;
 import org.eulerdb.kernel.storage.EdbSecondaryCursor;
-import org.eulerdb.kernel.storage.EdbStorage;
-import org.eulerdb.kernel.storage.EulerDBHelper;
 import org.eulerdb.kernel.storage.EdbStorage.storeType;
 
-import com.google.common.base.Predicate;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Element;
-import com.tinkerpop.blueprints.Index;
-import com.tinkerpop.blueprints.IndexableGraph;
 import com.tinkerpop.blueprints.KeyIndexableGraph;
-import com.tinkerpop.blueprints.Parameter;
 import com.tinkerpop.blueprints.Vertex;
 
 /*
@@ -25,13 +20,13 @@ import com.tinkerpop.blueprints.Vertex;
  * IndexableGraph: manual index, user needs to put into the vertex by themselves 
  */
 
-public class EdbIndexablGraph extends EdbGraph implements KeyIndexableGraph{
+public class EdbIndexableGraph extends EdbGraph implements KeyIndexableGraph{
 	
-	public EdbIndexablGraph(String path){
+	public EdbIndexableGraph(String path){
 		super(path,false,false);
 	}
 
-	public EdbIndexablGraph(String path,boolean isTransactional,boolean autoIndex) {
+	public EdbIndexableGraph(String path,boolean isTransactional,boolean autoIndex) {
 		super(path,isTransactional,autoIndex);
 	}
 
@@ -82,7 +77,15 @@ public class EdbIndexablGraph extends EdbGraph implements KeyIndexableGraph{
 		final String key = arg0;
 		final String value = (String) arg1;
 		
-		return new EdbIterableFromSecondaryDatabase(new EdbSecondaryCursor(mStorage.getSecondaryCursor(storeType.NODEPROPERTY, null, key, value),value));
+		Function<String, Vertex> idToObject = new Function<String, Vertex>() {
+			  public Vertex apply(String id) {
+			    return (Vertex) mStorage.getObj(storeType.VERTEX, null, id);
+			  }
+			};
+		
+			Iterable<String> id = new EdbIterableFromSecondaryDatabase(new EdbSecondaryCursor(mStorage.getSecondaryCursor(storeType.NODEPROPERTY, null, key, value),value));
+			Iterable<Vertex> eit= (Iterable<Vertex>) Iterables.transform(id, idToObject);
+			return eit;
 	}
 	
 	/**
@@ -93,7 +96,16 @@ public class EdbIndexablGraph extends EdbGraph implements KeyIndexableGraph{
 		final String key = arg0;
 		final String value = (String) arg1;
 		
-		return new EdbIterableFromSecondaryDatabase(new EdbSecondaryCursor(mStorage.getSecondaryCursor(storeType.NODEPROPERTY, null, key, value),value));
+		Function<String, Edge> idToObject = new Function<String, Edge>() {
+			  public Edge apply(String id) {
+			    return (Edge) mStorage.getObj(storeType.EDGE, null, id);
+			  }
+			};
+			
+		Iterable<String> id = (Iterable<String>) new EdbIterableFromSecondaryDatabase(new EdbSecondaryCursor(mStorage.getSecondaryCursor(storeType.EDGEPROPERTY, null, key, value),value));;
+		Iterable<Edge> eit= (Iterable<Edge>) Iterables.transform(id, idToObject);
+		
+		return eit;
 	}
 	
 }
