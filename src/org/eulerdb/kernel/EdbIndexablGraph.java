@@ -2,10 +2,8 @@ package org.eulerdb.kernel;
 
 import java.util.Set;
 
-import org.eulerdb.kernel.iterator.EdbEdgeIterableFromDatabase;
-import org.eulerdb.kernel.iterator.EdbVertexIterableFromDatabase;
-import org.eulerdb.kernel.iterator.EdbVertexIterableFromSecondaryDatabase;
-import org.eulerdb.kernel.iterator.IteratorFactory;
+import org.eulerdb.kernel.iterator.EdbIterableFromDatabase;
+import org.eulerdb.kernel.iterator.EdbIterableFromSecondaryDatabase;
 import org.eulerdb.kernel.storage.EdbCursor;
 import org.eulerdb.kernel.storage.EdbSecondaryCursor;
 import org.eulerdb.kernel.storage.EdbStorage;
@@ -30,7 +28,7 @@ import com.tinkerpop.blueprints.Vertex;
 public class EdbIndexablGraph extends EdbGraph implements KeyIndexableGraph{
 	
 	public EdbIndexablGraph(String path){
-		super(path,false,true);
+		super(path,false,false);
 	}
 
 	public EdbIndexablGraph(String path,boolean isTransactional,boolean autoIndex) {
@@ -84,7 +82,7 @@ public class EdbIndexablGraph extends EdbGraph implements KeyIndexableGraph{
 		final String key = arg0;
 		final String value = (String) arg1;
 		
-		return new EdbVertexIterableFromSecondaryDatabase(new EdbSecondaryCursor(mStorage.getSecondaryCursor(storeType.NODEPROPERTY, null, key, value),value));
+		return new EdbIterableFromSecondaryDatabase(new EdbSecondaryCursor(mStorage.getSecondaryCursor(storeType.NODEPROPERTY, null, key, value),value));
 	}
 	
 	/**
@@ -95,8 +93,7 @@ public class EdbIndexablGraph extends EdbGraph implements KeyIndexableGraph{
 		final String key = arg0;
 		final String value = (String) arg1;
 		
-		//return new EdbEdgeIterableFromDatabase(new EdbCursor(mStorage.getByIndex(storeType.EDGEPROPERTY, null, key, value)));
-		return null;
+		return new EdbIterableFromSecondaryDatabase(new EdbSecondaryCursor(mStorage.getSecondaryCursor(storeType.NODEPROPERTY, null, key, value),value));
 	}
 	
 }

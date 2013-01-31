@@ -13,6 +13,7 @@ import com.google.common.collect.Iterators;
 import com.sleepycat.je.Transaction;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
@@ -145,7 +146,7 @@ public class EdbGraph implements Graph {
 	@Override
 	public Iterable<Edge> getEdges() {
 
-		return IteratorFactory.getEdgeIterator(mStorage.getCursor(
+		return IteratorFactory.getIterator(mStorage.getCursor(
 				storeType.EDGE, getTransaction()));
 	}
 
@@ -154,8 +155,8 @@ public class EdbGraph implements Graph {
 		final String key = arg0;
 		final String value = (String) arg1;
 
-		Predicate<Edge> relationFilter = new Predicate<Edge>() {
-			public boolean apply(Edge v) {
+		Predicate<Element> relationFilter = new Predicate<Element>() {
+			public boolean apply(Element v) {
 				if (null == v.getProperty(key))
 					return false;
 				else
@@ -164,8 +165,8 @@ public class EdbGraph implements Graph {
 			}
 		};
 
-		Iterable<Edge> its = IteratorFactory.getEdgeIterator(Iterators
-				.filter(IteratorFactory.getEdgeIterator(
+		Iterable<Edge> its = IteratorFactory.getIterator(Iterators
+				.filter(IteratorFactory.getIterator(
 						mStorage.getCursor(storeType.EDGE, getTransaction())).iterator(),
 						relationFilter));
 
@@ -190,7 +191,7 @@ public class EdbGraph implements Graph {
 	@Override
 	public Iterable<Vertex> getVertices() {
 
-		return IteratorFactory.getVertexIterator(mStorage.getCursor(
+		return IteratorFactory.getIterator(mStorage.getCursor(
 				storeType.VERTEX, getTransaction()));
 	}
 
@@ -199,8 +200,8 @@ public class EdbGraph implements Graph {
 		final String key = arg0;
 		final String value = (String) arg1;
 
-		Predicate<Vertex> relationFilter = new Predicate<Vertex>() {
-			public boolean apply(Vertex v) {
+		Predicate<Element> relationFilter = new Predicate<Element>() {
+			public boolean apply(Element v) {
 				if (null == v.getProperty(key))
 					return false;
 				else
@@ -209,8 +210,8 @@ public class EdbGraph implements Graph {
 			}
 		};
 		
-		Iterable<Vertex> its = IteratorFactory.getVertexIterator(Iterators
-				.filter(IteratorFactory.getVertexIterator(mStorage.getCursor(
+		Iterable<Vertex> its = IteratorFactory.getIterator(Iterators
+				.filter(IteratorFactory.getIterator(mStorage.getCursor(
 						storeType.VERTEX, getTransaction()
 						)).iterator(), relationFilter));
 

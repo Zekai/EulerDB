@@ -1,4 +1,4 @@
-package org.eulerdb.kernel.iterator;
+package Deprecated;
 
 
 import java.util.Iterator;

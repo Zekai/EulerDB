@@ -23,7 +23,7 @@ public class BasicTest {
 		
 		EdbVertex v1 = (EdbVertex) g.addVertex(1);
 		v1.setProperty("name", "AAAAA");
-		v1.setProperty("gender", "male");
+		v1.setProperty("gender", 1);
 		
 		EdbVertex v2 = (EdbVertex) g.addVertex(2);
 		EdbVertex v3 = (EdbVertex) g.addVertex(3);

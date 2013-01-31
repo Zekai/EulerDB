@@ -8,20 +8,20 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 
 
-public class EdbEdgeIterableFromDatabase extends EdbEdgeIterable {
+public class EdbIterableFromDatabase<T> implements Iterable<T> {
 	
 	EdbCursor mCur;
 	
-	public EdbEdgeIterableFromDatabase(EdbCursor cur) {
+	public EdbIterableFromDatabase(EdbCursor cur) {
 		mCur = cur;
 	}
 
 	@Override
-	public Iterator<Edge> iterator() {
+	public Iterator<T> iterator() {
 		
 		mCur.getFirst();
 		
-		 return new Iterator<Edge>() {
+		 return new Iterator<T>() {
 
 			@Override
 			public boolean hasNext() {
@@ -29,8 +29,8 @@ public class EdbEdgeIterableFromDatabase extends EdbEdgeIterable {
 			}
 
 			@Override
-			public Edge next() {
-				return (Edge) mCur.next();
+			public T next() {
+				return (T) mCur.next();
 			}
 
 			@Override

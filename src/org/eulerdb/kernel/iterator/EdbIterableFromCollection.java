@@ -9,19 +9,19 @@ import org.eulerdb.kernel.EdbEdge;
 import org.eulerdb.kernel.EdbVertex;
 import com.tinkerpop.blueprints.Vertex;
 
-public class EdbVertexIterableFromCollection extends EdbVertexIterable {
+public class EdbIterableFromCollection<T> implements Iterable<T> {
 	
-	private Collection<Vertex> mIt;
+	private Collection<T> mIt;
 
-	public EdbVertexIterableFromCollection(Collection<Vertex> it) {
+	public EdbIterableFromCollection(Collection<T> it) {
 		mIt = it;
 	}
 
 	@Override
-	public Iterator<Vertex> iterator() {
-		final Iterator<Vertex> it = mIt.iterator();
+	public Iterator<T> iterator() {
+		final Iterator<T> it = mIt.iterator();
 		
-		 return new Iterator<Vertex>() {
+		 return new Iterator<T>() {
 
 			@Override
 			public boolean hasNext() {
@@ -29,8 +29,8 @@ public class EdbVertexIterableFromCollection extends EdbVertexIterable {
 			}
 
 			@Override
-			public Vertex next() {
-				return it.next();
+			public T next() {
+				return (T) it.next();
 			}
 
 			@Override

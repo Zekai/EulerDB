@@ -13,8 +13,6 @@ import com.sleepycat.bind.tuple.TupleOutput;
 import com.sleepycat.util.FastOutputStream;
 
 public class PropertyBinding extends TupleBinding {
-	
-	private Converter entryConverter = new EntryConverter();
 
 	@Override
 	public Object entryToObject(TupleInput in) {
@@ -101,7 +99,7 @@ public class PropertyBinding extends TupleBinding {
 		}
 		
 	}
-	
+	/*
 	protected class Entry {
 
 		public final static String KEY = "key";
@@ -205,6 +203,6 @@ public class PropertyBinding extends TupleBinding {
 			return null;
 		}
 
-	}
+	}*/
 
 }

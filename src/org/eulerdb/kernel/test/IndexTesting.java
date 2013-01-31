@@ -28,20 +28,20 @@ public class IndexTesting {
 		Vertex v1 = g.addVertex(1);
 		Vertex v2 = g.addVertex(2);
 		Vertex v3 = g.addVertex(3);
-		//Vertex v4 = g.addVertex(4);
+		Vertex v4 = g.addVertex(4);
 
 		// add nodes properties
-		v1.setProperty(name, "Mock");
+		v1.setProperty(name, "Mark");
 		//v1.setProperty(gender, "Male");
 		//v1.setProperty(location, "california");
-		v2.setProperty(name, "Mark");
+		//v2.setProperty(name, "Mark");
 		//v2.setProperty(gender, "Female");
 		//v2.setProperty(location, "new york");
 		
 		//for(String s:v1.getPropertyKeys()){
 		//	System.out.println(v2.getProperty(s));
 		//}
-		v3.setProperty(name, "Macka");
+		//v3.setProperty(name, "Macka");
 		//v3.setProperty(gender, "Female");
 //		v4.setProperty(name, "Andrejka");
 //		v4.setProperty(gender, "Female");
@@ -68,28 +68,40 @@ public class IndexTesting {
 		{
 			System.out.println(vx.getId());
 		}*/
-		System.out.println("name: Mock");
-		for(Vertex vy: g.getVertices(name, "Mock"))
+		
+		Vertex x = g.getVertex(1);
+		System.out.println(x.getProperty("name"));
+		
+		
+		System.out.println("name: Mark");
+		for(Vertex vy: g.getVertices(name, "Mark"))
 		{
 			System.out.println(vy.getId());
 		}
+		Vertex x1 = g.getVertex(1);
+		System.out.println(x1.getProperty("name"));
+		/*
 		System.out.println("name: Macka");
+		
 		for(Vertex vx: g.getVertices(name, "Mark"))
 		{
 			System.out.println(vx.getId());
 		}
+		Vertex x3 = g.getVertex(2);
+		System.out.println(x3.getProperty("name"));
 		System.out.println("name: Macka");
 		for(Vertex vx: g.getVertices(name, "Macka"))
 		{
 			System.out.println(vx.getId());
 		}
 		System.out.println("name: Macka");
+		/*v1.setProperty(name, "Mark");
 		for(Vertex vx: g.getVertices(name, "Mark"))
 		{
 			System.out.println(vx.getId());
 		}
 		
-		//Vertex x = g.getVertex(2);
-		//System.out.println(x.getId());
+		Vertex x2 = g.getVertex(2);
+		System.out.println(x2.getProperty("name"));*/
 	}
 }

@@ -16,9 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eulerdb.kernel.commons.Common;
-import org.eulerdb.kernel.iterator.EdbEdgeIterableFromCollection;
-import org.eulerdb.kernel.iterator.EdbVertexIterableFromCollection;
-import org.eulerdb.kernel.iterator.IteratorFactory;
+import org.eulerdb.kernel.iterator.EdbIterableFromCollection;
 import org.eulerdb.kernel.storage.EdbStorage;
 import org.eulerdb.kernel.storage.EdbStorage.storeType;
 
@@ -174,7 +172,7 @@ public class EdbVertex implements Vertex, Serializable {
 				}
 			}
 		}
-		return new EdbEdgeIterableFromCollection(res);
+		return res;//EdbEdgeIterableFromCollection(res);
 
 	}
 
@@ -219,7 +217,7 @@ public class EdbVertex implements Vertex, Serializable {
 			}
 		}
 
-		return new EdbVertexIterableFromCollection(res);
+		return new EdbIterableFromCollection(res);
 
 	}
 

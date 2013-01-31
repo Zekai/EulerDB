@@ -37,10 +37,10 @@ public class PropertyKeyCreator implements SecondaryKeyCreator {
         throws DatabaseException {
 
             // Convert dataEntry to an Inventory object
-        	Map<String, Object> prperties = 
-                (Hashtable<String, Object>) theBinding.entryToObject(dataEntry);
+        	Map<Object, Object> prperties = 
+                (Hashtable<Object, Object>) theBinding.entryToObject(dataEntry);
             // Get the item name and use that as the key
-            String theItem = (String) prperties.get(mKey);
+        	Object theItem = prperties.get(mKey);
             try {
 				resultEntry.setData(ByteArrayHelper.serialize(theItem));
 			} catch (IOException e) {

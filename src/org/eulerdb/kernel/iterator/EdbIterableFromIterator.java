@@ -5,18 +5,18 @@ import java.util.Iterator;
 import org.eulerdb.kernel.EdbVertex;
 import com.tinkerpop.blueprints.Vertex;
 
-public class EdbVertexIterableFromIterator extends EdbVertexIterable {
+public class EdbIterableFromIterator<T> implements Iterable<T> {
 	
-	private Iterator<EdbVertex> mIt;
+	private Iterator<T> mIt;
 
-	public EdbVertexIterableFromIterator(Iterator<EdbVertex> it) {
+	public EdbIterableFromIterator(Iterator<T> it) {
 		mIt = it;
 	}
 
 	@Override
-	public Iterator<Vertex> iterator() {
-		final Iterator<EdbVertex> it = mIt;
-		 return new Iterator<Vertex>() {
+	public Iterator<T> iterator() {
+		final Iterator<T> it = mIt;
+		 return new Iterator<T>() {
 
 				@Override
 				public boolean hasNext() {
@@ -24,8 +24,8 @@ public class EdbVertexIterableFromIterator extends EdbVertexIterable {
 				}
 
 				@Override
-				public Vertex next() {
-					return it.next();
+				public T next() {
+					return (T) it.next();
 				}
 
 				@Override
