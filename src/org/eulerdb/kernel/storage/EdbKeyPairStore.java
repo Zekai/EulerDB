@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
+import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 
 import com.sleepycat.bind.tuple.TupleBinding;
@@ -17,6 +18,7 @@ import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.SecondaryConfig;
+import com.sleepycat.je.SecondaryCursor;
 import com.sleepycat.je.SecondaryDatabase;
 import com.sleepycat.je.Transaction;
 
@@ -50,8 +52,7 @@ public class EdbKeyPairStore {
 
 		secondDBs = new Hashtable<String, SecondaryDatabase>();
 		// txn0.commit();
-		// if(secondary) setup(false);
-
+		//if(name.equals(Common.VERTEXPROPERTY)) createSecondaryIfNeed("name");
 	};
 
 	public OperationStatus put(Transaction tx, byte[] key, byte[] value) {
@@ -124,13 +125,16 @@ public class EdbKeyPairStore {
 							d_data.getData(), value)));
 	}
 
-	public void setup(boolean readOnly, String key) {
+	public void createSecondary(boolean readOnly, String key) {
+
+		if (secondDBs.containsKey(key))
+			return;
 
 		SecondaryConfig mySecConfig = new SecondaryConfig();
 
 		// If the environment is read-only, then
 		// make the databases read-only too.
-		// mySecConfig.setReadOnly(readOnly);
+		 mySecConfig.setReadOnly(readOnly);
 
 		// If the environment is opened for write, then we want to be
 		// able to create the environment and databases if
@@ -164,9 +168,9 @@ public class EdbKeyPairStore {
 		secondDBs.put(key, secondDb);
 	}
 
-	public void openSecondary(String key) {
-		setup(false, key);
-	}
+	/*public void openSecondary(String key) {
+		createSecondary(true, key);
+	}*/
 
 	public Set<String> getKeys() {
 		return secondDBs.keySet();
@@ -177,24 +181,45 @@ public class EdbKeyPairStore {
 		mEdbHelper.getEnvironment().removeDatabase(tx, dbName);
 	}
 
-	/*
-	 * public void getSecond(String searchName) {
-	 * 
-	 * DatabaseEntry searchKey = null; try { searchKey = new
-	 * DatabaseEntry(ByteArrayHelper.serialize(searchName)); } catch
-	 * (IOException e) { // TODO Auto-generated catch block e.printStackTrace();
-	 * } DatabaseEntry primaryKey = new DatabaseEntry(); DatabaseEntry
-	 * primaryData = new DatabaseEntry();
-	 * 
-	 * OperationStatus r = itemNameIndexDb.get(null, searchKey, primaryKey,
-	 * primaryData, LockMode.DEFAULT);
-	 * 
-	 * try { String one = (String)
-	 * ByteArrayHelper.deserialize(primaryKey.getData()); //String two =
-	 * (String) ByteArrayHelper.deserialize(primaryData.getData());
-	 * System.out.println(one); } catch (IOException e) { // TODO Auto-generated
-	 * catch block e.printStackTrace(); } catch (ClassNotFoundException e) { //
-	 * TODO Auto-generated catch block e.printStackTrace(); } }
-	 */
+	public SecondaryCursor getSecondCursor(String dbName, Transaction tx) {
+
+		SecondaryDatabase secondDb = secondDBs.get(dbName);
+
+		SecondaryCursor mySecCursor = secondDb.openSecondaryCursor(tx, null);// openSecondaryCursor(null,
+		
+		/*DatabaseEntry searchKey = null;
+		try {
+			searchKey = new DatabaseEntry(ByteArrayHelper.serialize("Female"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		DatabaseEntry primaryKey = new DatabaseEntry();
+		DatabaseEntry primaryData = new DatabaseEntry();
+		OperationStatus hasNext = mySecCursor.getSearchKey(searchKey,primaryKey, primaryData, LockMode.DEFAULT);									// null)
+		
+		hasNext = mySecCursor.getNextDup(searchKey,primaryKey, primaryData, LockMode.DEFAULT);
+		hasNext = mySecCursor.getNextDup(searchKey,primaryKey, primaryData, LockMode.DEFAULT);
+		hasNext = mySecCursor.getNextDup(searchKey,primaryKey, primaryData, LockMode.DEFAULT);
+		hasNext = mySecCursor.getNextDup(searchKey,primaryKey, primaryData, LockMode.DEFAULT);
+		
+		SecondaryDatabase secondDb2 = secondDBs.get(dbName);
+		SecondaryCursor mySecCursor2 = secondDb2.openSecondaryCursor(tx, null);
+		try {
+			searchKey = new DatabaseEntry(ByteArrayHelper.serialize("Female"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		primaryKey = new DatabaseEntry();
+		primaryData = new DatabaseEntry();
+		hasNext = mySecCursor2.getSearchKey(searchKey,primaryKey, primaryData, LockMode.DEFAULT);*/
+		
+		return mySecCursor;
+	}
+
+	public void createSecondaryIfNeed(String searchName) {
+		createSecondary(false, searchName);
+	}
 
 }

@@ -50,7 +50,7 @@ public class EdbTransactionalGraph extends EdbGraph implements
 	}
 
 	public EdbTransactionalGraph(String path) {
-		super(path, true);
+		super(path, true,false);
 		mStatus = Status.FRESH;
 	}
 

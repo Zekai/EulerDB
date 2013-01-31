@@ -77,19 +77,19 @@ public class EdbGraph implements Graph {
 			mEdbHelper = EulerDBHelper.getInstance(path, false);
 		
 		if (mStorage == null)
-			mStorage = EdbStorage.getInstance(path, false);
+			mStorage = EdbStorage.getInstance(path, false,false);
 		
 		mIsRunning = true;
 	}
 
-	public EdbGraph(String path, boolean transactional) {
+	public EdbGraph(String path, boolean transactional, boolean autoIndex) {
 		mTransactional = transactional;
 		
 		if(mEdbHelper==null) 
 			mEdbHelper = EulerDBHelper.getInstance(path, transactional);
 		
 		if (mStorage == null)
-			mStorage = EdbStorage.getInstance(path, mTransactional);
+			mStorage = EdbStorage.getInstance(path, mTransactional,autoIndex);
 		
 		mIsRunning = true;
 	}

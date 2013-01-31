@@ -1,8 +1,11 @@
 package org.eulerdb.kernel.storage;
 
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.eulerdb.kernel.helper.ByteArrayHelper;
 
 import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.bind.tuple.TupleInput;
@@ -15,7 +18,7 @@ public class PropertyBinding extends TupleBinding {
 
 	@Override
 	public Object entryToObject(TupleInput in) {
-		Map<String,Object> m = new Hashtable<String,Object>();
+		/*Map<String,Object> m = new Hashtable<String,Object>();
 		TupleInput ti = (TupleInput) in;
 
 		String str = ti.readString();
@@ -30,10 +33,10 @@ public class PropertyBinding extends TupleBinding {
 		for (int i = 0; i < part.length; i++) {
 			main = part[i];
 
-			/*
-			if (i < part.length - 1) {
-				main += "}";
-			}*/
+			
+			//if (i < part.length - 1) {
+			//	main += "}";
+			//}
 
 			String[] subArray = main.split("=");
 			
@@ -43,6 +46,17 @@ public class PropertyBinding extends TupleBinding {
 			Object e =subArray[1];
 			
 			m.put(key, e);
+		}*/
+		
+		Map<String, Object> m = null;
+		try {
+			m = (Map<String, Object>) ByteArrayHelper.deserialize(in.getBufferBytes());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		return m;
@@ -52,7 +66,7 @@ public class PropertyBinding extends TupleBinding {
 	public void objectToEntry(Object map, TupleOutput out) {
 		TupleOutput to = (TupleOutput) out;
 
-		StringBuilder builder = new StringBuilder();
+		/*StringBuilder builder = new StringBuilder();
 		builder.append("{");
 		Iterator<java.util.Map.Entry<String, Object>> it = ((Hashtable<String,Object>) map).entrySet()
 				.iterator();
@@ -70,14 +84,21 @@ public class PropertyBinding extends TupleBinding {
 			}
 
 			if (index < (size - 1)) {
-				builder.append(", ");
+				builder.append(",");
 			}
 
 			index++;
 		}
 		builder.append("}");
 
-		to.writeString(builder.toString());
+		to.writeString(builder.toString());*/
+		
+		try {
+			to.write(ByteArrayHelper.serialize(map));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	

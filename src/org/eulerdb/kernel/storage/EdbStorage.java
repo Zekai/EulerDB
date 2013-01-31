@@ -7,6 +7,7 @@ import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 
 import com.sleepycat.je.DatabaseEntry;
+import com.sleepycat.je.SecondaryCursor;
 import com.sleepycat.je.Transaction;
 
 /**
@@ -18,7 +19,7 @@ import com.sleepycat.je.Transaction;
 public class EdbStorage {
 	private static EdbStorage instance = null;
 	
-	public static enum storeType {VERTEX,EDGE,VERTEX_OUT,VERTEX_IN,PROPERTY,NODEPROPERTY,EDGEPROPERTY};
+	public static enum storeType {VERTEX,EDGE,VERTEX_OUT,VERTEX_IN,NODEPROPERTY,EDGEPROPERTY};
 	private static EdbKeyPairStore mNodePairs;
 	private static EdbKeyPairStore mEdgePairs;
 	private static EdbKeyPairStore mNodeOutPairs;
@@ -26,18 +27,17 @@ public class EdbStorage {
 	private static EdbKeyPairStore mNodePropertyPairs;
 	private static EdbKeyPairStore mEdgePropertyPairs;
 	private static EulerDBHelper mEdbHelper = null;
-	private static boolean mTransactional;
+	//private static boolean mTransactional;
 	private static EdbCursor mEdgeCursor;
 	private static EdbCursor mNodeCursor;
 	
-	private EdbStorage(String path){
-		initStores(path);
+	private EdbStorage(String path,boolean transactional,boolean autoindex){
+		initStores(path,transactional,autoindex);
 	}
 
-	public static EdbStorage getInstance(String path,boolean transactional) {
-		mTransactional = transactional;
+	public static EdbStorage getInstance(String path,boolean transactional,boolean autoindex) {
 		if (instance == null) {
-			instance = new EdbStorage(path);
+			instance = new EdbStorage(path,transactional,autoindex);
 		}
 		return instance;
 	}
@@ -50,9 +50,9 @@ public class EdbStorage {
 		return instance;
 	}
 	
-	private void initStores(String path) {
+	private void initStores(String path,boolean isTransactional,boolean autoIndex) {
 		if(mEdbHelper == null) {
-			mEdbHelper = EulerDBHelper.getInstance(path,mTransactional);
+			mEdbHelper = EulerDBHelper.getInstance(path,isTransactional);
 		}
 		if (mNodePairs == null) {
 			mNodePairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXSTORE,false);
@@ -71,11 +71,11 @@ public class EdbStorage {
 		}
 		
 		if (mNodePropertyPairs == null) {
-			mNodePropertyPairs = new EdbKeyPairStore(mEdbHelper,Common.PROPERTY,true);
+			mNodePropertyPairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXPROPERTY,autoIndex);
 		}
 		
 		if (mEdgePropertyPairs == null) {
-			mEdgePropertyPairs = new EdbKeyPairStore(mEdbHelper,Common.PROPERTY,true);
+			mEdgePropertyPairs = new EdbKeyPairStore(mEdbHelper,Common.EDGEPROPERTY,autoIndex);
 		}
 
 	}
@@ -101,23 +101,10 @@ public class EdbStorage {
 	
 	public void store(storeType type,Transaction tx,String id,Object n) {
 		try {
-			switch(type){
-			case VERTEX:
-			case EDGE:
-			case VERTEX_OUT:
-			case VERTEX_IN:
+			
 				getStore(type).put(tx,ByteArrayHelper.serialize(id),
 				ByteArrayHelper.serialize(n));
-				break;
-			case NODEPROPERTY:
-			case EDGEPROPERTY:
-				DatabaseEntry theKey = new DatabaseEntry(ByteArrayHelper.serialize(id));
-			    DatabaseEntry theData = new DatabaseEntry();
-				PropertyBinding dataBinding = new PropertyBinding();
-				dataBinding.objectToEntry(n, theData);
-				getStore(type).put(tx, theKey, theData);
-				break;
-			}
+				
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -140,7 +127,11 @@ public class EdbStorage {
 	public Object getObj(storeType type, Transaction tx, String id) {
 		Object o = null; // mCache.get(id, tx.getId());
 		
-		if (type != storeType.PROPERTY) {
+		/*switch(type){
+		case VERTEX:
+		case EDGE:
+		case VERTEX_OUT:
+		case VERTEX_IN:
 			try {
 				o = ByteArrayHelper.deserialize(getStore(type).get(tx,
 						ByteArrayHelper.serialize(id)));
@@ -151,7 +142,9 @@ public class EdbStorage {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else {
+			break;
+		case NODEPROPERTY:
+		case EDGEPROPERTY:
 			DatabaseEntry theKey = null;
 			try {
 				theKey = new DatabaseEntry(ByteArrayHelper.serialize(id));
@@ -163,9 +156,26 @@ public class EdbStorage {
 					
 			PropertyBinding dataBinding = new PropertyBinding();
 			o = dataBinding.entryToObject(theData);
+			break;
+		}*/
+		
+		try {
+			o = ByteArrayHelper.deserialize(getStore(type).get(tx,
+					ByteArrayHelper.serialize(id)));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
 		return o;
+	}
+	
+	public SecondaryCursor getSecondaryCursor(storeType type,Transaction tx,String pKey,String pValue){
+
+			return getStore(type).getSecondCursor(pKey,tx);
+	
 	}
 	
 	public EdbCursor getCursor(storeType type,Transaction tx) {
@@ -238,15 +248,20 @@ public class EdbStorage {
 		mEdgePairs.sync();
 	}
 	
+	/*
 	public void openSecondary(String key, storeType type){
 		getStore(type).openSecondary(key);
-	}
+	}*/
 	
 	public Set<String> getKeys(storeType type){
 		return getStore(type).getKeys();
 	}
 	public void deleteSecondary(storeType type,Transaction tx,String dbName){
 		getStore(type).deleteSecondary(tx, dbName);
+	}
+	
+	public void createSecondaryIfNeed(storeType type,String dbName){
+		getStore(type).createSecondaryIfNeed(dbName);
 	}
 	
 
