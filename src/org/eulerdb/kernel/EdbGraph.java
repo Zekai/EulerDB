@@ -1,10 +1,10 @@
 package org.eulerdb.kernel;
 
 import java.io.IOException;
-import java.util.Iterator;
 import org.apache.log4j.*;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
-import org.eulerdb.kernel.iterator.IteratorFactory;
+import org.eulerdb.kernel.iterator.EdbIterableFromDatabase;
+import org.eulerdb.kernel.iterator.EdbIterableFromIterator;
 import org.eulerdb.kernel.storage.EdbStorage;
 import org.eulerdb.kernel.storage.EulerDBHelper;
 import org.eulerdb.kernel.storage.EdbStorage.storeType;
@@ -13,6 +13,7 @@ import com.google.common.collect.Iterators;
 import com.sleepycat.je.Transaction;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
@@ -28,12 +29,13 @@ import com.tinkerpop.blueprints.Vertex;
 
 public class EdbGraph implements Graph {
 
-	private static final Logger logger = Logger.getLogger(EdbGraph.class
-			.getCanonicalName());
+	protected final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 
-	protected boolean mTransactional;
+	//protected boolean mTransactional;
+	protected boolean mAutoIndex;
 	protected EdbStorage mStorage = null;
 	protected static EulerDBHelper mEdbHelper = null;
+	protected boolean mIsRunning = false;
 
 	protected static final Features FEATURES = new Features();
 
@@ -70,27 +72,33 @@ public class EdbGraph implements Graph {
 	}
 
 	public EdbGraph(String path) {
-		mTransactional = false;
+		
+		logger.info("EulerDB is running in mode transactional: false, autoindex: false at path:" + path);
+		
 		if(mEdbHelper==null) 
 			mEdbHelper = EulerDBHelper.getInstance(path, false);
 		
 		if (mStorage == null)
-			mStorage = EdbStorage.getInstance(path, false);
+			mStorage = EdbStorage.getInstance(path, false,false);
+		
+		mIsRunning = true;
 	}
 
-	public EdbGraph(String path, boolean transactional) {
-		mTransactional = transactional;
-		
+	public EdbGraph(String path, boolean transactional, boolean autoIndex) {
+		logger.info("EulerDB is running in mode transactional: "+transactional+", autoindex: "+ autoIndex+"at path:" + path);
+		mAutoIndex = autoIndex;
 		if(mEdbHelper==null) 
 			mEdbHelper = EulerDBHelper.getInstance(path, transactional);
 		
 		if (mStorage == null)
-			mStorage = EdbStorage.getInstance(path, mTransactional);
+			mStorage = EdbStorage.getInstance(path, transactional,autoIndex);
+		
+		mIsRunning = true;
 	}
 
 	@Override
 	public Edge addEdge(Object id, Vertex n1, Vertex n2, String relation) {
-
+		logger.debug("Adding Edge from Vertex "+ n1.getId()+" to Vertex "+n2.getId()+" with relation of "+ relation);
 		EdbEdge e = new EdbEdge(n1, n2, id, relation);
 		if(n1.equals(n2)){//self loop
 			mStorage.store(storeType.EDGE, getTransaction(), (String)e.getId(),e);
@@ -120,6 +128,7 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public Vertex addVertex(Object id) {
+		logger.debug("Adding vertex with id "+id);
 		EdbVertex v = new EdbVertex(id);
 		mStorage.store(storeType.VERTEX, getTransaction(),(String)v.getId(), v);
 
@@ -128,6 +137,7 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public Edge getEdge(Object arg0) {
+		logger.debug("get edge with id" + arg0);
 		if (arg0 == null)
 			throw new IllegalArgumentException("Get id shouldn't be null");
 		EdbEdge e = (EdbEdge) mStorage.getObj(storeType.EDGE, getTransaction(),
@@ -138,18 +148,19 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public Iterable<Edge> getEdges() {
-
-		return IteratorFactory.getEdgeIterator(mStorage.getCursor(
+		logger.debug(" get edge iterable");
+		return new EdbIterableFromDatabase(mStorage.getCursor(
 				storeType.EDGE, getTransaction()));
 	}
 
 	@Override
 	public Iterable<Edge> getEdges(String arg0, Object arg1) {
+		logger.debug("get edge iterable with property key: "+arg0+" value of "+ arg1);
 		final String key = arg0;
-		final String value = (String) arg1;
+		final Object value = arg1;
 
-		Predicate<Edge> relationFilter = new Predicate<Edge>() {
-			public boolean apply(Edge v) {
+		Predicate<Element> relationFilter = new Predicate<Element>() {
+			public boolean apply(Element v) {
 				if (null == v.getProperty(key))
 					return false;
 				else
@@ -158,8 +169,8 @@ public class EdbGraph implements Graph {
 			}
 		};
 
-		Iterable<Edge> its = IteratorFactory.getEdgeIterator(Iterators
-				.filter(IteratorFactory.getEdgeIterator(
+		Iterable<Edge> its = new EdbIterableFromIterator(Iterators
+				.filter(new EdbIterableFromDatabase(
 						mStorage.getCursor(storeType.EDGE, getTransaction())).iterator(),
 						relationFilter));
 
@@ -173,6 +184,7 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public Vertex getVertex(Object arg0) {
+		logger.debug("get vertex of id "+ arg0);
 		if (arg0 == null)
 			throw new IllegalArgumentException("argument is null");
 		EdbVertex n = (EdbVertex) mStorage.getObj(storeType.VERTEX, getTransaction(),
@@ -183,18 +195,19 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public Iterable<Vertex> getVertices() {
-
-		return IteratorFactory.getVertexIterator(mStorage.getCursor(
+		logger.debug(" get vertex iterable");
+		return new EdbIterableFromDatabase(mStorage.getCursor(
 				storeType.VERTEX, getTransaction()));
 	}
 
 	@Override
 	public Iterable<Vertex> getVertices(String arg0, Object arg1) {
+		logger.debug("get vertex iterable with property key: "+arg0+" value of "+ arg1);
 		final String key = arg0;
-		final String value = (String) arg1;
+		final Object value = arg1;
 
-		Predicate<Vertex> relationFilter = new Predicate<Vertex>() {
-			public boolean apply(Vertex v) {
+		Predicate<Element> relationFilter = new Predicate<Element>() {
+			public boolean apply(Element v) {
 				if (null == v.getProperty(key))
 					return false;
 				else
@@ -203,8 +216,8 @@ public class EdbGraph implements Graph {
 			}
 		};
 		
-		Iterable<Vertex> its = IteratorFactory.getVertexIterator(Iterators
-				.filter(IteratorFactory.getVertexIterator(mStorage.getCursor(
+		Iterable<Vertex> its = new EdbIterableFromIterator(Iterators
+				.filter(new EdbIterableFromDatabase(mStorage.getCursor(
 						storeType.VERTEX, getTransaction()
 						)).iterator(), relationFilter));
 
@@ -213,6 +226,7 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public void removeEdge(Edge arg0) {
+		logger.debug(" remove edge of id "+ arg0.getId());
 		EdbEdge e2 = (EdbEdge) arg0;
 
 		EdbVertex n = (EdbVertex) e2.getVertex(Direction.OUT);
@@ -234,6 +248,7 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public void removeVertex(Vertex arg0) {
+		logger.debug(" remove vertex of id"+ arg0.getId());
 		byte[] key = null;
 		try {
 			key = ByteArrayHelper.serialize((String) arg0.getId());
@@ -256,17 +271,23 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public void shutdown() {
+		logger.info("Shutting down the EulerDB");
 		// nontransactionalCommit();
-		mStorage.close();
-		mStorage = null;
-		mEdbHelper = null;
+		if(mIsRunning){
+			mStorage.close();
+			mStorage = null;
+			mEdbHelper = null;
+			mIsRunning = false;
+		}
 	}
 
 	public void nontransactionalCommit() {
+		logger.info("nontransactionalCommit");
 		mStorage.commit();
 	}
 	
 	protected Transaction getTransaction(){
+		logger.debug("getTransaction");
 		return null;
 	}
 

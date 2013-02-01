@@ -1,14 +1,16 @@
-package org.eulerdb.kernel.storage;
+package org.eulerdb.kernel.iterator;
 
 import java.io.IOException;
 
 import org.eulerdb.kernel.helper.ByteArrayHelper;
+
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
+import com.tinkerpop.blueprints.Element;
 
-public class EdbCursor {
+public class EdbPrimaryCursor implements EdbBaseCursor{
 
 	private Cursor mCur;
 	private OperationStatus hasNext;
@@ -16,7 +18,7 @@ public class EdbCursor {
 	private long cnt;
 	private long max;
 
-	public EdbCursor(Cursor cur) {
+	public EdbPrimaryCursor(Cursor cur) {
 		this.mCur = cur;
 
 		max = cur.getDatabase().count();
@@ -29,6 +31,7 @@ public class EdbCursor {
 	}
 
 	public void close() {
+		logger.debug("closing cursor");
 		mCur.close();
 	}
 
@@ -37,21 +40,15 @@ public class EdbCursor {
 			DatabaseEntry key = new DatabaseEntry();
 			DatabaseEntry data = new DatabaseEntry();//rewind
 			hasNext = mCur.getFirst(key, data, LockMode.DEFAULT);//mCur.close();
+			logger.debug("hasNext false");
 			return false;
 		}
-
-		/*
-		DatabaseEntry key = new DatabaseEntry();
-		DatabaseEntry data = new DatabaseEntry();
-		hasNext = mCur.getCurrent(key, data, LockMode.DEFAULT);
-
-		boolean result = (hasNext == OperationStatus.SUCCESS) && (key.getData() != null);
+		else
+		{
+			logger.debug("hasNext true");
+			return true;
+		}
 		
-		if(!result) 
-			mCur.close();
-			*/
-		
-		return true;
 	}
 
 	public Object getFirst() {
@@ -111,10 +108,12 @@ public class EdbCursor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		logger.debug("next:" + ((Element)v).getId());
 		return v;
 	}
 
 	public void remove() {
+		logger.debug("remove cursor");
 		mCur.delete();
 	}
 

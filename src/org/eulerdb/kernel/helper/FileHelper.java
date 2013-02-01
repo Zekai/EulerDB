@@ -1,7 +1,6 @@
 package org.eulerdb.kernel.helper;
 
 import java.io.File;
-import java.io.IOException;
 
 public class FileHelper {
 

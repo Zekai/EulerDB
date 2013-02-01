@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 
 import org.eulerdb.kernel.EdbGraph;
+import org.eulerdb.kernel.EdbKeyIndexableGraph;
 import org.eulerdb.kernel.EdbTransactionalGraph;
 
 /**
@@ -63,13 +64,13 @@ public class EdbGraphTest extends GraphTest {
 
     public void testKeyIndexableGraphTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new KeyIndexableGraphTestSuite(this));
+        doTestSuite(new KeyIndexableGraphTestSuite(this));
         printTestPerformance("KeyIndexableGraphTestSuite", this.stopWatch());
     }
 
     public void testIndexableGraphTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new IndexableGraphTestSuite(this));
+        doTestSuite(new IndexableGraphTestSuite(this));
         printTestPerformance("IndexableGraphTestSuite", this.stopWatch());
     }
 
@@ -114,7 +115,7 @@ public class EdbGraphTest extends GraphTest {
         //deleteDirectory(f);
 
         f.mkdir();
-        EdbGraph graph = new EdbTransactionalGraph(directory + "/" + graphDirectoryName);
+        EdbTransactionalGraph graph = new EdbTransactionalGraph(directory + "/" + graphDirectoryName,true,true);
         return graph;
     }
 

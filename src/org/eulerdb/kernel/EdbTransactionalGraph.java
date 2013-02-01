@@ -2,10 +2,7 @@ package org.eulerdb.kernel;
 
 import javax.transaction.xa.XAException;
 
-import org.eulerdb.kernel.storage.EulerDBHelper;
-
 import com.sleepycat.je.Transaction;
-import com.sleepycat.je.Transaction.State;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.TransactionalGraph;
@@ -30,7 +27,7 @@ import com.tinkerpop.blueprints.util.ExceptionFactory;
  * @author Zekai Huang
  * 
  */
-public class EdbTransactionalGraph extends EdbGraph implements
+public class EdbTransactionalGraph extends EdbKeyIndexableGraph implements
 		TransactionalGraph {
 
 	public final static ThreadLocal<Transaction> txs = new ThreadLocal<Transaction>() {
@@ -39,19 +36,18 @@ public class EdbTransactionalGraph extends EdbGraph implements
 		}
 	};
 
-	private enum Status {
-		FRESH, NEW, END
-	};
-
-	private Status mStatus;
-
 	static {
 		FEATURES.supportsTransactions = true;
 	}
 
 	public EdbTransactionalGraph(String path) {
-		super(path, true);
-		mStatus = Status.FRESH;
+		super(path, true,false);
+		logger.info("EulerDB is running in mode transactional: true, autoindex: false at path:" + path);
+	}
+	
+	public EdbTransactionalGraph(String path,boolean isTransactional,boolean autoIndex) {
+		super(path, isTransactional,autoIndex);
+		logger.info("EulerDB is running in mode transactional: "+isTransactional+", autoindex: "+ autoIndex+"at path:" + path);
 	}
 
 	@Override
@@ -122,24 +118,32 @@ public class EdbTransactionalGraph extends EdbGraph implements
 	}
 
 	private void autoStartTransaction() {
+		logger.debug("autoStartTransaction");
 		if (txs.get() == null) {
 			txs.set(mEdbHelper.getEnvironment().beginTransaction(null, null));
+			logger.info("creating new transaction");
 		}
 	}
 
 	@Override
 	public void startTransaction() throws IllegalStateException {
+		logger.info("startTransaction");
 		if (txs.get() == null) {
 			txs.set(mEdbHelper.getEnvironment().beginTransaction(null, null));
 		} else
+		{
+			logger.error("transaction Already Started");
 			throw ExceptionFactory.transactionAlreadyStarted();
+		}
 
 	}
 
 	@Override
 	public void stopTransaction(Conclusion conclusion) {
+		logger.info("stopTransaction");
 		mStorage.closeCursor();
 		if (null == txs.get()) {
+			logger.warn("no open transaction, no need to commit or abort");
 			return;
 		}
 
@@ -150,8 +154,9 @@ public class EdbTransactionalGraph extends EdbGraph implements
 				abort();
 		} catch (XAException e)
 		{
-			
+			logger.error(e);
 		}finally {
+			logger.info("remove transaction.");
 			txs.remove();
 		}
 
@@ -163,23 +168,26 @@ public class EdbTransactionalGraph extends EdbGraph implements
 	}
 
 	private void commit() throws XAException {
+		logger.info("commit transaction");
 		txs.get().commit();
-		mStatus = Status.END;
 	}
 
 	private void abort() throws XAException {
+		logger.info("abort transaction");
 		txs.get().abort();
-		mStatus = Status.END;
 	}
 
 	@Override
 	public void shutdown() {
-		mStorage.closeCursor();
-		if (null != txs.get()) {
-			txs.get().commit();
-			txs.remove();
+		logger.info("EulerEB is shuting down");
+		if(mIsRunning){
+			mStorage.closeCursor();
+			if (null != txs.get()) {
+				txs.get().commit();
+				txs.remove();
+			}
+			super.shutdown();
 		}
-		super.shutdown();
 	}
 
 }
