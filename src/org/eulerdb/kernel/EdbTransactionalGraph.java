@@ -27,7 +27,7 @@ import com.tinkerpop.blueprints.util.ExceptionFactory;
  * @author Zekai Huang
  * 
  */
-public class EdbTransactionalGraph extends EdbGraph implements
+public class EdbTransactionalGraph extends EdbKeyIndexableGraph implements
 		TransactionalGraph {
 
 	public final static ThreadLocal<Transaction> txs = new ThreadLocal<Transaction>() {
@@ -166,12 +166,14 @@ public class EdbTransactionalGraph extends EdbGraph implements
 
 	@Override
 	public void shutdown() {
-		mStorage.closeCursor();
-		if (null != txs.get()) {
-			txs.get().commit();
-			txs.remove();
+		if(mIsRunning){
+			mStorage.closeCursor();
+			if (null != txs.get()) {
+				txs.get().commit();
+				txs.remove();
+			}
+			super.shutdown();
 		}
-		super.shutdown();
 	}
 
 }

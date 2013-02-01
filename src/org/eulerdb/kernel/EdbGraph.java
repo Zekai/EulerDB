@@ -33,6 +33,7 @@ public class EdbGraph implements Graph {
 			.getCanonicalName());
 
 	//protected boolean mTransactional;
+	protected boolean mAutoIndex;
 	protected EdbStorage mStorage = null;
 	protected static EulerDBHelper mEdbHelper = null;
 	protected boolean mIsRunning = false;
@@ -83,7 +84,7 @@ public class EdbGraph implements Graph {
 	}
 
 	public EdbGraph(String path, boolean transactional, boolean autoIndex) {
-		
+		mAutoIndex = autoIndex;
 		if(mEdbHelper==null) 
 			mEdbHelper = EulerDBHelper.getInstance(path, transactional);
 		
@@ -151,7 +152,7 @@ public class EdbGraph implements Graph {
 	@Override
 	public Iterable<Edge> getEdges(String arg0, Object arg1) {
 		final String key = arg0;
-		final String value = (String) arg1;
+		final Object value = arg1;
 
 		Predicate<Element> relationFilter = new Predicate<Element>() {
 			public boolean apply(Element v) {
@@ -196,7 +197,7 @@ public class EdbGraph implements Graph {
 	@Override
 	public Iterable<Vertex> getVertices(String arg0, Object arg1) {
 		final String key = arg0;
-		final String value = (String) arg1;
+		final Object value = arg1;
 
 		Predicate<Element> relationFilter = new Predicate<Element>() {
 			public boolean apply(Element v) {

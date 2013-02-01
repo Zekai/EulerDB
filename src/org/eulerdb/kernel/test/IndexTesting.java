@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.eulerdb.kernel.EdbGraph;
 import org.eulerdb.kernel.EdbKeyIndexableGraph;
+import org.eulerdb.kernel.EdbTransactionalGraph;
 import org.eulerdb.kernel.EdbVertex;
 import org.eulerdb.kernel.helper.FileHelper;
 
@@ -24,7 +25,8 @@ public class IndexTesting {
 		String gender = "gender"; 
 		String location = "location";
 
-		EdbKeyIndexableGraph g = new EdbKeyIndexableGraph(path);
+		EdbTransactionalGraph g = new EdbTransactionalGraph(path,true,true);
+		g.createKeyIndex("name",Vertex.class);
 		Vertex v1 = g.addVertex(1);
 		Vertex v2 = g.addVertex(2);
 		Vertex v3 = g.addVertex(3);
@@ -34,14 +36,14 @@ public class IndexTesting {
 		v1.setProperty(name, "Mark");
 		//v1.setProperty(gender, "Male");
 		//v1.setProperty(location, "california");
-		//v2.setProperty(name, "Mark");
+		v2.setProperty(name, "Mark");
 		//v2.setProperty(gender, "Female");
 		//v2.setProperty(location, "new york");
 		
 		//for(String s:v1.getPropertyKeys()){
 		//	System.out.println(v2.getProperty(s));
 		//}
-		//v3.setProperty(name, "Macka");
+		v3.setProperty(name, "Macka");
 		//v3.setProperty(gender, "Female");
 //		v4.setProperty(name, "Andrejka");
 //		v4.setProperty(gender, "Female");

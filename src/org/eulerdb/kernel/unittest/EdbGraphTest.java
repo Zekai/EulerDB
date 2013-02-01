@@ -40,25 +40,25 @@ public class EdbGraphTest extends GraphTest {
 
     public void testVertexTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new VertexTestSuite(this));
+        doTestSuite(new VertexTestSuite(this));
         printTestPerformance("VertexTestSuite", this.stopWatch());
     }
 
     public void testEdgeTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new EdgeTestSuite(this));
+        doTestSuite(new EdgeTestSuite(this));
         printTestPerformance("EdgeTestSuite", this.stopWatch());
     }
 
     public void testGraphTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new GraphTestSuite(this));
+        doTestSuite(new GraphTestSuite(this));
         printTestPerformance("GraphTestSuite", this.stopWatch());
     }
 
     public void testQueryTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new QueryTestSuite(this));
+        doTestSuite(new QueryTestSuite(this));
         printTestPerformance("QueryTestSuite", this.stopWatch());
     }
 

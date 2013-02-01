@@ -32,9 +32,9 @@ public class EdbKeyIndexableGraph extends EdbGraph implements KeyIndexableGraph 
 	@Override
 	public <T extends Element> void createKeyIndex(String key, Class<T> type) {
 		if (type.equals(Vertex.class) || type.equals(EdbVertex.class)) {
-			mStorage.createSecondaryIfNeed(storeType.NODEPROPERTY,getTransaction(), key);
+			mStorage.createSecondaryIfNeed(storeType.NODEPROPERTY,null, key);
 		} else if (type.equals(Edge.class) || type.equals(EdbEdge.class)) {
-			mStorage.createSecondaryIfNeed(storeType.EDGEPROPERTY,getTransaction(), key);
+			mStorage.createSecondaryIfNeed(storeType.EDGEPROPERTY,null, key);
 		}
 	}
 
@@ -66,19 +66,21 @@ public class EdbKeyIndexableGraph extends EdbGraph implements KeyIndexableGraph 
 	@Override
 	public Iterable<Vertex> getVertices(String arg0, Object arg1) {
 		final String key = arg0;
-		final String value = (String) arg1;
+		final Object value = arg1;
+		
+		if(!mAutoIndex||!mStorage.containsIndex(storeType.EDGEPROPERTY, key)) return super.getVertices(arg0,arg1);
+		
+		
 
 		Function<String, Vertex> idToObject = new Function<String, Vertex>() {
 			public Vertex apply(String id) {
 				return (Vertex) mStorage.getObj(storeType.VERTEX,
-						null, id);
+						EdbTransactionalGraph.txs.get(), id);
 			}
 		};
 
 		Iterable<String> id = new EdbIterableFromDatabase(
-				new EdbSecondaryCursor(mStorage.getSecondaryCursor(
-						storeType.NODEPROPERTY, null, key, value),
-						value));
+				mStorage.getSecondaryCursor(storeType.NODEPROPERTY, EdbTransactionalGraph.txs.get(), key, value));
 		Iterable<Vertex> eit = (Iterable<Vertex>) Iterables.transform(id,
 				idToObject);
 		return eit;
@@ -89,20 +91,21 @@ public class EdbKeyIndexableGraph extends EdbGraph implements KeyIndexableGraph 
 	 */
 	@Override
 	public Iterable<Edge> getEdges(String arg0, Object arg1) {
-		final String key = arg0;
-		final String value = (String) arg1;
+		String key = arg0;
+		Object value = arg1;
+		if(!mAutoIndex||!mStorage.containsIndex(storeType.EDGEPROPERTY, key)) return super.getEdges(arg0,arg1);
+		
+		
 
 		Function<String, Edge> idToObject = new Function<String, Edge>() {
 			public Edge apply(String id) {
-				return (Edge) mStorage.getObj(storeType.EDGE, null,
+				return (Edge) mStorage.getObj(storeType.EDGE, EdbTransactionalGraph.txs.get(),
 						id);
 			}
 		};
 
 		Iterable<String> id = (Iterable<String>) new EdbIterableFromDatabase(
-				new EdbSecondaryCursor(mStorage.getSecondaryCursor(
-						storeType.EDGEPROPERTY, null, key, value),
-						value));
+				mStorage.getSecondaryCursor(storeType.EDGEPROPERTY, EdbTransactionalGraph.txs.get(), key, value));
 		;
 		Iterable<Edge> eit = (Iterable<Edge>) Iterables.transform(id,
 				idToObject);

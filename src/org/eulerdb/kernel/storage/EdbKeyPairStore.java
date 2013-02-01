@@ -13,6 +13,7 @@ import com.sleepycat.je.Cursor;
 import com.sleepycat.je.CursorConfig;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
+import com.sleepycat.je.DatabaseStats;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.SecondaryConfig;
@@ -131,9 +132,13 @@ public class EdbKeyPairStore {
 					new DatabaseEntry(ByteArrayHelper.concatByteArrays(
 							d_data.getData(), value)));
 	}
+	
+	public boolean containsIndex(String key){
+		return secondDBs.containsKey(key);
+	}
 
-	public void createSecondaryIfNeeded(Transaction tx,String key) {
-
+	public synchronized void createSecondaryIfNeeded(Transaction tx,String key) {
+		
 		if (!mAutoIndex||secondDBs.containsKey(key))
 			return;
 
@@ -168,7 +173,7 @@ public class EdbKeyPairStore {
 		// Now open it
 		String primarydbname = mStore.getDatabaseName();
 		SecondaryDatabase secondDb = mEdbHelper.getEnvironment()
-				.openSecondaryDatabase(EdbTransactionalGraph.txs.get(), primarydbname+Common.SEPARATOR_PRIME2ND+key, // Index name
+				.openSecondaryDatabase(tx, primarydbname+Common.SEPARATOR_PRIME2ND+key, // Index name
 						mStore, // Primary database handle. This is
 								// the db that we're indexing.
 						mySecConfig); // The secondary config
@@ -190,16 +195,18 @@ public class EdbKeyPairStore {
 	}
 
 	public SecondaryCursor getSecondCursor(String dbName, Transaction tx) {
-		if(!mAutoIndex)
+		/*if(!mAutoIndex)
 			throw new UnsupportedOperationException("auto index is set to false, no secondary cursor is allowed.");
 		String key = dbName+"_"+EdbHelper.getTransactionId(tx);
 		
-		if(secondCursors.containsKey(key)) return secondCursors.get(key);
-		System.out.println(key);
+		if(secondCursors.containsKey(key)) return secondCursors.get(key);*/
+		
+		//System.out.println(key);
 		SecondaryDatabase secondDb = secondDBs.get(dbName);
-
+		DatabaseStats i = secondDb.getStats(null);
+		System.out.println("=============="+i);
 		SecondaryCursor mySecCursor = secondDb.openCursor(tx, null);// openSecondaryCursor(null,
-		secondCursors.put(key, mySecCursor);
+		secondCursors.put(dbName, mySecCursor);
 		return mySecCursor;
 	}
 

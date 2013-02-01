@@ -19,7 +19,7 @@ public class EdbSecondaryCursor implements EdbBaseCursor{
 	private long cnt;
 	private long max;
 
-	public EdbSecondaryCursor(final SecondaryCursor cur, String secondaryKey) {
+	public EdbSecondaryCursor(final SecondaryCursor cur, Object secondaryKey) {
 		this.mCur = cur;
 
 		try {

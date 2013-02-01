@@ -81,7 +81,7 @@ public class EdbEdge implements Edge, Serializable {
 		if (sBlackList.contains(arg0))
 			throw new IllegalArgumentException(arg0
 					+ " is not allowed to be used as property name");
-		mStorage.createSecondaryIfNeed(storeType.EDGEPROPERTY,EdbTransactionalGraph.txs.get(), arg0);
+		//mStorage.createSecondaryIfNeed(storeType.EDGEPROPERTY,EdbTransactionalGraph.txs.get(), arg0);
 		@SuppressWarnings("unchecked")
 		Map<String, Object> props = (Hashtable<String, Object>) mStorage
 				.getObj(storeType.EDGEPROPERTY,

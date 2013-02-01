@@ -29,6 +29,8 @@ public class EdbStorage {
 	//private static boolean mTransactional;
 	private static EdbPrimaryCursor mEdgeCursor;
 	private static EdbPrimaryCursor mNodeCursor;
+	private static EdbSecondaryCursor mEdgePropCursor;
+	private static EdbSecondaryCursor mNodePropCursor;
 	
 	private EdbStorage(String path,boolean transactional,boolean autoindex){
 		initStores(path,transactional,autoindex);
@@ -171,12 +173,6 @@ public class EdbStorage {
 		return o;
 	}
 	
-	public SecondaryCursor getSecondaryCursor(storeType type,Transaction tx,String pKey,String pValue){
-
-			return getStore(type).getSecondCursor(pKey,tx);
-	
-	}
-	
 	public EdbPrimaryCursor getCursor(storeType type,Transaction tx) {
 		switch(type)
 		{
@@ -191,6 +187,28 @@ public class EdbStorage {
 			if(mNodeCursor!=null) mNodeCursor.close();
 			mNodeCursor = new EdbPrimaryCursor(getStore(type).getCursor(tx));
 			return mNodeCursor;
+		}
+		default:
+			return null;
+			
+		} 
+	}
+	
+	public EdbSecondaryCursor getSecondaryCursor(storeType type,Transaction tx,String pKey,Object pValue) {
+		
+		switch(type)
+		{
+		case EDGEPROPERTY:
+		{
+			if(mEdgePropCursor!=null) mEdgePropCursor.close();
+			mEdgePropCursor = new EdbSecondaryCursor(getStore(type).getSecondCursor(pKey,tx),pValue);
+			return mEdgePropCursor;
+		}
+		case NODEPROPERTY:
+		{
+			if(mNodePropCursor!=null) mNodePropCursor.close();
+			mNodePropCursor = new EdbSecondaryCursor(getStore(type).getSecondCursor(pKey,tx),pValue);
+			return mNodePropCursor;
 		}
 		default:
 			return null;
@@ -217,6 +235,14 @@ public class EdbStorage {
 		if(mNodeCursor!=null){
 			mNodeCursor.close();
 			mNodeCursor = null;
+		}
+		if(mEdgePropCursor!=null){
+			mEdgePropCursor.close();
+			mEdgePropCursor = null;
+		}
+		if(mNodePropCursor!=null){
+			mNodePropCursor.close();
+			mNodePropCursor = null;
 		}
 	}
 	public void close() {
@@ -261,6 +287,10 @@ public class EdbStorage {
 	
 	public void createSecondaryIfNeed(storeType type,Transaction tx,String dbName){
 		getStore(type).createSecondaryIfNeeded(tx,dbName);
+	}
+	
+	public boolean containsIndex(storeType type,String key){
+		return getStore(type).containsIndex(key);
 	}
 	
 
