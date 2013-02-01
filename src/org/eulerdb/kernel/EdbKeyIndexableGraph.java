@@ -3,7 +3,7 @@ package org.eulerdb.kernel;
 import java.util.Set;
 
 import org.eulerdb.kernel.iterator.EdbIterableFromDatabase;
-import org.eulerdb.kernel.storage.EdbSecondaryCursor;
+import org.eulerdb.kernel.iterator.EdbSecondaryCursor;
 import org.eulerdb.kernel.storage.EdbStorage.storeType;
 
 import com.google.common.base.Function;

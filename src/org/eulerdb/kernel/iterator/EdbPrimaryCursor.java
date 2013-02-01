@@ -1,8 +1,9 @@
-package org.eulerdb.kernel.storage;
+package org.eulerdb.kernel.iterator;
 
 import java.io.IOException;
 
 import org.eulerdb.kernel.helper.ByteArrayHelper;
+
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.LockMode;

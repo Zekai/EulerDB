@@ -1,4 +1,4 @@
-package org.eulerdb.kernel.storage;
+package org.eulerdb.kernel.iterator;
 
 import org.apache.log4j.Logger;
 

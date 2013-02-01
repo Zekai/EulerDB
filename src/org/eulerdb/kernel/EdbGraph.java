@@ -226,7 +226,7 @@ public class EdbGraph implements Graph {
 
 	@Override
 	public void removeEdge(Edge arg0) {
-		logger.debug(" remove edge of id"+ arg0.getId());
+		logger.debug(" remove edge of id "+ arg0.getId());
 		EdbEdge e2 = (EdbEdge) arg0;
 
 		EdbVertex n = (EdbVertex) e2.getVertex(Direction.OUT);

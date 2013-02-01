@@ -2,8 +2,6 @@ package org.eulerdb.kernel.iterator;
 
 import java.util.Iterator;
 
-import org.eulerdb.kernel.storage.EdbBaseCursor;
-import org.eulerdb.kernel.storage.EdbSecondaryCursor;
 import org.eulerdb.kernel.storage.EdbStorage;
 
 import com.tinkerpop.blueprints.Element;

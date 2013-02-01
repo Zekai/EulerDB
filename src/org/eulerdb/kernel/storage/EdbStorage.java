@@ -6,6 +6,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
+import org.eulerdb.kernel.iterator.EdbPrimaryCursor;
+import org.eulerdb.kernel.iterator.EdbSecondaryCursor;
 
 import com.sleepycat.je.SecondaryCursor;
 import com.sleepycat.je.Transaction;
@@ -40,7 +42,7 @@ public class EdbStorage {
 		logger.debug("initStores in mode transactional: "+transactional+", autoindex: "+ autoindex+"at path:" + path);
 	}
 
-	public static EdbStorage getInstance(String path,boolean transactional,boolean autoindex) {
+	public static synchronized EdbStorage getInstance(String path,boolean transactional,boolean autoindex) {
 		if (instance == null) {
 			instance = new EdbStorage(path,transactional,autoindex);
 		}
@@ -232,7 +234,7 @@ public class EdbStorage {
 		}
 		return false;
 	}
-	public void closeCursor(){
+	public synchronized void closeCursor(){
 		if(mEdgeCursor!=null){
 			mEdgeCursor.close();
 			mEdgeCursor = null;
@@ -250,7 +252,7 @@ public class EdbStorage {
 			mNodePropCursor = null;
 		}
 	}
-	public void close() {
+	public synchronized void close() {
 		closeCursor();
 		mNodePairs.close();
 		mEdgePairs.close();
