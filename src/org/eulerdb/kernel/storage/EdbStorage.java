@@ -259,8 +259,8 @@ public class EdbStorage {
 		getStore(type).deleteSecondary(tx, dbName);
 	}
 	
-	public void createSecondaryIfNeed(storeType type,String dbName){
-		getStore(type).createSecondaryIfNeed(dbName);
+	public void createSecondaryIfNeed(storeType type,Transaction tx,String dbName){
+		getStore(type).createSecondaryIfNeeded(tx,dbName);
 	}
 	
 

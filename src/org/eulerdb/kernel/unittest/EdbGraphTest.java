@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 
 import org.eulerdb.kernel.EdbGraph;
-import org.eulerdb.kernel.EdbIndexableGraph;
+import org.eulerdb.kernel.EdbKeyIndexableGraph;
 import org.eulerdb.kernel.EdbTransactionalGraph;
 
 /**
@@ -40,19 +40,19 @@ public class EdbGraphTest extends GraphTest {
 
     public void testVertexTestSuite() throws Exception {
         this.stopWatch();
-        doTestSuite(new VertexTestSuite(this));
+        //doTestSuite(new VertexTestSuite(this));
         printTestPerformance("VertexTestSuite", this.stopWatch());
     }
 
     public void testEdgeTestSuite() throws Exception {
         this.stopWatch();
-        doTestSuite(new EdgeTestSuite(this));
+        //doTestSuite(new EdgeTestSuite(this));
         printTestPerformance("EdgeTestSuite", this.stopWatch());
     }
 
     public void testGraphTestSuite() throws Exception {
         this.stopWatch();
-        doTestSuite(new GraphTestSuite(this));
+        //doTestSuite(new GraphTestSuite(this));
         printTestPerformance("GraphTestSuite", this.stopWatch());
     }
 
@@ -64,7 +64,7 @@ public class EdbGraphTest extends GraphTest {
 
     public void testKeyIndexableGraphTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new KeyIndexableGraphTestSuite(this));
+        doTestSuite(new KeyIndexableGraphTestSuite(this));
         printTestPerformance("KeyIndexableGraphTestSuite", this.stopWatch());
     }
 
@@ -82,7 +82,7 @@ public class EdbGraphTest extends GraphTest {
 
     public void testTransactionalGraphTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new TransactionalGraphTestSuite(this));
+        doTestSuite(new TransactionalGraphTestSuite(this));
         printTestPerformance("TransactionalGraphTestSuite", this.stopWatch());
     }
 
@@ -115,7 +115,7 @@ public class EdbGraphTest extends GraphTest {
         //deleteDirectory(f);
 
         f.mkdir();
-        EdbIndexableGraph graph = new EdbIndexableGraph(directory + "/" + graphDirectoryName);
+        EdbTransactionalGraph graph = new EdbTransactionalGraph(directory + "/" + graphDirectoryName,true,true);
         return graph;
     }
 

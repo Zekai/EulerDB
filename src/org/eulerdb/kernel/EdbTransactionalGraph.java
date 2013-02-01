@@ -36,19 +36,16 @@ public class EdbTransactionalGraph extends EdbGraph implements
 		}
 	};
 
-	private enum Status {
-		FRESH, NEW, END
-	};
-
-	private Status mStatus;
-
 	static {
 		FEATURES.supportsTransactions = true;
 	}
 
 	public EdbTransactionalGraph(String path) {
 		super(path, true,false);
-		mStatus = Status.FRESH;
+	}
+	
+	public EdbTransactionalGraph(String path,boolean isTransactional,boolean autoIndex) {
+		super(path, isTransactional,autoIndex);
 	}
 
 	@Override
@@ -161,12 +158,10 @@ public class EdbTransactionalGraph extends EdbGraph implements
 
 	private void commit() throws XAException {
 		txs.get().commit();
-		mStatus = Status.END;
 	}
 
 	private void abort() throws XAException {
 		txs.get().abort();
-		mStatus = Status.END;
 	}
 
 	@Override

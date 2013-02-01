@@ -4,6 +4,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
+import org.eulerdb.kernel.EdbTransactionalGraph;
 import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 import org.eulerdb.kernel.helper.EdbHelper;
@@ -131,7 +132,7 @@ public class EdbKeyPairStore {
 							d_data.getData(), value)));
 	}
 
-	public void createSecondary(boolean readOnly, String key) {
+	public void createSecondaryIfNeeded(Transaction tx,String key) {
 
 		if (!mAutoIndex||secondDBs.containsKey(key))
 			return;
@@ -140,12 +141,12 @@ public class EdbKeyPairStore {
 
 		// If the environment is read-only, then
 		// make the databases read-only too.
-		 mySecConfig.setReadOnly(readOnly);
-
+		 mySecConfig.setReadOnly(false);
+		 mySecConfig.setTransactional(mStore.getConfig().getTransactional());
 		// If the environment is opened for write, then we want to be
 		// able to create the environment and databases if
 		// they do not exist.
-		mySecConfig.setAllowCreate(!readOnly);
+		mySecConfig.setAllowCreate(true);
 
 		// Environment and database opens omitted for brevity
 
@@ -167,7 +168,7 @@ public class EdbKeyPairStore {
 		// Now open it
 		String primarydbname = mStore.getDatabaseName();
 		SecondaryDatabase secondDb = mEdbHelper.getEnvironment()
-				.openSecondaryDatabase(null, primarydbname+Common.SEPARATOR_PRIME2ND+key, // Index name
+				.openSecondaryDatabase(EdbTransactionalGraph.txs.get(), primarydbname+Common.SEPARATOR_PRIME2ND+key, // Index name
 						mStore, // Primary database handle. This is
 								// the db that we're indexing.
 						mySecConfig); // The secondary config
@@ -200,10 +201,6 @@ public class EdbKeyPairStore {
 		SecondaryCursor mySecCursor = secondDb.openCursor(tx, null);// openSecondaryCursor(null,
 		secondCursors.put(key, mySecCursor);
 		return mySecCursor;
-	}
-
-	public void createSecondaryIfNeed(String searchName) {
-		createSecondary(false, searchName);
 	}
 
 }

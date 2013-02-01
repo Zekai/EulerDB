@@ -85,7 +85,7 @@ public class EdbVertex implements Vertex, Serializable {
 		if (sBlackList.contains(arg0))
 			throw ExceptionFactory.propertyKeyIdIsReserved(); 
 		
-		mStorage.createSecondaryIfNeed(storeType.NODEPROPERTY,arg0);
+		mStorage.createSecondaryIfNeed(storeType.NODEPROPERTY,EdbTransactionalGraph.txs.get(),arg0);
 		@SuppressWarnings("unchecked")
 		Map<String,Object> props =  (Hashtable<String,Object>) mStorage.getObj(storeType.NODEPROPERTY, EdbTransactionalGraph.txs.get(), mId);
 		props.put(arg0, arg1);

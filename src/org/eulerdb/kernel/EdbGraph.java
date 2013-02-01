@@ -32,7 +32,7 @@ public class EdbGraph implements Graph {
 	private static final Logger logger = Logger.getLogger(EdbGraph.class
 			.getCanonicalName());
 
-	protected boolean mTransactional;
+	//protected boolean mTransactional;
 	protected EdbStorage mStorage = null;
 	protected static EulerDBHelper mEdbHelper = null;
 	protected boolean mIsRunning = false;
@@ -72,7 +72,6 @@ public class EdbGraph implements Graph {
 	}
 
 	public EdbGraph(String path) {
-		mTransactional = false;
 		
 		if(mEdbHelper==null) 
 			mEdbHelper = EulerDBHelper.getInstance(path, false);
@@ -84,13 +83,12 @@ public class EdbGraph implements Graph {
 	}
 
 	public EdbGraph(String path, boolean transactional, boolean autoIndex) {
-		mTransactional = transactional;
 		
 		if(mEdbHelper==null) 
 			mEdbHelper = EulerDBHelper.getInstance(path, transactional);
 		
 		if (mStorage == null)
-			mStorage = EdbStorage.getInstance(path, mTransactional,autoIndex);
+			mStorage = EdbStorage.getInstance(path, transactional,autoIndex);
 		
 		mIsRunning = true;
 	}
