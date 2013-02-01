@@ -27,10 +27,7 @@ public class EdbIterableFromSecondaryDatabase<T>  implements Iterable<T> {
 
 			@Override
 			public boolean hasNext() {
-				boolean r = mCur.hasNext();
-				if(!r) mCur.close();
-				
-				return r;
+				return  mCur.hasNext();
 			}
 
 			@Override

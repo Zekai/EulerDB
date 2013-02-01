@@ -1,20 +1,17 @@
 package org.eulerdb.kernel.storage;
 
-import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
 import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
+import org.eulerdb.kernel.helper.EdbHelper;
 
-import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.CursorConfig;
 import com.sleepycat.je.Database;
-import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.DatabaseEntry;
-import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.SecondaryConfig;
@@ -26,7 +23,8 @@ public class EdbKeyPairStore {
 
 	private Database mStore;
 	private EulerDBHelper mEdbHelper = null;
-	private Map<String, SecondaryDatabase> secondDBs;
+	private Map<String,SecondaryDatabase> secondDBs;
+	private Map<String,SecondaryCursor> secondCursors;
 
 	// private static EdbKeyPairStore instance = null;
 
@@ -51,6 +49,7 @@ public class EdbKeyPairStore {
 				mEdbHelper.getDatabaseConfig());
 
 		secondDBs = new Hashtable<String, SecondaryDatabase>();
+		secondCursors = new Hashtable<String, SecondaryCursor>();
 		// txn0.commit();
 		//if(name.equals(Common.VERTEXPROPERTY)) createSecondaryIfNeed("name");
 	};
@@ -92,9 +91,14 @@ public class EdbKeyPairStore {
 	}
 
 	public void close() {
+		for(SecondaryCursor scondCursor:secondCursors.values()){
+			secondCursors.remove(scondCursor);
+			scondCursor.close();
+		}
 		for (SecondaryDatabase secondDB : secondDBs.values()) {
 			secondDB.close();
 		}
+		
 		secondDBs = null;
 		mStore.close();
 		mStore = null;
@@ -183,11 +187,14 @@ public class EdbKeyPairStore {
 	}
 
 	public SecondaryCursor getSecondCursor(String dbName, Transaction tx) {
-
+		String key = dbName+"_"+EdbHelper.getTransactionId(tx);
+		
+		if(secondCursors.containsKey(key)) return secondCursors.get(key);
+		System.out.println(key);
 		SecondaryDatabase secondDb = secondDBs.get(dbName);
 
 		SecondaryCursor mySecCursor = secondDb.openCursor(tx, null);// openSecondaryCursor(null,
-		
+		secondCursors.put(key, mySecCursor);
 		return mySecCursor;
 	}
 

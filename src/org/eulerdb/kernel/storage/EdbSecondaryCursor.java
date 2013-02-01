@@ -116,10 +116,4 @@ public class EdbSecondaryCursor {
 	public void remove() {
 		mCur.delete();
 	}
-	
-    @Override
-	public void finalize(){
-		mCur.close();
-	}
-
 }
