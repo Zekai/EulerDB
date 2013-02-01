@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.iterator.EdbIterableFromIterator;
 import org.eulerdb.kernel.storage.EdbStorage;
@@ -28,21 +29,18 @@ public class EdbVertex implements Vertex, Serializable {
 	/**
 	 * 
 	 */
+	protected transient Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 	private static final long serialVersionUID = 5653068124792462590L;
-
-	private static final AtomicInteger uniqueId = new AtomicInteger(0);
-
+	protected static final AtomicInteger uniqueId = new AtomicInteger(0);
 	protected transient static EdbStorage mStorage = null;
-
-	private String mId;
-
-	private transient final static List<String> sBlackList = Arrays
+	protected String mId;
+	protected transient static List<String> sBlackList = Arrays
 			.asList(new String[] { "id" });
 
 	public EdbVertex(Object id) {
-
 		mId = id == null ? String.valueOf(uniqueId.getAndIncrement()) : String
 				.valueOf(id);
+		logger.debug("EdbVertex constructor id "+ id+ " mid "+ mId);
 
 		if (mStorage == null)
 			mStorage = EdbStorage.getInstance();
@@ -59,6 +57,17 @@ public class EdbVertex implements Vertex, Serializable {
 	private void readObject(java.io.ObjectInputStream in)
 		    throws IOException, ClassNotFoundException {
 		    in.defaultReadObject();
+		    
+		    
+		    if(logger==null)
+		    	logger = Logger.getLogger(this.getClass().getCanonicalName());
+		    
+		    logger.debug("deserializing vertex");
+		    
+		    if(sBlackList==null)
+		    	sBlackList = Arrays
+					.asList(new String[] { "id" });
+		    
 		    if (mStorage == null)
 				mStorage = EdbStorage.getInstance();
 		}
@@ -71,6 +80,7 @@ public class EdbVertex implements Vertex, Serializable {
 
 	@Override
 	public Object getProperty(String arg0) {
+		logger.debug("getProperty of "+ arg0);
 		@SuppressWarnings("unchecked")
 		Map<String,Object> props =  (Hashtable<String,Object>) mStorage.getObj(storeType.NODEPROPERTY, EdbTransactionalGraph.txs.get(), mId);
 
@@ -87,6 +97,7 @@ public class EdbVertex implements Vertex, Serializable {
 
 	@Override
 	public Object removeProperty(String arg0) {
+		logger.debug("remove property "+ arg0);
 		@SuppressWarnings("unchecked")
 		Map<String,Object> props =  (Hashtable<String,Object>) mStorage.getObj(storeType.NODEPROPERTY, EdbTransactionalGraph.txs.get(), mId);
 		Object o = props.remove(arg0);
@@ -96,6 +107,7 @@ public class EdbVertex implements Vertex, Serializable {
 
 	@Override
 	public void setProperty(String arg0, Object arg1) {
+		logger.debug("setProperty key: "+ arg0+" value: "+ arg1);
 		if (sBlackList.contains(arg0))
 			throw ExceptionFactory.propertyKeyIdIsReserved(); 
 		
@@ -113,6 +125,8 @@ public class EdbVertex implements Vertex, Serializable {
 		String fromId = edgeId.substring(0,firstIndex);
 		String relation = edgeId.substring(firstIndex+1,secondIndex);
 		String toId = edgeId.substring(secondIndex+1);
+		
+		logger.debug("caculate adjacent:  from: "+ fromId+" to : "+ toId+" relation "+relation );
 
 		String resultId = null;
 
@@ -137,7 +151,7 @@ public class EdbVertex implements Vertex, Serializable {
 	
 	@Override
 	public Iterable<Edge> getEdges(Direction arg0, String... arg1) {
-		
+		logger.debug("get edge iterable for vertex "+ mId+ " with property key: "+arg0+" value of "+ arg1);
 		List<Edge> res = new ArrayList<Edge>();
 		if (arg0 == Direction.IN) {
 			List<String> inEdges  = (List<String>) mStorage.getObj(storeType.VERTEX_IN, EdbTransactionalGraph.txs.get(),mId);
@@ -181,7 +195,7 @@ public class EdbVertex implements Vertex, Serializable {
 
 	@Override
 	public Iterable<Vertex> getVertices(Direction arg0, String... arg1) {
-
+		logger.debug("get vertex iterable for vertex "+ mId+ " with direction : "+arg0+" para list of "+ arg1==null?"":arg1.toString());
 		List<Vertex> res = new ArrayList<Vertex>();
 		if (arg0 == Direction.IN) {
 			List<String> inEdges  = (List<String>) mStorage.getObj(storeType.VERTEX_IN, EdbTransactionalGraph.txs.get(),mId);
@@ -230,6 +244,7 @@ public class EdbVertex implements Vertex, Serializable {
 	}
 	
 	private void initSaving() {
+		logger.debug("initSaving");
 		List<String> inEdge = new CopyOnWriteArrayList<String>();
 		mStorage.store(storeType.VERTEX_IN, EdbTransactionalGraph.txs.get(), mId, inEdge);
 		
@@ -248,26 +263,36 @@ public class EdbVertex implements Vertex, Serializable {
 	 * @param e
 	 */
 	void addInEdge(EdbEdge e) {
+		logger.debug("addInEdge "+e.getId());
 		// mInRelationMap.put(e.getLabel(),
 		// (EdbVertex)e.getVertex(Direction.IN));
 		@SuppressWarnings("unchecked")
 		List<String> inEdge = (CopyOnWriteArrayList<String>) mStorage.getObj(
 				storeType.VERTEX_IN, EdbTransactionalGraph.txs.get(), mId);
-		if (inEdge.contains(e.getId())) return;
+		if (inEdge.contains(e.getId())){
+			logger.warn("edge has already exist "+e.getId());
+			return;
+		}
 		inEdge.add((String) e.getId());
 		mStorage.store(storeType.VERTEX_IN, EdbTransactionalGraph.txs.get(), mId, inEdge);
 	}
 
 	void addOutEdge(EdbEdge e) {
+		logger.debug("addOutEdge "+e.getId());
 		@SuppressWarnings("unchecked")
 		List<String> ouEdge = (CopyOnWriteArrayList<String>) mStorage.getObj(
 				storeType.VERTEX_OUT, EdbTransactionalGraph.txs.get(), mId);
-		if (ouEdge.contains(e.getId())) return;
+		if (ouEdge.contains(e.getId()))
+		{
+			logger.warn("edge has already exist "+e.getId());
+			return;
+		}
 		ouEdge.add((String) e.getId());
 		mStorage.store(storeType.VERTEX_OUT, EdbTransactionalGraph.txs.get(), mId, ouEdge);
 	}
 
 	void removeInEdge(EdbEdge e) {
+		logger.debug("removeInEdge "+e.getId());
 		List<String> ouEdge = (CopyOnWriteArrayList<String>) mStorage.getObj(
 				storeType.VERTEX_IN, EdbTransactionalGraph.txs.get(), mId);
 		ouEdge.remove(e.getId());
@@ -275,6 +300,7 @@ public class EdbVertex implements Vertex, Serializable {
 	}
 
 	void removeOutEdge(EdbEdge e) {
+		logger.debug("removeOutEdge "+e.getId());
 		List<String> ouEdge = (CopyOnWriteArrayList<String>) mStorage.getObj(
 				storeType.VERTEX_OUT, EdbTransactionalGraph.txs.get(), mId);
 		ouEdge.remove(e.getId());
@@ -286,6 +312,7 @@ public class EdbVertex implements Vertex, Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (mId == null ? 0 : mId.hashCode());
+		logger.debug("hashCode for edge "+mId+" is "+result);
 		return result;
 	}
 

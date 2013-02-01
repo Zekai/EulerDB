@@ -3,6 +3,7 @@ package org.eulerdb.kernel.storage;
 import java.io.IOException;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 
@@ -16,6 +17,8 @@ import com.sleepycat.je.Transaction;
  *
  */
 public class EdbStorage {
+	
+	private static Logger logger = Logger.getLogger(EdbStorage.class.getCanonicalName());
 	private static EdbStorage instance = null;
 	
 	public static enum storeType {VERTEX,EDGE,VERTEX_OUT,VERTEX_IN,NODEPROPERTY,EDGEPROPERTY};
@@ -34,6 +37,7 @@ public class EdbStorage {
 	
 	private EdbStorage(String path,boolean transactional,boolean autoindex){
 		initStores(path,transactional,autoindex);
+		logger.debug("initStores in mode transactional: "+transactional+", autoindex: "+ autoindex+"at path:" + path);
 	}
 
 	public static EdbStorage getInstance(String path,boolean transactional,boolean autoindex) {
@@ -46,6 +50,7 @@ public class EdbStorage {
 	public static EdbStorage getInstance() {
 		if(instance==null)
 		{
+			logger.error("EdbGraph.class needs to pass in the path, use getInstance(String path) instead");
 			throw new IllegalArgumentException("EdbGraph.class needs to pass in the path, use getInstance(String path) instead");
 		}
 		return instance;

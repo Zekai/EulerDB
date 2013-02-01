@@ -20,14 +20,14 @@ public class IndexTesting {
 
 		String path = "./temp/IndexTesting";
 
-		//FileHelper.deleteDir(path);
+		FileHelper.deleteDir(path);
 		
 		String name  ="name";
 		String gender = "gender"; 
 		String location = "location";
 
 		EdbTransactionalGraph g = new EdbTransactionalGraph(path,true,true);
-		/*g.createKeyIndex(name,Vertex.class);
+		g.createKeyIndex(name,Vertex.class);
 		g.createKeyIndex(gender,Vertex.class);
 		g.createKeyIndex(location, Vertex.class);
 		Vertex v1 = g.addVertex(1);
@@ -65,7 +65,7 @@ public class IndexTesting {
 //		g.addEdge(null, v4, v1, "isFriedOf");
 //
 //		g.addEdge(null, v3, v4, "isFriedOf");
-//		g.addEdge(null, v4, v3, "isFriedOf");*/
+//		g.addEdge(null, v4, v3, "isFriedOf");
 
 		// index properties
 		/*System.out.println("gender: Female");

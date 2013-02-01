@@ -7,6 +7,7 @@ import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.SecondaryCursor;
+import com.tinkerpop.blueprints.Element;
 
 public class EdbSecondaryCursor implements EdbBaseCursor{
 
@@ -71,10 +72,11 @@ public class EdbSecondaryCursor implements EdbBaseCursor{
 
 	public boolean hasNext() {
 		if (cnt >= max) {
-			//mCur.close();
+			logger.debug("hasNext false");
 			return false;
 		}
 		else{
+			logger.debug("hasNext true");
 			return true;
 		}
 
@@ -108,7 +110,7 @@ public class EdbSecondaryCursor implements EdbBaseCursor{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		logger.debug("next:" + vid);
 		return vid;
 	}
 

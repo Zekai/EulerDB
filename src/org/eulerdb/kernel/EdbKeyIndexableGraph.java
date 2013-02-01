@@ -19,18 +19,25 @@ import com.tinkerpop.blueprints.Vertex;
  */
 
 public class EdbKeyIndexableGraph extends EdbGraph implements KeyIndexableGraph {
+	
+	static {
+		FEATURES.supportsKeyIndices = true;
+	}
 
 	public EdbKeyIndexableGraph(String path) {
 		super(path, false, true);
+		logger.info("EulerDB is running in mode transactional: false, autoindex: true at path:" + path);
 	}
 
 	public EdbKeyIndexableGraph(String path, boolean isTransactional,
 			boolean autoIndex) {
 		super(path, isTransactional, autoIndex);
+		logger.info("EulerDB is running in mode transactional: "+isTransactional+", autoindex: "+ autoIndex+"at path:" + path);
 	}
 
 	@Override
 	public <T extends Element> void createKeyIndex(String key, Class<T> type) {
+		logger.debug("createKeyIndex for "+ type.getCanonicalName()+" of key "+ key);
 		if (type.equals(Vertex.class) || type.equals(EdbVertex.class)) {
 			mStorage.createSecondaryIfNeed(storeType.NODEPROPERTY,null, key);
 		} else if (type.equals(Edge.class) || type.equals(EdbEdge.class)) {
@@ -40,6 +47,7 @@ public class EdbKeyIndexableGraph extends EdbGraph implements KeyIndexableGraph 
 
 	@Override
 	public <T extends Element> void dropKeyIndex(String key, Class<T> type) {
+		logger.debug("dropkey for "+ type.getCanonicalName()+" of key "+ key);
 		if (type.equals(Vertex.class) || type.equals(EdbVertex.class)) {
 			mStorage.deleteSecondary(storeType.NODEPROPERTY, getTransaction(),
 					key);
@@ -52,6 +60,7 @@ public class EdbKeyIndexableGraph extends EdbGraph implements KeyIndexableGraph 
 
 	@Override
 	public <T extends Element> Set<String> getIndexedKeys(Class<T> type) {
+		logger.debug("getIndexedKeys");
 		if (type.equals(Vertex.class) || type.equals(EdbVertex.class)) {
 			return mStorage.getKeys(storeType.NODEPROPERTY);
 		} else if (type.equals(Edge.class) || type.equals(EdbEdge.class)) {
@@ -70,7 +79,7 @@ public class EdbKeyIndexableGraph extends EdbGraph implements KeyIndexableGraph 
 		
 		if(!mAutoIndex||!mStorage.containsIndex(storeType.NODEPROPERTY, key)) return super.getVertices(arg0,arg1);
 		
-		logger.info("Using index to get Vertices with property name  "+ key+" of value "+value);
+		logger.debug("Using index to get Vertices with property name  "+ key+" of value "+value);
 
 		Function<String, Vertex> idToObject = new Function<String, Vertex>() {
 			public Vertex apply(String id) {
@@ -95,7 +104,7 @@ public class EdbKeyIndexableGraph extends EdbGraph implements KeyIndexableGraph 
 		Object value = arg1;
 		if(!mAutoIndex||!mStorage.containsIndex(storeType.EDGEPROPERTY, key)) return super.getEdges(arg0,arg1);
 		
-		logger.info("Using index to get Edges with property name  "+ key+" of value "+value);
+		logger.debug("Using index to get Edges with property name  "+ key+" of value "+value);
 		
 
 		Function<String, Edge> idToObject = new Function<String, Edge>() {

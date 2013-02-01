@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.eulerdb.kernel.EdbTransactionalGraph;
 import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
@@ -23,6 +24,8 @@ import com.sleepycat.je.SecondaryDatabase;
 import com.sleepycat.je.Transaction;
 
 public class EdbKeyPairStore {
+	
+	protected Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 
 	private Database mStore;
 	private String mPrimaryName;
@@ -54,6 +57,7 @@ public class EdbKeyPairStore {
 		mStore = mEdbHelper.getEnvironment().openDatabase(null, name,
 				mEdbHelper.getDatabaseConfig());
 		mPrimaryName = name;
+		logger.debug("primary database name of "+ mPrimaryName);
 		secondDBs = new Hashtable<String, SecondaryDatabase>();
 		secondCursors = new Hashtable<String, SecondaryCursor>();
 		// txn0.commit();
@@ -62,47 +66,61 @@ public class EdbKeyPairStore {
 	};
 
 	public OperationStatus put(Transaction tx, byte[] key, byte[] value) {
-
+		logger.debug("put record to database ");
 		DatabaseEntry d_key = new DatabaseEntry(key);
 		DatabaseEntry d_value = new DatabaseEntry(value);
 		// mStore.delete(tx, d_key);
-		return mStore.put(tx, d_key, d_value);
+		OperationStatus r =  mStore.put(tx, d_key, d_value);
+		
+		logger.debug("put record to database "+ r);
+		return r;
 	}
 
 	public OperationStatus put(Transaction tx, DatabaseEntry d_key,
 			DatabaseEntry d_value) {
 
-		return mStore.put(tx, d_key, d_value);
+		OperationStatus r = mStore.put(tx, d_key, d_value);
+		logger.debug("put record to database "+ r);
+		return r;
 	}
 
 	public DatabaseEntry get(Transaction tx, DatabaseEntry id) {
+		logger.debug("get record from database ");
 		DatabaseEntry data = new DatabaseEntry();
 		mStore.get(tx, id, data, LockMode.DEFAULT);
 		return data;
 	}
 
 	public byte[] get(Transaction tx, byte[] id) {
+		logger.debug("get record from database ");
 		DatabaseEntry data = new DatabaseEntry();
 		mStore.get(tx, new DatabaseEntry(id), data, LockMode.DEFAULT);
 		return data.getData();
 	}
 
 	public OperationStatus delete(Transaction tx, byte[] id) {
+		logger.debug("delete record from database ");
 		DatabaseEntry key = new DatabaseEntry(id);
 		return mStore.delete(tx, key);
 
 	}
 
 	public long count() {
-		return mStore.count();
+		
+		long r=  mStore.count();
+		logger.debug("get count from database "+ r);
+		return r;
 	}
 
 	public void close() {
+		logger.debug("closing KeyPair store ");
 		for(SecondaryCursor scondCursor:secondCursors.values()){
+			logger.debug("closing SecondaryCursor ");
 			secondCursors.remove(scondCursor);
 			scondCursor.close();
 		}
 		for (SecondaryDatabase secondDB : secondDBs.values()) {
+			logger.debug("closing secondDB ");
 			secondDB.close();
 		}
 		
@@ -117,6 +135,7 @@ public class EdbKeyPairStore {
 	}
 
 	public Cursor getCursor(Transaction tx) {
+		logger.debug("closing KeyPair store ");
 		CursorConfig curconf = new CursorConfig();
 		curconf.setReadUncommitted(true);
 		return mStore.openCursor(tx, curconf);
@@ -137,14 +156,16 @@ public class EdbKeyPairStore {
 	}
 	
 	public boolean containsIndex(String key){
-		return secondDBs.containsKey(key);
+		boolean r= secondDBs.containsKey(key);
+		logger.debug("autoindex of " + key +" exists "+ r);
+		return r;
 	}
 
 	public synchronized void createSecondaryIfNeeded(Transaction tx,String key) {
 		
 		if (!mAutoIndex||secondDBs.containsKey(key))
 			return;
-
+		
 		SecondaryConfig mySecConfig = new SecondaryConfig();
 
 		// If the environment is read-only, then
@@ -174,9 +195,10 @@ public class EdbKeyPairStore {
 		mySecConfig.setSortedDuplicates(true);
 
 		// Now open it
-		
+		String name = mPrimaryName+Common.SEPARATOR_PRIME2ND+key;
+		logger.debug("create SecondaryDatabase:"+ name);
 		SecondaryDatabase secondDb = mEdbHelper.getEnvironment()
-				.openSecondaryDatabase(tx, mPrimaryName+Common.SEPARATOR_PRIME2ND+key, // Index name
+				.openSecondaryDatabase(tx, name, // Index name
 						mStore, // Primary database handle. This is
 								// the db that we're indexing.
 						mySecConfig); // The secondary config
@@ -193,6 +215,7 @@ public class EdbKeyPairStore {
 	}
 
 	public void deleteSecondary(Transaction tx, String dbName) {
+		logger.debug("remove SecondaryDatabase:"+ dbName);
 		secondDBs.remove(dbName);
 		mEdbHelper.getEnvironment().removeDatabase(tx, dbName);
 	}
@@ -205,6 +228,7 @@ public class EdbKeyPairStore {
 		if(secondCursors.containsKey(key)) return secondCursors.get(key);*/
 		
 		//System.out.println(key);
+		logger.debug("getSecondCursor:"+ dbName);
 		SecondaryDatabase secondDb = secondDBs.get(dbName);
 		SecondaryCursor mySecCursor = secondDb.openCursor(tx, null);// openSecondaryCursor(null,
 		secondCursors.put(dbName, mySecCursor);
@@ -214,10 +238,12 @@ public class EdbKeyPairStore {
 	public void loadSecondary(Transaction tx){
 		List<String> dbNames = mEdbHelper.getEnvironment().getDatabaseNames();
 		String prefix = mPrimaryName+Common.SEPARATOR_PRIME2ND;
+		logger.debug("loadSecondary prefix:"+ prefix);
 		for(String dbName:dbNames){
 			if(dbName.startsWith(prefix))
 			{
 				String secondaryDbName = dbName.substring(prefix.length());
+				logger.debug("loadSecondary secondaryDbName:"+ secondaryDbName);
 				createSecondaryIfNeeded(tx,secondaryDbName);
 			}
 		}

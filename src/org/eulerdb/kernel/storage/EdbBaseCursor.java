@@ -1,6 +1,9 @@
 package org.eulerdb.kernel.storage;
 
+import org.apache.log4j.Logger;
+
 public interface EdbBaseCursor {
+	Logger logger = Logger.getLogger(EdbBaseCursor.class.getCanonicalName());
 
 	public boolean hasNext();
 	public void close();
