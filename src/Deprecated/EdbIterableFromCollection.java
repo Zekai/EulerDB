@@ -1,13 +1,8 @@
-package org.eulerdb.kernel.iterator;
+package Deprecated;
 
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-
-import org.eulerdb.kernel.EdbEdge;
-import org.eulerdb.kernel.EdbVertex;
-import com.tinkerpop.blueprints.Vertex;
 
 public class EdbIterableFromCollection<T> implements Iterable<T> {
 	

@@ -1,10 +1,10 @@
 package org.eulerdb.kernel;
 
 import java.io.IOException;
-import java.util.Iterator;
 import org.apache.log4j.*;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
-import org.eulerdb.kernel.iterator.IteratorFactory;
+import org.eulerdb.kernel.iterator.EdbIterableFromDatabase;
+import org.eulerdb.kernel.iterator.EdbIterableFromIterator;
 import org.eulerdb.kernel.storage.EdbStorage;
 import org.eulerdb.kernel.storage.EulerDBHelper;
 import org.eulerdb.kernel.storage.EdbStorage.storeType;
@@ -146,7 +146,7 @@ public class EdbGraph implements Graph {
 	@Override
 	public Iterable<Edge> getEdges() {
 
-		return IteratorFactory.getIterator(mStorage.getCursor(
+		return new EdbIterableFromDatabase(mStorage.getCursor(
 				storeType.EDGE, getTransaction()));
 	}
 
@@ -165,8 +165,8 @@ public class EdbGraph implements Graph {
 			}
 		};
 
-		Iterable<Edge> its = IteratorFactory.getIterator(Iterators
-				.filter(IteratorFactory.getIterator(
+		Iterable<Edge> its = new EdbIterableFromIterator(Iterators
+				.filter(new EdbIterableFromDatabase(
 						mStorage.getCursor(storeType.EDGE, getTransaction())).iterator(),
 						relationFilter));
 
@@ -191,7 +191,7 @@ public class EdbGraph implements Graph {
 	@Override
 	public Iterable<Vertex> getVertices() {
 
-		return IteratorFactory.getIterator(mStorage.getCursor(
+		return new EdbIterableFromDatabase(mStorage.getCursor(
 				storeType.VERTEX, getTransaction()));
 	}
 
@@ -210,8 +210,8 @@ public class EdbGraph implements Graph {
 			}
 		};
 		
-		Iterable<Vertex> its = IteratorFactory.getIterator(Iterators
-				.filter(IteratorFactory.getIterator(mStorage.getCursor(
+		Iterable<Vertex> its = new EdbIterableFromIterator(Iterators
+				.filter(new EdbIterableFromDatabase(mStorage.getCursor(
 						storeType.VERTEX, getTransaction()
 						)).iterator(), relationFilter));
 

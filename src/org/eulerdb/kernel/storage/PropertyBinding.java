@@ -1,8 +1,6 @@
 package org.eulerdb.kernel.storage;
 
 import java.io.IOException;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.eulerdb.kernel.helper.ByteArrayHelper;
@@ -10,7 +8,6 @@ import org.eulerdb.kernel.helper.ByteArrayHelper;
 import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-import com.sleepycat.util.FastOutputStream;
 
 public class PropertyBinding extends TupleBinding {
 

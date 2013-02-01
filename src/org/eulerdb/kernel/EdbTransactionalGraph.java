@@ -2,10 +2,7 @@ package org.eulerdb.kernel;
 
 import javax.transaction.xa.XAException;
 
-import org.eulerdb.kernel.storage.EulerDBHelper;
-
 import com.sleepycat.je.Transaction;
-import com.sleepycat.je.Transaction.State;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.TransactionalGraph;

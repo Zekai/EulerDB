@@ -8,7 +8,7 @@ import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 
-public class EdbCursor {
+public class EdbPrimaryCursor implements EdbBaseCursor{
 
 	private Cursor mCur;
 	private OperationStatus hasNext;
@@ -16,7 +16,7 @@ public class EdbCursor {
 	private long cnt;
 	private long max;
 
-	public EdbCursor(Cursor cur) {
+	public EdbPrimaryCursor(Cursor cur) {
 		this.mCur = cur;
 
 		max = cur.getDatabase().count();

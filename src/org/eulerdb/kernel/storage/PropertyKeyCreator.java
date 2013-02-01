@@ -1,11 +1,8 @@
 package org.eulerdb.kernel.storage;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Set;
 
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 
@@ -13,7 +10,6 @@ import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.SecondaryDatabase;
 import com.sleepycat.je.SecondaryKeyCreator;
-import com.sleepycat.je.SecondaryMultiKeyCreator;
 
 import com.sleepycat.bind.tuple.TupleBinding;
 

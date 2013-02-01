@@ -6,7 +6,6 @@ import java.util.Set;
 import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 
-import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.SecondaryCursor;
 import com.sleepycat.je.Transaction;
 
@@ -28,8 +27,8 @@ public class EdbStorage {
 	private static EdbKeyPairStore mEdgePropertyPairs;
 	private static EulerDBHelper mEdbHelper = null;
 	//private static boolean mTransactional;
-	private static EdbCursor mEdgeCursor;
-	private static EdbCursor mNodeCursor;
+	private static EdbPrimaryCursor mEdgeCursor;
+	private static EdbPrimaryCursor mNodeCursor;
 	
 	private EdbStorage(String path,boolean transactional,boolean autoindex){
 		initStores(path,transactional,autoindex);
@@ -178,19 +177,19 @@ public class EdbStorage {
 	
 	}
 	
-	public EdbCursor getCursor(storeType type,Transaction tx) {
+	public EdbPrimaryCursor getCursor(storeType type,Transaction tx) {
 		switch(type)
 		{
 		case EDGE:
 		{
 			if(mEdgeCursor!=null) mEdgeCursor.close();
-			mEdgeCursor = new EdbCursor(getStore(type).getCursor(tx));
+			mEdgeCursor = new EdbPrimaryCursor(getStore(type).getCursor(tx));
 			return mEdgeCursor;
 		}
 		case VERTEX:
 		{
 			if(mNodeCursor!=null) mNodeCursor.close();
-			mNodeCursor = new EdbCursor(getStore(type).getCursor(tx));
+			mNodeCursor = new EdbPrimaryCursor(getStore(type).getCursor(tx));
 			return mNodeCursor;
 		}
 		default:

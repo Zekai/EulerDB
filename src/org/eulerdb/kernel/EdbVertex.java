@@ -3,12 +3,7 @@ package org.eulerdb.kernel;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,16 +11,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eulerdb.kernel.commons.Common;
-import org.eulerdb.kernel.iterator.EdbIterableFromCollection;
+import org.eulerdb.kernel.iterator.EdbIterableFromIterator;
 import org.eulerdb.kernel.storage.EdbStorage;
 import org.eulerdb.kernel.storage.EdbStorage.storeType;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Multimap;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Query;
@@ -217,7 +206,7 @@ public class EdbVertex implements Vertex, Serializable {
 			}
 		}
 
-		return new EdbIterableFromCollection(res);
+		return new EdbIterableFromIterator(res.iterator());
 
 	}
 

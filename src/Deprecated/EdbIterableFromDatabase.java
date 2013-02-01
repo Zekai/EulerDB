@@ -4,22 +4,21 @@ package Deprecated;
 import java.util.Iterator;
 import org.eulerdb.kernel.storage.EdbPrimaryCursor;
 
-import com.tinkerpop.blueprints.Vertex;
 
-
-public class EdbVertexIterableFromDatabase extends EdbVertexIterable {
+public class EdbIterableFromDatabase<T> implements Iterable<T> {
 	
 	EdbPrimaryCursor mCur;
 	
-	public EdbVertexIterableFromDatabase(EdbPrimaryCursor cur) {
+	public EdbIterableFromDatabase(EdbPrimaryCursor cur) {
 		mCur = cur;
 	}
 
 	@Override
-	public Iterator<Vertex> iterator() {
+	public Iterator<T> iterator() {
+		
 		mCur.getFirst();
 		
-		 return new Iterator<Vertex>() {
+		 return new Iterator<T>() {
 
 			@Override
 			public boolean hasNext() {
@@ -27,8 +26,8 @@ public class EdbVertexIterableFromDatabase extends EdbVertexIterable {
 			}
 
 			@Override
-			public Vertex next() {
-				return (Vertex) mCur.next();
+			public T next() {
+				return (T) mCur.next();
 			}
 
 			@Override

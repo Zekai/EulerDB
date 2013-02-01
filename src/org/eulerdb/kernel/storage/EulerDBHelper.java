@@ -1,17 +1,11 @@
 package org.eulerdb.kernel.storage;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Comparator;
 
 import com.sleepycat.je.DatabaseConfig;
-import com.sleepycat.je.DbInternal;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
-import com.sleepycat.je.Transaction;
-import com.sleepycat.je.config.EnvironmentParams;
-import com.sleepycat.persist.EntityStore;
-import com.sleepycat.persist.StoreConfig;
 
 public class EulerDBHelper {
 

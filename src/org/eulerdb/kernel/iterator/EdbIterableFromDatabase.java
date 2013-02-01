@@ -1,31 +1,30 @@
 package org.eulerdb.kernel.iterator;
 
-
 import java.util.Iterator;
-import org.eulerdb.kernel.storage.EdbCursor;
 
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Vertex;
+import org.eulerdb.kernel.storage.EdbBaseCursor;
+import org.eulerdb.kernel.storage.EdbSecondaryCursor;
+import org.eulerdb.kernel.storage.EdbStorage;
 
+import com.tinkerpop.blueprints.Element;
 
-public class EdbIterableFromDatabase<T> implements Iterable<T> {
+public class EdbIterableFromDatabase<T, S extends EdbBaseCursor>  implements Iterable<T> {
 	
-	EdbCursor mCur;
+	private S mCur;
 	
-	public EdbIterableFromDatabase(EdbCursor cur) {
+	public EdbIterableFromDatabase(S cur) {
 		mCur = cur;
 	}
 
-	@Override
+	//@Override
 	public Iterator<T> iterator() {
-		
 		mCur.getFirst();
 		
 		 return new Iterator<T>() {
 
 			@Override
 			public boolean hasNext() {
-				return mCur.hasNext();
+				return  mCur.hasNext();
 			}
 
 			@Override

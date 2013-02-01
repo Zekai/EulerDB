@@ -3,13 +3,12 @@ package org.eulerdb.kernel.storage;
 import java.io.IOException;
 
 import org.eulerdb.kernel.helper.ByteArrayHelper;
-import com.sleepycat.je.Cursor;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.SecondaryCursor;
 
-public class EdbSecondaryCursor {
+public class EdbSecondaryCursor implements EdbBaseCursor{
 
 	private SecondaryCursor mCur;
 	private OperationStatus hasNext;

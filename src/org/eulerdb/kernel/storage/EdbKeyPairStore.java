@@ -25,6 +25,7 @@ public class EdbKeyPairStore {
 	private EulerDBHelper mEdbHelper = null;
 	private Map<String,SecondaryDatabase> secondDBs;
 	private Map<String,SecondaryCursor> secondCursors;
+	private boolean mAutoIndex;
 
 	// private static EdbKeyPairStore instance = null;
 
@@ -43,6 +44,7 @@ public class EdbKeyPairStore {
 	public EdbKeyPairStore(EulerDBHelper edbHelper, String name,
 			boolean secondary) {
 		mEdbHelper = edbHelper;
+		mAutoIndex = secondary;
 		// Transaction txn0 = edbHelper.getEnvironment().beginTransaction(null,
 		// null);
 		mStore = mEdbHelper.getEnvironment().openDatabase(null, name,
@@ -131,7 +133,7 @@ public class EdbKeyPairStore {
 
 	public void createSecondary(boolean readOnly, String key) {
 
-		if (secondDBs.containsKey(key))
+		if (!mAutoIndex||secondDBs.containsKey(key))
 			return;
 
 		SecondaryConfig mySecConfig = new SecondaryConfig();
@@ -187,6 +189,8 @@ public class EdbKeyPairStore {
 	}
 
 	public SecondaryCursor getSecondCursor(String dbName, Transaction tx) {
+		if(!mAutoIndex)
+			throw new UnsupportedOperationException("auto index is set to false, no secondary cursor is allowed.");
 		String key = dbName+"_"+EdbHelper.getTransactionId(tx);
 		
 		if(secondCursors.containsKey(key)) return secondCursors.get(key);

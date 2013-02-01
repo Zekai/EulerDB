@@ -2,8 +2,6 @@ package org.eulerdb.kernel.iterator;
 
 
 import java.util.Iterator;
-import org.eulerdb.kernel.EdbVertex;
-import com.tinkerpop.blueprints.Vertex;
 
 public class EdbIterableFromIterator<T> implements Iterable<T> {
 	
