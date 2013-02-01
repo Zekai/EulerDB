@@ -10,6 +10,7 @@ import org.eulerdb.kernel.EdbVertex;
 import org.eulerdb.kernel.helper.FileHelper;
 
 import com.tinkerpop.blueprints.Index;
+import com.tinkerpop.blueprints.TransactionalGraph.Conclusion;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.util.wrappers.event.EventIndexableGraph;
 
@@ -17,16 +18,18 @@ public class IndexTesting {
 	public static void main(String[] args) {
 		// add some nodes
 
-		String path = "./temp/BasicTest";
+		String path = "./temp/IndexTesting";
 
-		FileHelper.deleteDir(path);
+		//FileHelper.deleteDir(path);
 		
 		String name  ="name";
 		String gender = "gender"; 
 		String location = "location";
 
 		EdbTransactionalGraph g = new EdbTransactionalGraph(path,true,true);
-		g.createKeyIndex("name",Vertex.class);
+		/*g.createKeyIndex(name,Vertex.class);
+		g.createKeyIndex(gender,Vertex.class);
+		g.createKeyIndex(location, Vertex.class);
 		Vertex v1 = g.addVertex(1);
 		Vertex v2 = g.addVertex(2);
 		Vertex v3 = g.addVertex(3);
@@ -34,17 +37,17 @@ public class IndexTesting {
 
 		// add nodes properties
 		v1.setProperty(name, "Mark");
-		//v1.setProperty(gender, "Male");
-		//v1.setProperty(location, "california");
+		v1.setProperty(gender, "Male");
+		v1.setProperty(location, "california");
 		v2.setProperty(name, "Mark");
-		//v2.setProperty(gender, "Female");
-		//v2.setProperty(location, "new york");
+		v2.setProperty(gender, "Female");
+		v2.setProperty(location, "new york");
 		
 		//for(String s:v1.getPropertyKeys()){
 		//	System.out.println(v2.getProperty(s));
 		//}
 		v3.setProperty(name, "Macka");
-		//v3.setProperty(gender, "Female");
+		v3.setProperty(gender, "Female");
 //		v4.setProperty(name, "Andrejka");
 //		v4.setProperty(gender, "Female");
 //
@@ -62,7 +65,7 @@ public class IndexTesting {
 //		g.addEdge(null, v4, v1, "isFriedOf");
 //
 //		g.addEdge(null, v3, v4, "isFriedOf");
-//		g.addEdge(null, v4, v3, "isFriedOf");
+//		g.addEdge(null, v4, v3, "isFriedOf");*/
 
 		// index properties
 		/*System.out.println("gender: Female");
@@ -105,5 +108,6 @@ public class IndexTesting {
 		
 		Vertex x2 = g.getVertex(2);
 		System.out.println(x2.getProperty("name"));*/
+		//g.stopTransaction(Conclusion.SUCCESS);
 	}
 }

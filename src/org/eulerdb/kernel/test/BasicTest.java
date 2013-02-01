@@ -41,7 +41,7 @@ public class BasicTest {
 		
 		
 		
-		//g.nontransactionalCommit();
+		g.nontransactionalCommit();
 		System.out.println("All nodes:");
 		for (Vertex v : g.getVertices()) {
 			System.out.println(v.getId() + " : ");

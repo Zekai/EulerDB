@@ -29,7 +29,7 @@ import com.tinkerpop.blueprints.Vertex;
 
 public class EdbGraph implements Graph {
 
-	private static final Logger logger = Logger.getLogger(EdbGraph.class
+	protected static final Logger logger = Logger.getLogger(EdbGraph.class
 			.getCanonicalName());
 
 	//protected boolean mTransactional;

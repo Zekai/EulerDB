@@ -68,9 +68,9 @@ public class EdbKeyIndexableGraph extends EdbGraph implements KeyIndexableGraph 
 		final String key = arg0;
 		final Object value = arg1;
 		
-		if(!mAutoIndex||!mStorage.containsIndex(storeType.EDGEPROPERTY, key)) return super.getVertices(arg0,arg1);
+		if(!mAutoIndex||!mStorage.containsIndex(storeType.NODEPROPERTY, key)) return super.getVertices(arg0,arg1);
 		
-		
+		logger.info("Using index to get Vertices with property name  "+ key+" of value "+value);
 
 		Function<String, Vertex> idToObject = new Function<String, Vertex>() {
 			public Vertex apply(String id) {
@@ -95,6 +95,7 @@ public class EdbKeyIndexableGraph extends EdbGraph implements KeyIndexableGraph 
 		Object value = arg1;
 		if(!mAutoIndex||!mStorage.containsIndex(storeType.EDGEPROPERTY, key)) return super.getEdges(arg0,arg1);
 		
+		logger.info("Using index to get Edges with property name  "+ key+" of value "+value);
 		
 
 		Function<String, Edge> idToObject = new Function<String, Edge>() {

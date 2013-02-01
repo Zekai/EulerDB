@@ -1,6 +1,7 @@
 package org.eulerdb.kernel.storage;
 
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,6 +25,7 @@ import com.sleepycat.je.Transaction;
 public class EdbKeyPairStore {
 
 	private Database mStore;
+	private String mPrimaryName;
 	private EulerDBHelper mEdbHelper = null;
 	private Map<String,SecondaryDatabase> secondDBs;
 	private Map<String,SecondaryCursor> secondCursors;
@@ -51,11 +53,12 @@ public class EdbKeyPairStore {
 		// null);
 		mStore = mEdbHelper.getEnvironment().openDatabase(null, name,
 				mEdbHelper.getDatabaseConfig());
-
+		mPrimaryName = name;
 		secondDBs = new Hashtable<String, SecondaryDatabase>();
 		secondCursors = new Hashtable<String, SecondaryCursor>();
 		// txn0.commit();
 		//if(name.equals(Common.VERTEXPROPERTY)) createSecondaryIfNeed("name");
+		loadSecondary(null);
 	};
 
 	public OperationStatus put(Transaction tx, byte[] key, byte[] value) {
@@ -171,9 +174,9 @@ public class EdbKeyPairStore {
 		mySecConfig.setSortedDuplicates(true);
 
 		// Now open it
-		String primarydbname = mStore.getDatabaseName();
+		
 		SecondaryDatabase secondDb = mEdbHelper.getEnvironment()
-				.openSecondaryDatabase(tx, primarydbname+Common.SEPARATOR_PRIME2ND+key, // Index name
+				.openSecondaryDatabase(tx, mPrimaryName+Common.SEPARATOR_PRIME2ND+key, // Index name
 						mStore, // Primary database handle. This is
 								// the db that we're indexing.
 						mySecConfig); // The secondary config
@@ -203,11 +206,21 @@ public class EdbKeyPairStore {
 		
 		//System.out.println(key);
 		SecondaryDatabase secondDb = secondDBs.get(dbName);
-		DatabaseStats i = secondDb.getStats(null);
-		System.out.println("=============="+i);
 		SecondaryCursor mySecCursor = secondDb.openCursor(tx, null);// openSecondaryCursor(null,
 		secondCursors.put(dbName, mySecCursor);
 		return mySecCursor;
+	}
+	
+	public void loadSecondary(Transaction tx){
+		List<String> dbNames = mEdbHelper.getEnvironment().getDatabaseNames();
+		String prefix = mPrimaryName+Common.SEPARATOR_PRIME2ND;
+		for(String dbName:dbNames){
+			if(dbName.startsWith(prefix))
+			{
+				String secondaryDbName = dbName.substring(prefix.length());
+				createSecondaryIfNeeded(tx,secondaryDbName);
+			}
+		}
 	}
 
 }

@@ -23,7 +23,7 @@ public class BasicTestLoading {
 		for (Vertex v : g.getVertices()) {
 			System.out.println(v.getId() + " : ");
 			
-			for (Vertex u: ((EdbVertex)v).getVertices(Direction.IN, null))
+			for (Vertex u: ((EdbVertex)v).getVertices(Direction.IN))
 			{
 				System.out.println("     "+u.getId()+" connects to "+ v.getId());
 			}

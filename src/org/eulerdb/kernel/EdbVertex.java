@@ -1,5 +1,6 @@
 package org.eulerdb.kernel;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +49,19 @@ public class EdbVertex implements Vertex, Serializable {
 
 		initSaving();
 	}
+	
+	/**
+	 * Re-Initialize transient variable after deserialization
+	 * @param in
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	private void readObject(java.io.ObjectInputStream in)
+		    throws IOException, ClassNotFoundException {
+		    in.defaultReadObject();
+		    if (mStorage == null)
+				mStorage = EdbStorage.getInstance();
+		}
 
 	@Override
 	public String getId() {

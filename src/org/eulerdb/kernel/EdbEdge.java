@@ -1,5 +1,6 @@
 package org.eulerdb.kernel;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -38,6 +39,19 @@ public class EdbEdge implements Edge, Serializable {
 			mStorage = EdbStorage.getInstance();
 		initSaving();
 	}
+	
+	/**
+	 * Re-Initialize transient variable after deserialization
+	 * @param in
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	private void readObject(java.io.ObjectInputStream in)
+		    throws IOException, ClassNotFoundException {
+		    in.defaultReadObject();
+		    if (mStorage == null)
+				mStorage = EdbStorage.getInstance();
+		}
 
 	@Override
 	public Object getId() {
