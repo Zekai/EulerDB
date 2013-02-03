@@ -125,6 +125,7 @@ public class EdbTransactionalGraph extends EdbKeyIndexableGraph implements
 		}
 	}
 
+	/*
 	@Override
 	public void startTransaction() throws IllegalStateException {
 		logger.info("startTransaction");
@@ -136,7 +137,7 @@ public class EdbTransactionalGraph extends EdbKeyIndexableGraph implements
 			throw ExceptionFactory.transactionAlreadyStarted();
 		}
 
-	}
+	}*/
 
 	@Override
 	public void stopTransaction(Conclusion conclusion) {
