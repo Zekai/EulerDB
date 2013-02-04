@@ -66,6 +66,9 @@ public class EdbGraph implements Graph {
 		FEATURES.supportsUniformListProperty = true;
 		FEATURES.supportsMixedListProperty = true;
 		FEATURES.supportsLongProperty = true;
+		FEATURES.supportsEdgeRetrieval = true;
+		FEATURES.supportsVertexProperties = true;
+        FEATURES.supportsEdgeProperties = true;
 		FEATURES.supportsMapProperty = true;
 		FEATURES.supportsStringProperty = true;
 		FEATURES.supportsThreadedTransactions = true;
