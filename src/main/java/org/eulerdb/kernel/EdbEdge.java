@@ -15,6 +15,7 @@ import org.eulerdb.kernel.storage.EdbStorage.storeType;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.util.ExceptionFactory;
 
 public class EdbEdge implements Edge, Serializable {
 
@@ -108,6 +109,10 @@ public class EdbEdge implements Edge, Serializable {
 	@Override
 	public void setProperty(String arg0, Object arg1) {
 		logger.debug("setProperty key: "+ arg0+" value: "+ arg1);
+		
+		if(arg0==null||arg0.equals("")) 
+			throw ExceptionFactory.elementKeyCanNotBeEmpty();
+		
 		if (sBlackList.contains(arg0))
 			throw new IllegalArgumentException(arg0
 					+ " is not allowed to be used as property name");
@@ -131,7 +136,7 @@ public class EdbEdge implements Edge, Serializable {
 	 * see the model for detail
 	 */
 	@Override
-	public Vertex getVertex(Direction arg0) throws IllegalArgumentException {
+	public Vertex getVertex(Direction arg0) {
 		logger.debug("getVertex of direction " +arg0);
 		if (arg0 == Direction.IN)
 			return (Vertex) mStorage.getObj(storeType.VERTEX,
@@ -140,8 +145,9 @@ public class EdbEdge implements Edge, Serializable {
 			return (Vertex) mStorage.getObj(storeType.VERTEX,
 					EdbTransactionalGraph.txs.get(), mFromVertex);
 		else{
+			
 			logger.error("direction should not be "+ arg0);
-			throw new IllegalArgumentException("direction should not be "+ arg0);
+			throw ExceptionFactory.bothIsNotSupported();//   IllegalArgumentException("direction should not be "+ arg0);
 		}
 	}
 
@@ -161,7 +167,7 @@ public class EdbEdge implements Edge, Serializable {
 			return mFromVertex;
 		else {
 			logger.error("direction should not be "+ arg0);
-			throw new IllegalArgumentException("direction should not be "+ arg0);
+			throw ExceptionFactory.bothIsNotSupported();
 		}
 	}
 

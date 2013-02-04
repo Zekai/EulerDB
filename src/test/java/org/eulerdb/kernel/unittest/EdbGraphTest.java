@@ -115,7 +115,7 @@ public class EdbGraphTest extends GraphTest {
         //deleteDirectory(f);
 
         f.mkdir();
-        EdbTransactionalGraph graph = new EdbTransactionalGraph(directory + "/" + graphDirectoryName,true,true);
+        EdbGraph graph = new EdbTransactionalGraph(directory + "/" + graphDirectoryName,true,true);
         return graph;
     }
 

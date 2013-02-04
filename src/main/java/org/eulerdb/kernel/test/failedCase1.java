@@ -4,7 +4,9 @@ import java.util.Collection;
 
 import org.eulerdb.kernel.EdbEdge;
 import org.eulerdb.kernel.EdbGraph;
+import org.eulerdb.kernel.EdbKeyIndexableGraph;
 import org.eulerdb.kernel.EdbVertex;
+import org.eulerdb.kernel.helper.EdbHelper;
 import org.eulerdb.kernel.helper.FileHelper;
 import org.junit.Assert;
 
@@ -12,6 +14,7 @@ import com.tinkerpop.blueprints.BaseTest;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
+import com.tinkerpop.blueprints.KeyIndexableGraph;
 import com.tinkerpop.blueprints.Vertex;
 
 public class failedCase1 {
@@ -21,7 +24,19 @@ public class failedCase1 {
 		
 		FileHelper.deleteDir(path);
 		
-		Graph graph = new EdbGraph(path);
+		 KeyIndexableGraph graph = new EdbKeyIndexableGraph(path);
+
+	        graph.createKeyIndex("foo2", Vertex.class);
+
+	        Vertex v1 = graph.addVertex(null);
+	        v1.setProperty("foo", 42);
+	     
+	        graph.removeVertex(v1);
+	        Assert.assertEquals(0, EdbHelper.count(graph.getVertices("foo", 42)));
+
+	        graph.shutdown();
+		
+		/*Graph graph = new EdbGraph(path);
         Vertex a = graph.addVertex(null);
         Vertex b  = graph.addVertex(null);
         Vertex c  =  graph.addVertex(null);
@@ -36,7 +51,7 @@ public class failedCase1 {
         	for(Edge e:vertex.getEdges(Direction.OUT)){
         		System.out.println(e.getId());
         	}
-        }
+        }*/
 
 		/*FileHelper.deleteDir(path);
 

@@ -108,6 +108,9 @@ public class EdbVertex implements Vertex, Serializable {
 	@Override
 	public void setProperty(String arg0, Object arg1) {
 		logger.debug("setProperty key: "+ arg0+" value: "+ arg1);
+		if(arg0==null||arg0.equals("")) 
+			throw ExceptionFactory.elementKeyCanNotBeEmpty();
+		
 		if (sBlackList.contains(arg0))
 			throw ExceptionFactory.propertyKeyIdIsReserved(); 
 		

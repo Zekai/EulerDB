@@ -293,5 +293,11 @@ public class EdbGraph implements Graph {
 		logger.debug("getTransaction");
 		return null;
 	}
+	
+	@Override
+	public String toString(){
+		String result = this.getClass().getSimpleName().toLowerCase();
+		return result;
+	}
 
 }
