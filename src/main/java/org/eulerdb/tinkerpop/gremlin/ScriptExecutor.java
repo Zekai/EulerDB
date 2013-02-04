@@ -1,4 +1,4 @@
-package org.eulerdb.gremlin;
+package org.eulerdb.tinkerpop.gremlin;
 
 import com.tinkerpop.gremlin.groovy.jsr223.GremlinGroovyScriptEngine;
 

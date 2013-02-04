@@ -37,7 +37,7 @@ else
   if [ "$1" = "-v" ]; then
     $JAVA $JAVA_OPTIONS -cp $CP:$CLASSPATH com.tinkerpop.gremlin.Version
   else
-    $JAVA $JAVA_OPTIONS -cp $CP:$CLASSPATH org.eulerdb.gremlin.Console
+    $JAVA $JAVA_OPTIONS -cp $CP:$CLASSPATH org.eulerdb.tinkerpop.gremlin.Console
   fi
 fi
 

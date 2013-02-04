@@ -1,4 +1,4 @@
-package org.eulerdb.gremlin;
+package org.eulerdb.tinkerpop.gremlin;
 
 import com.tinkerpop.gremlin.groovy.Gremlin;
 import com.tinkerpop.gremlin.groovy.console.ErrorHookClosure;
