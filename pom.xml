@@ -1,9 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.eulerdb.kernel</groupId>
-  <artifactId>EulerDB</artifactId>
-  <version>0.3.1-SNAPSHOT</version>
-  <dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.eulerdb.kernel</groupId>
+	<artifactId>EulerDB</artifactId>
+	<version>0.3.1-SNAPSHOT</version>
+	<dependencies>
 		<!-- TinkerPop -->
 		<dependency>
 			<groupId>com.tinkerpop.blueprints</groupId>
@@ -16,16 +17,19 @@
 			<version>2.2.0</version>
 		</dependency>
 		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy-all</artifactId>
+			<version>1.8.7</version>
+		</dependency>
+		<dependency>
+			<groupId>com.tinkerpop.gremlin</groupId>
+			<artifactId>gremlin-java</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.tinkerpop.gremlin</groupId>
 			<artifactId>gremlin-groovy</artifactId>
 			<version>2.2.0</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>gossip</artifactId>
-					<groupId>org.sonatype.gossip</groupId>
-				</exclusion>
-			</exclusions>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.tinkerpop.rexster</groupId>
@@ -78,6 +82,19 @@
 	</repositories>
 	<build>
 		<directory>${basedir}/target</directory>
+        <finalName>${project.artifactId}-${project.version}</finalName>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/src/test/resources
+                </directory>
+            </testResource>
+        </testResources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
