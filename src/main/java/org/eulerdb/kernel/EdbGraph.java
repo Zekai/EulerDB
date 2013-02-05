@@ -297,6 +297,7 @@ public class EdbGraph implements Graph {
 	@Override
 	public String toString(){
 		String result = this.getClass().getSimpleName().toLowerCase();
+		result = result + "[Vertex:"+mStorage.getCount(storeType.VERTEX) + " Edge:"+mStorage.getCount(storeType.EDGE)+"]";
 		return result;
 	}
 

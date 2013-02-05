@@ -19,7 +19,7 @@ public class BasicTestLoading {
 		
 		EdbGraph g =  new EdbGraph(path);
 
-		System.out.println("All nodes:");
+		System.out.println("All nodes:"+g.toString());
 		for (Vertex v : g.getVertices()) {
 			System.out.println(v.getId() + " : ");
 			
