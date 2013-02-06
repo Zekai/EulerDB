@@ -38,3 +38,7 @@ EulerDB is
  * A NoSQL graph-based database (Since V0.1.0)
  * Transactional database (Since V0.2.0)
  * With an application focus on Knowledge Representation (planing after V1.0)
+ 
+Features supported by 3rd parties:
+ * Query in console
+ * Restful

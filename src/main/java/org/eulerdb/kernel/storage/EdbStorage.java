@@ -107,6 +107,10 @@ public class EdbStorage {
 		}
 	}
 	
+	public long getCount(storeType type){
+		return getStore(type).count();
+	}
+	
 	public void store(storeType type,Transaction tx,String id,Object n) {
 		try {
 			

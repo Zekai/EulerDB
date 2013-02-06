@@ -1,0 +1,1 @@
+130206 10:25:40:051 INFO [./temp/IndexTesting]Chose lowest utilized file for cleaning. totalUtilization: 46 bestFileUtilization: 101 lnSizeCorrectionFactor: NaN isProbe: false
