@@ -39,7 +39,7 @@ public class IndexTesting {
 		v1.setProperty(name, "Mark");
 		v1.setProperty(gender, "Male");
 		v1.setProperty(location, "california");
-		v2.setProperty(name, "Mark");
+		v2.setProperty(name, "Jackie");
 		v2.setProperty(gender, "Female");
 		v2.setProperty(location, "new york");
 		
@@ -47,25 +47,27 @@ public class IndexTesting {
 		//	System.out.println(v2.getProperty(s));
 		//}
 		v3.setProperty(name, "Macka");
-		v3.setProperty(gender, "Female");
-//		v4.setProperty(name, "Andrejka");
-//		v4.setProperty(gender, "Female");
+		v3.setProperty(gender, "Male");
+		v4.setProperty(name, "Andrejka");
+		v4.setProperty(gender, "Female");
 //
 //		// add some edges
-//		g.addEdge(null, v1, v2, "isFriedOf");
-//		g.addEdge(null, v2, v1, "isFriedOf");
-//
-//		g.addEdge(null, v1, v3, "dates");
-//		g.addEdge(null, v3, v1, "dates");
-//
-//		g.addEdge(null, v2, v4, "isMarriedTo");
-//		g.addEdge(null, v4, v2, "isMarriedTo");
-//
-//		g.addEdge(null, v1, v4, "isFriedOf");
-//		g.addEdge(null, v4, v1, "isFriedOf");
-//
-//		g.addEdge(null, v3, v4, "isFriedOf");
-//		g.addEdge(null, v4, v3, "isFriedOf");
+		g.addEdge(null, v1, v2, "isFriedOf");
+		g.addEdge(null, v2, v1, "isFriedOf");
+
+		g.addEdge(null, v1, v3, "dates");
+		g.addEdge(null, v3, v1, "dates");
+
+		g.addEdge(null, v2, v4, "isMarriedTo");
+		g.addEdge(null, v4, v2, "isMarriedTo");
+
+		g.addEdge(null, v1, v4, "isFriedOf");
+		g.addEdge(null, v4, v1, "isFriedOf");
+
+		g.addEdge(null, v3, v4, "isFriedOf");
+		g.addEdge(null, v4, v3, "isFriedOf");
+		
+		g.stopTransaction(Conclusion.SUCCESS);
 
 		// index properties
 		/*System.out.println("gender: Female");

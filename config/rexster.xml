@@ -51,15 +51,16 @@
 		</authentication>
 	</security>
 	<graphs>
+		
 		<graph>
-			<graph-name>EulerDB Example</graph-name>
+			<graph-name>Relations</graph-name>
 			<graph-type>org.eulerdb.tinkerpop.rexster.EdbGraphConfiguration
 			</graph-type>
-			<graph-location>../data/BasicTest</graph-location>
+			<graph-location>../data/IndexTesting</graph-location>
 			<graph-read-only>false</graph-read-only>
 			<properties>
-				<storage.backend>local</storage.backend>
-				<buffer-size>100</buffer-size>
+				<transactioanl>true</transactioanl>
+				<auto-index>true</auto-index>
 			</properties>
 			<extensions>
 				<allows>

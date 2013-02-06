@@ -45,6 +45,12 @@ public class EdbTransactionalGraph extends EdbKeyIndexableGraph implements
 		logger.info("EulerDB is running in mode transactional: true, autoindex: false at path:" + path);
 	}
 	
+	/**
+	 * 
+	 * @param path
+	 * @param isTransactional
+	 * @param autoIndex
+	 */
 	public EdbTransactionalGraph(String path,boolean isTransactional,boolean autoIndex) {
 		super(path, isTransactional,autoIndex);
 		logger.info("EulerDB is running in mode transactional: "+isTransactional+", autoindex: "+ autoIndex+"at path:" + path);
