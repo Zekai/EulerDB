@@ -126,7 +126,7 @@ public class EdbTransactionalGraph extends EdbKeyIndexableGraph implements
 	private void autoStartTransaction() {
 		logger.debug("autoStartTransaction");
 		if (txs.get() == null) {
-			txs.set(mEdbHelper.getEnvironment().beginTransaction(null, null));
+			txs.set(mStorage.beginTransaction());
 			logger.info("creating new transaction");
 		}
 	}

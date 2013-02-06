@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.iterator.EdbIterableFromIterator;
+import org.eulerdb.kernel.storage.EdbManager;
 import org.eulerdb.kernel.storage.EdbStorage;
 import org.eulerdb.kernel.storage.EdbStorage.storeType;
 
@@ -34,16 +35,22 @@ public class EdbVertex implements Vertex, Serializable {
 	protected static final AtomicInteger uniqueId = new AtomicInteger(0);
 	protected transient static EdbStorage mStorage = null;
 	protected String mId;
+	protected String mOwner;
 	protected transient static List<String> sBlackList = Arrays
 			.asList(new String[] { "id" });
 
-	public EdbVertex(Object id) {
+	/**
+	 * The Vertex constructor is invisible outside of the package. The only way to add Vertex is via graph's addVertex function.
+	 * @param id
+	 */
+	EdbVertex(String owner,Object id) {
+		mOwner = owner;
 		mId = id == null ? String.valueOf(uniqueId.getAndIncrement()) : String
 				.valueOf(id);
 		logger.debug("EdbVertex constructor id "+ id+ " mid "+ mId);
 
 		if (mStorage == null)
-			mStorage = EdbStorage.getInstance();
+			mStorage = EdbManager.getDbInstance(mOwner);
 
 		initSaving();
 	}
@@ -69,7 +76,7 @@ public class EdbVertex implements Vertex, Serializable {
 					.asList(new String[] { "id" });
 		    
 		    if (mStorage == null)
-				mStorage = EdbStorage.getInstance();
+		    	mStorage = EdbManager.getDbInstance(mOwner);
 		}
 
 	@Override

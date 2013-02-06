@@ -8,9 +8,6 @@
 	<fileSets>
 		<fileSet>
 			<directory>config</directory>
-			<includes>
-				<include>*.xml</include>
-			</includes>
 			<outputDirectory>/bin</outputDirectory>
 			<fileMode>0755</fileMode>
 		</fileSet>

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.eulerdb.kernel.storage.EdbManager;
 import org.eulerdb.kernel.storage.EdbStorage;
 import org.eulerdb.kernel.storage.EdbStorage.storeType;
 
@@ -30,17 +31,24 @@ public class EdbEdge implements Edge, Serializable {
 	protected String mToVertex; // tail/out
 	protected String mRelation;
 	protected String mId;
+	protected String mOwner;
 	protected transient static EdbStorage mStorage = null;
 
-	public EdbEdge(Vertex n1, Vertex n2, Object id, String relation) {
+	/**
+	 * The EdbEdge constructor is invisible outside of the package. The only way to add Edge is via graph's addEdge function.
+	 * @param owner 
+	 * @param id
+	 */
+	EdbEdge(String owner, Vertex n1, Vertex n2, Object id, String relation) {
 		logger.debug("EdbEdge consturctor: from "+ n1.getId()+" to "+n2.getId()+" relation of "+ relation);
+		mOwner = owner;
 		mFromVertex = (String) n1.getId();
 		mToVertex = (String) n2.getId();
 		mRelation = relation;
 		mId = n1.getId() + "_" + relation + "_" + n2.getId();// FIXME id is not
 																// used here
 		if (mStorage == null)
-			mStorage = EdbStorage.getInstance();
+			mStorage = EdbManager.getDbInstance(mOwner);
 		initSaving();
 	}
 	
@@ -64,7 +72,7 @@ public class EdbEdge implements Edge, Serializable {
 		    	sBlackList = Arrays.asList(new String[] { "id","label" });
 		    
 		    if (mStorage == null)
-				mStorage = EdbStorage.getInstance();
+				mStorage = EdbManager.getDbInstance(mOwner);
 		}
 
 	@Override

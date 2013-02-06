@@ -1,6 +1,8 @@
 package org.eulerdb.kernel.storage;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -9,6 +11,9 @@ import org.eulerdb.kernel.helper.ByteArrayHelper;
 import org.eulerdb.kernel.iterator.EdbPrimaryCursor;
 import org.eulerdb.kernel.iterator.EdbSecondaryCursor;
 
+import com.sleepycat.je.DatabaseConfig;
+import com.sleepycat.je.Environment;
+import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.je.SecondaryCursor;
 import com.sleepycat.je.Transaction;
 
@@ -20,36 +25,42 @@ import com.sleepycat.je.Transaction;
  */
 public class EdbStorage {
 	
-	private static Logger logger = Logger.getLogger(EdbStorage.class.getCanonicalName());
-	private static EdbStorage instance = null;
+	private  Logger logger = Logger.getLogger(EdbStorage.class.getCanonicalName());
+	private  EdbStorage instance = null;
 	
-	public static enum storeType {VERTEX,EDGE,VERTEX_OUT,VERTEX_IN,NODEPROPERTY,EDGEPROPERTY};
-	private static EdbKeyPairStore mNodePairs;
-	private static EdbKeyPairStore mEdgePairs;
-	private static EdbKeyPairStore mNodeOutPairs;
-	private static EdbKeyPairStore mNodeInPairs;
-	private static EdbKeyPairStore mNodePropertyPairs;
-	private static EdbKeyPairStore mEdgePropertyPairs;
-	private static EulerDBHelper mEdbHelper = null;
-	//private static boolean mTransactional;
-	private static EdbPrimaryCursor mEdgeCursor;
-	private static EdbPrimaryCursor mNodeCursor;
-	private static EdbSecondaryCursor mEdgePropCursor;
-	private static EdbSecondaryCursor mNodePropCursor;
+	public  enum storeType {VERTEX,EDGE,VERTEX_OUT,VERTEX_IN,NODEPROPERTY,EDGEPROPERTY};
+	private  EdbKeyPairStore mNodePairs;
+	private  EdbKeyPairStore mEdgePairs;
+	private  EdbKeyPairStore mNodeOutPairs;
+	private  EdbKeyPairStore mNodeInPairs;
+	private  EdbKeyPairStore mNodePropertyPairs;
+	private  EdbKeyPairStore mEdgePropertyPairs;
+	//private  boolean mTransactional;
+	private  EdbPrimaryCursor mEdgeCursor;
+	private  EdbPrimaryCursor mNodeCursor;
+	private  EdbSecondaryCursor mEdgePropCursor;
+	private  EdbSecondaryCursor mNodePropCursor;
 	
-	private EdbStorage(String path,boolean transactional,boolean autoindex){
+	private Environment mEnv;
+	
+	EdbStorage(String path,boolean transactional,boolean autoindex){
 		initStores(path,transactional,autoindex);
 		logger.debug("initStores in mode transactional: "+transactional+", autoindex: "+ autoindex+"at path:" + path);
 	}
+	
+	public Transaction beginTransaction(){
+		return mEnv.beginTransaction(null, null);
+	}
 
-	public static synchronized EdbStorage getInstance(String path,boolean transactional,boolean autoindex) {
+	/*
+	public  synchronized EdbStorage getInstance(String path,boolean transactional,boolean autoindex) {
 		if (instance == null) {
 			instance = new EdbStorage(path,transactional,autoindex);
 		}
 		return instance;
-	}
+	}*/
 
-	public static EdbStorage getInstance() {
+	public  EdbStorage getInstance() {
 		if(instance==null)
 		{
 			logger.error("EdbGraph.class needs to pass in the path, use getInstance(String path) instead");
@@ -58,32 +69,59 @@ public class EdbStorage {
 		return instance;
 	}
 	
-	private void initStores(String path,boolean isTransactional,boolean autoIndex) {
-		if(mEdbHelper == null) {
-			mEdbHelper = EulerDBHelper.getInstance(path,isTransactional);
+	private void initEnv(String name,boolean isTransactional){
+		EnvironmentConfig envConf = new EnvironmentConfig();
+		// environment will be created if not exists
+		File f = new File(EdbManager.getBase()+name);
+		if (!f.exists())
+		{
+			f.mkdirs();
 		}
+		if(isTransactional){
+			envConf.setAllowCreate(true);
+		}
+		else
+		{
+			envConf.setAllowCreate(true);
+			envConf.setTransactional(true);
+		}
+		mEnv = new Environment(f, envConf);
+	}
+	
+	private void initStores(String name,boolean isTransactional,boolean autoIndex) {
+		initEnv(name,isTransactional);
+		DatabaseConfig dbConf = new DatabaseConfig();
+		dbConf.setAllowCreate(true);
+		if (!isTransactional) {
+			dbConf.setDeferredWrite(true);
+			// dbConf.setSortedDuplicates(true);
+		}else {
+			dbConf.setTransactional(true);
+			dbConf.setKeyPrefixing(true);
+		}
+		
 		if (mNodePairs == null) {
-			mNodePairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXSTORE,false);
+			mNodePairs = new EdbKeyPairStore(mEnv,dbConf,Common.VERTEXSTORE,false);
 		}
 		
 		if (mEdgePairs == null) {
-			mEdgePairs = new EdbKeyPairStore(mEdbHelper,Common.EDGESTORE,false);
+			mEdgePairs = new EdbKeyPairStore(mEnv,dbConf,Common.EDGESTORE,false);
 		}
 		
 		if (mNodeOutPairs == null) {
-			mNodeOutPairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXOUTSTORE,false);
+			mNodeOutPairs = new EdbKeyPairStore(mEnv,dbConf,Common.VERTEXOUTSTORE,false);
 		}
 		
 		if (mNodeInPairs == null) {
-			mNodeInPairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXINSTORE,false);
+			mNodeInPairs = new EdbKeyPairStore(mEnv,dbConf,Common.VERTEXINSTORE,false);
 		}
 		
 		if (mNodePropertyPairs == null) {
-			mNodePropertyPairs = new EdbKeyPairStore(mEdbHelper,Common.VERTEXPROPERTY,autoIndex);
+			mNodePropertyPairs = new EdbKeyPairStore(mEnv,dbConf,Common.VERTEXPROPERTY,autoIndex);
 		}
 		
 		if (mEdgePropertyPairs == null) {
-			mEdgePropertyPairs = new EdbKeyPairStore(mEdbHelper,Common.EDGEPROPERTY,autoIndex);
+			mEdgePropertyPairs = new EdbKeyPairStore(mEnv,dbConf,Common.EDGEPROPERTY,autoIndex);
 		}
 
 	}
@@ -270,8 +308,6 @@ public class EdbStorage {
 		mNodePropertyPairs = null;
 		mEdgePropertyPairs.close();
 		mEdgePropertyPairs = null;
-		mEdbHelper.closeEnv();
-		mEdbHelper = null;
 		instance = null;
 	}
 	

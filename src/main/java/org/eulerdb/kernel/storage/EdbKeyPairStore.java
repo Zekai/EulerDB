@@ -14,8 +14,10 @@ import org.eulerdb.kernel.helper.EdbHelper;
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.CursorConfig;
 import com.sleepycat.je.Database;
+import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseStats;
+import com.sleepycat.je.Environment;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.SecondaryConfig;
@@ -29,10 +31,10 @@ public class EdbKeyPairStore {
 
 	private Database mStore;
 	private String mPrimaryName;
-	private EulerDBHelper mEdbHelper = null;
 	private Map<String,SecondaryDatabase> secondDBs;
 	private Map<String,SecondaryCursor> secondCursors;
 	private boolean mAutoIndex;
+	private Environment mEnv;
 
 	// private static EdbKeyPairStore instance = null;
 
@@ -48,14 +50,14 @@ public class EdbKeyPairStore {
 	 * ); } assert(instance!=null); return instance; }
 	 */
 
-	public EdbKeyPairStore(EulerDBHelper edbHelper, String name,
+	public EdbKeyPairStore(Environment env,DatabaseConfig conf, String name,
 			boolean secondary) {
-		mEdbHelper = edbHelper;
+		mEnv = env;
 		mAutoIndex = secondary;
 		// Transaction txn0 = edbHelper.getEnvironment().beginTransaction(null,
 		// null);
-		mStore = mEdbHelper.getEnvironment().openDatabase(null, name,
-				mEdbHelper.getDatabaseConfig());
+		mStore =mEnv.openDatabase(null, name,
+				conf);
 		mPrimaryName = name;
 		logger.debug("primary database name of "+ mPrimaryName);
 		secondDBs = new Hashtable<String, SecondaryDatabase>();
@@ -197,7 +199,7 @@ public class EdbKeyPairStore {
 		// Now open it
 		String name = mPrimaryName+Common.SEPARATOR_PRIME2ND+key;
 		logger.debug("create SecondaryDatabase:"+ name);
-		SecondaryDatabase secondDb = mEdbHelper.getEnvironment()
+		SecondaryDatabase secondDb = mEnv
 				.openSecondaryDatabase(tx, name, // Index name
 						mStore, // Primary database handle. This is
 								// the db that we're indexing.
@@ -217,7 +219,7 @@ public class EdbKeyPairStore {
 	public void deleteSecondary(Transaction tx, String dbName) {
 		logger.debug("remove SecondaryDatabase:"+ dbName);
 		secondDBs.remove(dbName);
-		mEdbHelper.getEnvironment().removeDatabase(tx, dbName);
+		mEnv.removeDatabase(tx, dbName);
 	}
 
 	public SecondaryCursor getSecondCursor(String dbName, Transaction tx) {
@@ -236,7 +238,7 @@ public class EdbKeyPairStore {
 	}
 	
 	public void loadSecondary(Transaction tx){
-		List<String> dbNames = mEdbHelper.getEnvironment().getDatabaseNames();
+		List<String> dbNames = mEnv.getDatabaseNames();
 		String prefix = mPrimaryName+Common.SEPARATOR_PRIME2ND;
 		logger.debug("loadSecondary prefix:"+ prefix);
 		for(String dbName:dbNames){
