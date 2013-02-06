@@ -55,7 +55,7 @@
 			<graph-name>EulerDB Example</graph-name>
 			<graph-type>org.eulerdb.tinkerpop.rexster.EdbGraphConfiguration
 			</graph-type>
-			<graph-location>./temp/BasicTest</graph-location>
+			<graph-location>../data/BasicTest</graph-location>
 			<graph-read-only>false</graph-read-only>
 			<properties>
 				<storage.backend>local</storage.backend>

@@ -34,6 +34,10 @@
                 <include>javascript/**</include>
             </includes>
         </fileSet>
+        <fileSet>
+            <directory>data</directory>
+            <outputDirectory>/data</outputDirectory>
+        </fileSet>
 	</fileSets>
 
 	<dependencySets>
