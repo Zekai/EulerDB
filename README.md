@@ -24,7 +24,7 @@ My passion towards Robotics brought me to Computer Science. And I found the fiel
 
 Dot 2: Schooling: CNC Project
 
-I happend to code the CNC/CAM system for a commercial project in my college, which required lots of Graph knowledge. And I don't know which is chicken, which is egg, but I was also doing good in the graph part for both database and algorithm at schoool.
+I happened to code the CNC/CAM system for a commercial project in my college, which required lots of Graph knowledge. And I don't know which is chicken, which is egg, but I was also doing good in the graph part for both database and algorithm at school.
 
 Dot 3: Career: Graph Database (GD) or Google's Devil
 
@@ -39,6 +39,6 @@ EulerDB is
  * Transactional database (Since V0.2.0)
  * With an application focus on Knowledge Representation (planing after V1.0)
  
-Features supported by 3rd parties:
- * Query in console
- * Restful
+Features supported by 3rd parties (TinkerPop):
+ * Query in console (Since V0.3.1)
+ * RESTful API (Since V0.3.2)

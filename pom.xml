@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eulerdb.kernel</groupId>
 	<artifactId>EulerDB</artifactId>
-	<version>0.3.1-SNAPSHOT</version>
+	<version>0.3.2-SNAPSHOT</version>
 	<dependencies>
 		<!-- TinkerPop -->
 		<dependency>
@@ -178,6 +178,7 @@
                     <attach>false</attach>
                     <descriptors>
                         <descriptor>src/assembly/standalone.xml</descriptor>
+                        <descriptor>src/assembly/distribution.xml</descriptor>
                     </descriptors>
                     <finalName>${project.artifactId}-${project.version}</finalName>
                     <outputDirectory>target</outputDirectory>
