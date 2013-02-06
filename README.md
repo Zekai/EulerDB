@@ -16,6 +16,8 @@ Copyright 2013 Zekai Huang
    limitations under the License.
    
 
+<img src="http://www.brainmaker.org/wp-content/uploads/2013/02/Leonhard_Euler.jpg" alt="Leonhard Euler">
+
 EulerDB is a Graph Database, and it started with a story about connecting the dots. Steve Jobs said "you have to trust that the dots will somehow connect in your future". And mine are about 3 dots.
 
 Dot 1: Passion: Robotics and AI
