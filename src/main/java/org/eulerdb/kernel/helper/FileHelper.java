@@ -28,4 +28,15 @@ public class FileHelper {
 		if (f.exists()) f.delete();
 	}
 	
+	public static String appendFileName(String path,String fileName)
+	  {
+		   if(path.endsWith("/"))
+				  {
+				  	return path+fileName;
+				  }
+			  else
+			  {
+				  return path + "/" + fileName;
+			  }
+	  }
 }

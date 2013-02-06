@@ -8,6 +8,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.eulerdb.kernel.commons.Common;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
+import org.eulerdb.kernel.helper.FileHelper;
 import org.eulerdb.kernel.iterator.EdbPrimaryCursor;
 import org.eulerdb.kernel.iterator.EdbSecondaryCursor;
 
@@ -26,7 +27,6 @@ import com.sleepycat.je.Transaction;
 public class EdbStorage {
 	
 	private  Logger logger = Logger.getLogger(EdbStorage.class.getCanonicalName());
-	private  EdbStorage instance = null;
 	
 	public  enum storeType {VERTEX,EDGE,VERTEX_OUT,VERTEX_IN,NODEPROPERTY,EDGEPROPERTY};
 	private  EdbKeyPairStore mNodePairs;
@@ -59,25 +59,16 @@ public class EdbStorage {
 		}
 		return instance;
 	}*/
-
-	public  EdbStorage getInstance() {
-		if(instance==null)
-		{
-			logger.error("EdbGraph.class needs to pass in the path, use getInstance(String path) instead");
-			throw new IllegalArgumentException("EdbGraph.class needs to pass in the path, use getInstance(String path) instead");
-		}
-		return instance;
-	}
 	
 	private void initEnv(String name,boolean isTransactional){
 		EnvironmentConfig envConf = new EnvironmentConfig();
 		// environment will be created if not exists
-		File f = new File(EdbManager.getBase()+name);
+		File f = new File(FileHelper.appendFileName(EdbManager.getBase(),name));
 		if (!f.exists())
 		{
 			f.mkdirs();
 		}
-		if(isTransactional){
+		if(!isTransactional){
 			envConf.setAllowCreate(true);
 		}
 		else
@@ -308,7 +299,8 @@ public class EdbStorage {
 		mNodePropertyPairs = null;
 		mEdgePropertyPairs.close();
 		mEdgePropertyPairs = null;
-		instance = null;
+		mEnv.close();
+		mEnv = null;
 	}
 	
 	public void commit() {

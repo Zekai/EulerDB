@@ -75,10 +75,10 @@ public class EdbGraph implements Graph {
 		FEATURES.supportsThreadedTransactions = true;
 	}
 
-	public EdbGraph(String path) {
+	public EdbGraph(String name) {
 		
-		logger.info("EulerDB is running in mode transactional: false, autoindex: false at path:" + path);
-		mDbName = path;
+		logger.info("EulerDB is running in mode transactional: false, autoindex: false at path:" + name);
+		mDbName = name;
 		
 		if (mStorage == null)
 			mStorage = EdbManager.requestDbInstance(mDbName,false,false);
@@ -86,12 +86,13 @@ public class EdbGraph implements Graph {
 		mIsRunning = true;
 	}
 
-	public EdbGraph(String path, boolean transactional, boolean autoIndex) {
-		logger.info("EulerDB is running in mode transactional: "+transactional+", autoindex: "+ autoIndex+"at path:" + path);
+	public EdbGraph(String name, boolean transactional, boolean autoIndex) {
+		logger.info("EulerDB is running in mode transactional: "+transactional+", autoindex: "+ autoIndex+"at path:" + name);
+		mDbName = name;
 		mAutoIndex = autoIndex;
 		
 		if (mStorage == null)
-			mStorage = EdbManager.requestDbInstance(mDbName,false,false);
+			mStorage = EdbManager.requestDbInstance(mDbName,transactional,autoIndex);
 		
 		mIsRunning = true;
 	}
@@ -274,7 +275,6 @@ public class EdbGraph implements Graph {
 		logger.info("Shutting down the EulerDB");
 		// nontransactionalCommit();
 		if(mIsRunning){
-			mStorage.close();
 			EdbManager.closeInstance(mDbName);
 			mIsRunning = false;
 		}

@@ -33,7 +33,7 @@ public class EdbVertex implements Vertex, Serializable {
 	protected transient Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 	private static final long serialVersionUID = 5653068124792462590L;
 	protected static final AtomicInteger uniqueId = new AtomicInteger(0);
-	protected transient static EdbStorage mStorage = null;
+	protected transient EdbStorage mStorage = null;
 	protected String mId;
 	protected String mOwner;
 	protected transient static List<String> sBlackList = Arrays

@@ -1,0 +1,2 @@
+130206 18:04:08:074 INFO [/Users/zhuang/git/EulerDB/temp/./temp/BasicTest]Chose lowest utilized file for cleaning. totalUtilization: 46 bestFileUtilization: 101 lnSizeCorrectionFactor: NaN isProbe: false
+130206 18:04:11:930 INFO [/Users/zhuang/git/EulerDB/temp/./temp/BasicTest]No file selected for cleaning. totalUtilization: 69 bestFileUtilization: 101 lnSizeCorrectionFactor: NaN isProbe: false

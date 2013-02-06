@@ -8,10 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import junit.framework.Assert;
+
 import org.eulerdb.kernel.helper.FileHelper;
 
 public class EdbManager {
-	private static EdbManager instance = null;
 	private static Map<String, EdbStorage> mDbInstances;
 	private static String sBaseFoler;
 
@@ -35,34 +36,39 @@ public class EdbManager {
 		
 		
 		EdbStorage e = mDbInstances.get(dbname);
+		Assert.assertNull(e);
 		if(e==null) {
 			e = new EdbStorage(dbname,isTransactioanl,autoindex);
 			mDbInstances.put(dbname, e);
 		}
 		return e;
 	}
+	
+	public void close(){
+		for(EdbStorage e:mDbInstances.values()){
+			e.close();
+		}
+	}
 
 	public static EdbStorage getDbInstance(String key) {
 		return mDbInstances.get(key);
 	}
 	
-	public static void closeInstance(String key){
-		mDbInstances.get(key).close();
-		mDbInstances.remove(key);
+	public static void closeInstance(String key) {
+		EdbStorage e = mDbInstances.get(key);
+		if (e != null) {
+			e.close();
+			mDbInstances.remove(key);
+		}
 	}
 
-	public static EdbManager getInstance() {
-		if (instance == null)
-			instance = new EdbManager();
-
-		return instance;
-	}
-	
 	public static String getBase(){
 		return sBaseFoler;
 	}
 	
-	public static void deleteEnv(){
-		FileHelper.deleteDir(sBaseFoler);
+	public static void deleteEnv(String dbName){
+		if(dbName==null||"".equals(dbName)) throw new IllegalArgumentException("DbName cant be null!");
+		closeInstance(dbName);
+		FileHelper.deleteDir(FileHelper.appendFileName(sBaseFoler,dbName));
 	}
 }

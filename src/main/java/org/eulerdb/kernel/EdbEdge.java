@@ -32,7 +32,7 @@ public class EdbEdge implements Edge, Serializable {
 	protected String mRelation;
 	protected String mId;
 	protected String mOwner;
-	protected transient static EdbStorage mStorage = null;
+	protected transient EdbStorage mStorage = null;
 
 	/**
 	 * The EdbEdge constructor is invisible outside of the package. The only way to add Edge is via graph's addEdge function.

@@ -26,6 +26,7 @@ import java.util.Iterator;
 import org.eulerdb.kernel.EdbGraph;
 import org.eulerdb.kernel.EdbKeyIndexableGraph;
 import org.eulerdb.kernel.EdbTransactionalGraph;
+import org.eulerdb.kernel.storage.EdbManager;
 
 /**
  * @author Marko A. Rodriguez (http://markorodriguez.com)
@@ -110,29 +111,23 @@ public class EdbGraphTest extends GraphTest {
     }
 
     public Graph generateGraph(final String graphDirectoryName) {
-        final String directory = getWorkingDirectory();
-        File f = new File(directory);
-        //deleteDirectory(f);
-
-        f.mkdir();
-        EdbGraph graph = new EdbTransactionalGraph(directory + "/" + graphDirectoryName,true,true);
+        EdbGraph graph = new EdbTransactionalGraph(graphDirectoryName,true,true);
         return graph;
     }
 
     public void doTestSuite(final TestSuite testSuite) throws Exception {
-        String directory = this.getWorkingDirectory();
-        deleteDirectory(new File(directory));
+        EdbManager.deleteEnv("graph");
+        int i = 0;
         for (Method method : testSuite.getClass().getDeclaredMethods()) {
             if (method.getName().startsWith("test")) {
-                System.out.println("Testing " + method.getName() + "...");
-                method.invoke(testSuite);
-                deleteDirectory(new File(directory));
+            	if(i>-1) {
+					System.out.println("Testing " + method.getName() + "...");
+					method.invoke(testSuite);
+					EdbManager.deleteEnv("graph");
+            	}
+                i++;
             }
         }
-    }
-
-    private String getWorkingDirectory() {
-        return "/Users/zhuang/git/EulerDB/temp";
     }
 
     public void testLongIdConversions() {
