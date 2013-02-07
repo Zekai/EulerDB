@@ -36,28 +36,6 @@ public class EdbStorage {
 			return null;
 		}
 	};
-	
-	public Transaction getTransaction(){
-		if(!mIsTransactional) return null;
-		Transaction t =  txs.get();
-		if(t==null)
-			{
-				autoStartTransaction();
-			}
-		return txs.get();
-	}
-	
-	public void abortTransaction(){
-		txs.get().abort();
-	}
-	
-	public void commitTransaction(){
-		txs.get().commit();
-	}
-	
-	public void removeTransaction(){
-		txs.remove();
-	}
 
 	private EdbKeyPairStore mNodePairs;
 	private EdbKeyPairStore mEdgePairs;
@@ -84,9 +62,7 @@ public class EdbStorage {
 		initStores(path, transactional, autoindex);
 	}
 
-	public Transaction beginTransaction() {
-		return mEnv.beginTransaction(null, null);
-	}
+	
 
 	/*
 	 * public synchronized EdbStorage getInstance(String path,boolean
@@ -359,13 +335,41 @@ public class EdbStorage {
 	public boolean containsIndex(storeType type, String key) {
 		return getStore(type).containsIndex(key);
 	}
+	
+	public Transaction getTransaction() {
+		if (!mIsTransactional)
+			return null;
+		Transaction t = txs.get();
+		if (t == null) {
+			t = beginTransaction();
+			txs.set(t);
+		}
+		return txs.get();
+	}
+	
+	public void abortTransaction(){
+		txs.get().abort();
+	}
+	
+	public void commitTransaction(){
+		txs.get().commit();
+	}
+	
+	public void removeTransaction(){
+		txs.remove();
+	}
+	
+	public Transaction beginTransaction() {
+		return mEnv.beginTransaction(null, null);
+	}
 
+	/*
 	public void autoStartTransaction() {
 		if (txs.get() == null) {
 			txs.set(beginTransaction());
 			logger.info("creating new transaction");
 		}
 		
-	}
+	}*/
 
 }

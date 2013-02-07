@@ -18,15 +18,15 @@ public class IndexTesting {
 	public static void main(String[] args) {
 		// add some nodes
 
-		String path = "./temp/IndexTesting";
+		String dbname = "IndexTesting";
 
-		FileHelper.deleteDir(path);
+		FileHelper.deleteDir(dbname);
 		
 		String name  ="name";
 		String gender = "gender"; 
 		String location = "location";
 
-		EdbTransactionalGraph g = new EdbTransactionalGraph(path,true,true);
+		EdbTransactionalGraph g = new EdbTransactionalGraph(dbname,true,true);
 		g.createKeyIndex(name,Vertex.class);
 		g.createKeyIndex(gender,Vertex.class);
 		g.createKeyIndex(location, Vertex.class);

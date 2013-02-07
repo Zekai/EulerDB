@@ -33,7 +33,7 @@
         </fileSet>
         <fileSet>
             <directory>data</directory>
-            <outputDirectory>/data</outputDirectory>
+            <outputDirectory>/bin/data</outputDirectory>
         </fileSet>
 	</fileSets>
 

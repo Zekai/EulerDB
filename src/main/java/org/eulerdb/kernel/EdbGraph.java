@@ -86,7 +86,7 @@ public class EdbGraph implements Graph {
 		mIsRunning = true;
 	}
 
-	public EdbGraph(String name, boolean transactional, boolean autoIndex) {
+	EdbGraph(String name, boolean transactional, boolean autoIndex) {
 		logger.info("EulerDB is running in mode transactional: "+transactional+", autoindex: "+ autoIndex+"at path:" + name);
 		mDbName = name;
 		mAutoIndex = autoIndex;

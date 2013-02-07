@@ -41,13 +41,13 @@ public class EdbGraphTest extends GraphTest {
 
     public void testVertexTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new VertexTestSuite(this));
+        doTestSuite(new VertexTestSuite(this));
         printTestPerformance("VertexTestSuite", this.stopWatch());
     }
 
     public void testEdgeTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new EdgeTestSuite(this));
+        doTestSuite(new EdgeTestSuite(this));
         printTestPerformance("EdgeTestSuite", this.stopWatch());
     }
 
@@ -83,7 +83,7 @@ public class EdbGraphTest extends GraphTest {
 
     public void testTransactionalGraphTestSuite() throws Exception {
         this.stopWatch();
-        //doTestSuite(new TransactionalGraphTestSuite(this));
+        doTestSuite(new TransactionalGraphTestSuite(this));
         printTestPerformance("TransactionalGraphTestSuite", this.stopWatch());
     }
 
@@ -111,7 +111,7 @@ public class EdbGraphTest extends GraphTest {
     }
 
     public Graph generateGraph(final String graphDirectoryName) {
-        EdbGraph graph = new EdbTransactionalGraph(graphDirectoryName,true,false);
+        EdbGraph graph = new EdbTransactionalGraph(graphDirectoryName,true,true);
         return graph;
     }
 

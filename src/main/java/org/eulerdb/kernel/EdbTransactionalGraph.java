@@ -54,6 +54,8 @@ public class EdbTransactionalGraph extends EdbKeyIndexableGraph implements
 	public Features getFeatures() {
 		return FEATURES;
 	}
+	
+	/*
 
 	@Override
 	public Edge addEdge(Object id, Vertex n1, Vertex n2, String relation) {
@@ -121,7 +123,7 @@ public class EdbTransactionalGraph extends EdbKeyIndexableGraph implements
 		logger.debug("autoStartTransaction");
 		mStorage.autoStartTransaction();
 		
-	}
+	}*/
 
 	/*
 	@Override

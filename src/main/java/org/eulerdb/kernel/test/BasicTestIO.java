@@ -14,11 +14,11 @@ public class BasicTestIO {
 
 	public static void main(String[] args) {
 
-		String path = "./temp/BasicTest";
+		String name = "BasicTest";
 
-		FileHelper.deleteDir(path);
+		FileHelper.deleteDir(name);
 
-		EdbGraph g = new EdbGraph(path);
+		EdbGraph g = new EdbGraph(name);
 
 		EdbVertex v1 = (EdbVertex) g.addVertex(1);;
 		v1.setProperty("name", "AAAAA");
