@@ -49,10 +49,10 @@ public class EdbKeyIndexableGraph extends EdbGraph implements KeyIndexableGraph 
 	public <T extends Element> void dropKeyIndex(String key, Class<T> type) {
 		logger.debug("dropkey for "+ type.getCanonicalName()+" of key "+ key);
 		if (type.equals(Vertex.class) || type.equals(EdbVertex.class)) {
-			mStorage.deleteSecondary(storeType.NODEPROPERTY, getTransaction(),
+			mStorage.deleteSecondary(storeType.NODEPROPERTY, mStorage.getTransaction(),
 					key);
 		} else if (type.equals(Edge.class) || type.equals(EdbEdge.class)) {
-			mStorage.deleteSecondary(storeType.EDGEPROPERTY, getTransaction(),
+			mStorage.deleteSecondary(storeType.EDGEPROPERTY, mStorage.getTransaction(),
 					key);
 		}
 
@@ -84,12 +84,12 @@ public class EdbKeyIndexableGraph extends EdbGraph implements KeyIndexableGraph 
 		Function<String, Vertex> idToObject = new Function<String, Vertex>() {
 			public Vertex apply(String id) {
 				return (Vertex) mStorage.getObj(storeType.VERTEX,
-						EdbTransactionalGraph.txs.get(), id);
+						mStorage.getTransaction(), id);
 			}
 		};
 
 		Iterable<String> id = new EdbIterableFromDatabase(
-				mStorage.getSecondaryCursor(storeType.NODEPROPERTY, EdbTransactionalGraph.txs.get(), key, value));
+				mStorage.getSecondaryCursor(storeType.NODEPROPERTY, mStorage.getTransaction(), key, value));
 		Iterable<Vertex> eit = (Iterable<Vertex>) Iterables.transform(id,
 				idToObject);
 		return eit;
@@ -109,13 +109,13 @@ public class EdbKeyIndexableGraph extends EdbGraph implements KeyIndexableGraph 
 
 		Function<String, Edge> idToObject = new Function<String, Edge>() {
 			public Edge apply(String id) {
-				return (Edge) mStorage.getObj(storeType.EDGE, EdbTransactionalGraph.txs.get(),
+				return (Edge) mStorage.getObj(storeType.EDGE, mStorage.getTransaction(),
 						id);
 			}
 		};
 
 		Iterable<String> id = (Iterable<String>) new EdbIterableFromDatabase(
-				mStorage.getSecondaryCursor(storeType.EDGEPROPERTY, EdbTransactionalGraph.txs.get(), key, value));
+				mStorage.getSecondaryCursor(storeType.EDGEPROPERTY, mStorage.getTransaction(), key, value));
 		;
 		Iterable<Edge> eit = (Iterable<Edge>) Iterables.transform(id,
 				idToObject);

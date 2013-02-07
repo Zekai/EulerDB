@@ -41,13 +41,13 @@ public class EdbGraphTest extends GraphTest {
 
     public void testVertexTestSuite() throws Exception {
         this.stopWatch();
-        doTestSuite(new VertexTestSuite(this));
+        //doTestSuite(new VertexTestSuite(this));
         printTestPerformance("VertexTestSuite", this.stopWatch());
     }
 
     public void testEdgeTestSuite() throws Exception {
         this.stopWatch();
-        doTestSuite(new EdgeTestSuite(this));
+        //doTestSuite(new EdgeTestSuite(this));
         printTestPerformance("EdgeTestSuite", this.stopWatch());
     }
 
@@ -83,7 +83,7 @@ public class EdbGraphTest extends GraphTest {
 
     public void testTransactionalGraphTestSuite() throws Exception {
         this.stopWatch();
-        doTestSuite(new TransactionalGraphTestSuite(this));
+        //doTestSuite(new TransactionalGraphTestSuite(this));
         printTestPerformance("TransactionalGraphTestSuite", this.stopWatch());
     }
 
@@ -111,7 +111,7 @@ public class EdbGraphTest extends GraphTest {
     }
 
     public Graph generateGraph(final String graphDirectoryName) {
-        EdbGraph graph = new EdbTransactionalGraph(graphDirectoryName,true,true);
+        EdbGraph graph = new EdbTransactionalGraph(graphDirectoryName,true,false);
         return graph;
     }
 
@@ -120,7 +120,7 @@ public class EdbGraphTest extends GraphTest {
         int i = 0;
         for (Method method : testSuite.getClass().getDeclaredMethods()) {
             if (method.getName().startsWith("test")) {
-            	if(i>-1) {
+            	if(i>5) {
 					System.out.println("Testing " + method.getName() + "...");
 					method.invoke(testSuite);
 					EdbManager.deleteEnv("graph");

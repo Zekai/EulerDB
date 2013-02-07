@@ -30,12 +30,6 @@ import com.tinkerpop.blueprints.util.ExceptionFactory;
 public class EdbTransactionalGraph extends EdbKeyIndexableGraph implements
 		TransactionalGraph {
 
-	public final static ThreadLocal<Transaction> txs = new ThreadLocal<Transaction>() {
-		protected Transaction initialValue() {
-			return null;
-		}
-	};
-
 	static {
 		FEATURES.supportsTransactions = true;
 	}
@@ -125,10 +119,8 @@ public class EdbTransactionalGraph extends EdbKeyIndexableGraph implements
 
 	private void autoStartTransaction() {
 		logger.debug("autoStartTransaction");
-		if (txs.get() == null) {
-			txs.set(mStorage.beginTransaction());
-			logger.info("creating new transaction");
-		}
+		mStorage.autoStartTransaction();
+		
 	}
 
 	/*
@@ -149,7 +141,7 @@ public class EdbTransactionalGraph extends EdbKeyIndexableGraph implements
 	public void stopTransaction(Conclusion conclusion) {
 		logger.info("stopTransaction");
 		mStorage.closeCursor();
-		if (null == txs.get()) {
+		if (null == mStorage.getTransaction()) {
 			logger.warn("no open transaction, no need to commit or abort");
 			return;
 		}
@@ -164,24 +156,19 @@ public class EdbTransactionalGraph extends EdbKeyIndexableGraph implements
 			logger.error(e);
 		}finally {
 			logger.info("remove transaction.");
-			txs.remove();
+			mStorage.removeTransaction();
 		}
 
-	}
-	
-	@Override
-	protected Transaction getTransaction(){
-		return txs.get();
 	}
 
 	private void commit() throws XAException {
 		logger.info("commit transaction");
-		txs.get().commit();
+		mStorage.commitTransaction();
 	}
 
 	private void abort() throws XAException {
 		logger.info("abort transaction");
-		txs.get().abort();
+		mStorage.abortTransaction();
 	}
 
 	@Override
@@ -189,9 +176,9 @@ public class EdbTransactionalGraph extends EdbKeyIndexableGraph implements
 		logger.info("EulerEB is shuting down");
 		if(mIsRunning){
 			mStorage.closeCursor();
-			if (null != txs.get()) {
-				txs.get().commit();
-				txs.remove();
+			if (null != mStorage.getTransaction()) {
+				mStorage.commitTransaction();
+				mStorage.removeTransaction();
 			}
 			super.shutdown();
 		}

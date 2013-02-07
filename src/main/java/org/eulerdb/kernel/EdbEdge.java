@@ -86,7 +86,7 @@ public class EdbEdge implements Edge, Serializable {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> props = (Hashtable<String, Object>) mStorage
 				.getObj(storeType.EDGEPROPERTY,
-						EdbTransactionalGraph.txs.get(), mId);
+						mStorage.getTransaction(), mId);
 
 		return props.get(arg0);
 	}
@@ -96,7 +96,7 @@ public class EdbEdge implements Edge, Serializable {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> props = (Hashtable<String, Object>) mStorage
 				.getObj(storeType.EDGEPROPERTY,
-						EdbTransactionalGraph.txs.get(), mId);
+						mStorage.getTransaction(), mId);
 
 		return props.keySet();
 	}
@@ -107,9 +107,9 @@ public class EdbEdge implements Edge, Serializable {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> props = (Hashtable<String, Object>) mStorage
 				.getObj(storeType.EDGEPROPERTY,
-						EdbTransactionalGraph.txs.get(), mId);
+						mStorage.getTransaction(), mId);
 		Object o = props.remove(arg0);
-		mStorage.store(storeType.EDGEPROPERTY, EdbTransactionalGraph.txs.get(),
+		mStorage.store(storeType.EDGEPROPERTY, mStorage.getTransaction(),
 				mId, props);
 		return o;
 	}
@@ -128,9 +128,9 @@ public class EdbEdge implements Edge, Serializable {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> props = (Hashtable<String, Object>) mStorage
 				.getObj(storeType.EDGEPROPERTY,
-						EdbTransactionalGraph.txs.get(), mId);
+						mStorage.getTransaction(), mId);
 		props.put(arg0, arg1);
-		mStorage.store(storeType.EDGEPROPERTY, EdbTransactionalGraph.txs.get(),
+		mStorage.store(storeType.EDGEPROPERTY, mStorage.getTransaction(),
 				mId, props);
 
 	}
@@ -148,10 +148,10 @@ public class EdbEdge implements Edge, Serializable {
 		logger.debug("getVertex of direction " +arg0);
 		if (arg0 == Direction.IN)
 			return (Vertex) mStorage.getObj(storeType.VERTEX,
-					EdbTransactionalGraph.txs.get(), mToVertex);
+					mStorage.getTransaction(), mToVertex);
 		else if (arg0 == Direction.OUT)
 			return (Vertex) mStorage.getObj(storeType.VERTEX,
-					EdbTransactionalGraph.txs.get(), mFromVertex);
+					mStorage.getTransaction(), mFromVertex);
 		else{
 			
 			logger.error("direction should not be "+ arg0);
@@ -162,7 +162,7 @@ public class EdbEdge implements Edge, Serializable {
 	private void initSaving() {
 		logger.debug("initialize property for edge "+ mId);
 		Map<String, Object> props = new Hashtable<String, Object>();
-		mStorage.store(storeType.EDGEPROPERTY, EdbTransactionalGraph.txs.get(),
+		mStorage.store(storeType.EDGEPROPERTY, mStorage.getTransaction(),
 				mId, props);
 
 	}
@@ -182,7 +182,7 @@ public class EdbEdge implements Edge, Serializable {
 	public Vertex getToVertex() {
 		logger.debug("getToVertex ");
 		return (Vertex) mStorage.getObj(storeType.VERTEX,
-				EdbTransactionalGraph.txs.get(), mFromVertex);
+				mStorage.getTransaction(), mFromVertex);
 	}
 
 	@Override
