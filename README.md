@@ -30,8 +30,7 @@ I happened to code the CNC/CAM system for a commercial project in my college, wh
 
 Dot 3: Career: Graph Database (GD) or Google's Devil
 
-Google lusted me for an interview. Thus I read some books about some profound topics on Graph. While I was waiting for the result, I made a prototype of this project. After a long wait, I got declined, but I think it would be a good idea to connect the dots.
-
+Google lusted me for an interview. Thus I read some books about some profound topics on Graph. While I was waiting for the result, I made a prototype of this project. 
 
 This would be a graph database with a focus of knowledge representation (also interest network).
 
