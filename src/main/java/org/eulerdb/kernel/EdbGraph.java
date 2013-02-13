@@ -5,8 +5,8 @@ import org.apache.log4j.*;
 import org.eulerdb.kernel.helper.ByteArrayHelper;
 import org.eulerdb.kernel.iterator.EdbIterableFromDatabase;
 import org.eulerdb.kernel.iterator.EdbIterableFromIterator;
+import org.eulerdb.kernel.storage.EdbManager;
 import org.eulerdb.kernel.storage.EdbStorage;
-import org.eulerdb.kernel.storage.EulerDBHelper;
 import org.eulerdb.kernel.storage.EdbStorage.storeType;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
@@ -32,9 +32,10 @@ public class EdbGraph implements Graph {
 	protected final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 
 	//protected boolean mTransactional;
+	protected String mDbName;
 	protected boolean mAutoIndex;
 	protected EdbStorage mStorage = null;
-	protected static EulerDBHelper mEdbHelper = null;
+	//protected static EulerDBHelper mEdbHelper = null;
 	protected boolean mIsRunning = false;
 
 	protected static final Features FEATURES = new Features();
@@ -74,27 +75,24 @@ public class EdbGraph implements Graph {
 		FEATURES.supportsThreadedTransactions = true;
 	}
 
-	public EdbGraph(String path) {
+	public EdbGraph(String name) {
 		
-		logger.info("EulerDB is running in mode transactional: false, autoindex: false at path:" + path);
-		
-		if(mEdbHelper==null) 
-			mEdbHelper = EulerDBHelper.getInstance(path, false);
+		logger.info("EulerDB is running in mode transactional: false, autoindex: false at path:" + name);
+		mDbName = name;
 		
 		if (mStorage == null)
-			mStorage = EdbStorage.getInstance(path, false,false);
+			mStorage = EdbManager.requestDbInstance(mDbName,false,false);
 		
 		mIsRunning = true;
 	}
 
-	public EdbGraph(String path, boolean transactional, boolean autoIndex) {
-		logger.info("EulerDB is running in mode transactional: "+transactional+", autoindex: "+ autoIndex+"at path:" + path);
+	EdbGraph(String name, boolean transactional, boolean autoIndex) {
+		logger.info("EulerDB is running in mode transactional: "+transactional+", autoindex: "+ autoIndex+"at path:" + name);
+		mDbName = name;
 		mAutoIndex = autoIndex;
-		if(mEdbHelper==null) 
-			mEdbHelper = EulerDBHelper.getInstance(path, transactional);
 		
 		if (mStorage == null)
-			mStorage = EdbStorage.getInstance(path, transactional,autoIndex);
+			mStorage = EdbManager.requestDbInstance(mDbName,transactional,autoIndex);
 		
 		mIsRunning = true;
 	}
@@ -102,20 +100,20 @@ public class EdbGraph implements Graph {
 	@Override
 	public Edge addEdge(Object id, Vertex n1, Vertex n2, String relation) {
 		logger.debug("Adding Edge from Vertex "+ n1.getId()+" to Vertex "+n2.getId()+" with relation of "+ relation);
-		EdbEdge e = new EdbEdge(n1, n2, id, relation);
+		EdbEdge e = new EdbEdge(mDbName,n1, n2, id, relation);
 		if(n1.equals(n2)){//self loop
-			mStorage.store(storeType.EDGE, getTransaction(), (String)e.getId(),e);
+			mStorage.store(storeType.EDGE, mStorage.getTransaction(), (String)e.getId(),e);
 			((EdbVertex) n1).addOutEdge(e);
 			((EdbVertex) n1).addInEdge(e);
-			mStorage.store(storeType.VERTEX, getTransaction(), (String)n1.getId(),n1);
+			mStorage.store(storeType.VERTEX, mStorage.getTransaction(), (String)n1.getId(),n1);
 		}
 		else
 		{
-			mStorage.store(storeType.EDGE, getTransaction(),(String)e.getId(), e);
+			mStorage.store(storeType.EDGE, mStorage.getTransaction(),(String)e.getId(), e);
 			((EdbVertex) n1).addOutEdge(e);
 			((EdbVertex) n2).addInEdge(e);
-			mStorage.store(storeType.VERTEX, getTransaction(),(String)n1.getId(), n1);// store(mNodePairs,n1);
-			mStorage.store(storeType.VERTEX, getTransaction(),(String)n2.getId(), n2);// store(mNodePairs,n2);
+			mStorage.store(storeType.VERTEX, mStorage.getTransaction(),(String)n1.getId(), n1);// store(mNodePairs,n1);
+			mStorage.store(storeType.VERTEX, mStorage.getTransaction(),(String)n2.getId(), n2);// store(mNodePairs,n2);
 		}
 		return e;
 	}
@@ -132,8 +130,8 @@ public class EdbGraph implements Graph {
 	@Override
 	public Vertex addVertex(Object id) {
 		logger.debug("Adding vertex with id "+id);
-		EdbVertex v = new EdbVertex(id);
-		mStorage.store(storeType.VERTEX, getTransaction(),(String)v.getId(), v);
+		EdbVertex v = new EdbVertex(mDbName,id);
+		mStorage.store(storeType.VERTEX, mStorage.getTransaction(),(String)v.getId(), v);
 
 		return v;
 	}
@@ -143,7 +141,7 @@ public class EdbGraph implements Graph {
 		logger.debug("get edge with id" + arg0);
 		if (arg0 == null)
 			throw new IllegalArgumentException("Get id shouldn't be null");
-		EdbEdge e = (EdbEdge) mStorage.getObj(storeType.EDGE, getTransaction(),
+		EdbEdge e = (EdbEdge) mStorage.getObj(storeType.EDGE, mStorage.getTransaction(),
 				String.valueOf(arg0));
 
 		return e;
@@ -153,7 +151,7 @@ public class EdbGraph implements Graph {
 	public Iterable<Edge> getEdges() {
 		logger.debug(" get edge iterable");
 		return new EdbIterableFromDatabase(mStorage.getCursor(
-				storeType.EDGE, getTransaction()));
+				storeType.EDGE, null));//shouldn't use transaction here, even for transactional one
 	}
 
 	@Override
@@ -174,7 +172,7 @@ public class EdbGraph implements Graph {
 
 		Iterable<Edge> its = new EdbIterableFromIterator(Iterators
 				.filter(new EdbIterableFromDatabase(
-						mStorage.getCursor(storeType.EDGE, getTransaction())).iterator(),
+						mStorage.getCursor(storeType.EDGE, null)).iterator(),//shouldn't use transaction here, even for transactional one
 						relationFilter));
 
 		return its;
@@ -190,7 +188,7 @@ public class EdbGraph implements Graph {
 		logger.debug("get vertex of id "+ arg0);
 		if (arg0 == null)
 			throw new IllegalArgumentException("argument is null");
-		EdbVertex n = (EdbVertex) mStorage.getObj(storeType.VERTEX, getTransaction(),
+		EdbVertex n = (EdbVertex) mStorage.getObj(storeType.VERTEX, mStorage.getTransaction(),
 				String.valueOf(arg0));
 
 		return n;
@@ -200,7 +198,7 @@ public class EdbGraph implements Graph {
 	public Iterable<Vertex> getVertices() {
 		logger.debug(" get vertex iterable");
 		return new EdbIterableFromDatabase(mStorage.getCursor(
-				storeType.VERTEX, getTransaction()));
+				storeType.VERTEX, null));//shouldn't use transaction here, even for transactional one
 	}
 
 	@Override
@@ -221,7 +219,7 @@ public class EdbGraph implements Graph {
 		
 		Iterable<Vertex> its = new EdbIterableFromIterator(Iterators
 				.filter(new EdbIterableFromDatabase(mStorage.getCursor(
-						storeType.VERTEX, getTransaction()
+						storeType.VERTEX, null//shouldn't use transaction here, even for transactional one
 						)).iterator(), relationFilter));
 
 		return its;
@@ -236,16 +234,16 @@ public class EdbGraph implements Graph {
 		if (n!=null) {
 			// check whether vertex still exist, we might have remove vertex before the edge
 			n.removeOutEdge(e2);
-			mStorage.store(storeType.VERTEX, getTransaction(),(String)n.getId(), n);
+			mStorage.store(storeType.VERTEX, mStorage.getTransaction(),(String)n.getId(), n);
 		}
 
 		EdbVertex n2 = (EdbVertex) e2.getVertex(Direction.IN);
 		if (n2!=null) {
 			n2.removeInEdge(e2);
-			mStorage.store(storeType.VERTEX, getTransaction(),(String)n2.getId(), n2);
+			mStorage.store(storeType.VERTEX, mStorage.getTransaction(),(String)n2.getId(), n2);
 		}
 
-		mStorage.delete(storeType.EDGE, getTransaction(), e2.getId());
+		mStorage.delete(storeType.EDGE, mStorage.getTransaction(), e2.getId());
 
 	}
 
@@ -268,7 +266,7 @@ public class EdbGraph implements Graph {
 			removeEdge(e);
 		}
 
-		mStorage.delete(storeType.VERTEX, getTransaction(), arg0.getId());// remove(key);
+		mStorage.delete(storeType.VERTEX, mStorage.getTransaction(), arg0.getId());// remove(key);
 
 	}
 
@@ -277,9 +275,7 @@ public class EdbGraph implements Graph {
 		logger.info("Shutting down the EulerDB");
 		// nontransactionalCommit();
 		if(mIsRunning){
-			mStorage.close();
-			mStorage = null;
-			mEdbHelper = null;
+			EdbManager.closeInstance(mDbName);
 			mIsRunning = false;
 		}
 	}
@@ -287,11 +283,6 @@ public class EdbGraph implements Graph {
 	public void nontransactionalCommit() {
 		logger.info("nontransactionalCommit");
 		mStorage.commit();
-	}
-	
-	protected Transaction getTransaction(){
-		logger.debug("getTransaction");
-		return null;
 	}
 	
 	@Override

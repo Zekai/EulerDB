@@ -51,12 +51,27 @@
 		</authentication>
 	</security>
 	<graphs>
-		
 		<graph>
-			<graph-name>Relations</graph-name>
+			<graph-name>Relations1</graph-name>
 			<graph-type>org.eulerdb.tinkerpop.rexster.EdbGraphConfiguration
 			</graph-type>
-			<graph-location>../data/IndexTesting</graph-location>
+			<graph-location>BasicTest</graph-location>
+			<graph-read-only>false</graph-read-only>
+			<properties>
+				<transactioanl>false</transactioanl>
+				<auto-index>true</auto-index>
+			</properties>
+			<extensions>
+				<allows>
+					<allow>tp:gremlin</allow>
+				</allows>
+			</extensions>
+		</graph>
+		<graph>
+			<graph-name>Relations2</graph-name>
+			<graph-type>org.eulerdb.tinkerpop.rexster.EdbGraphConfiguration
+			</graph-type>
+			<graph-location>IndexTesting</graph-location>
 			<graph-read-only>false</graph-read-only>
 			<properties>
 				<transactioanl>true</transactioanl>

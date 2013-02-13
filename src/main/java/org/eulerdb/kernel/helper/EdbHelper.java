@@ -26,4 +26,6 @@ public class EdbHelper {
     public static Long getTransactionId(Transaction tx){
 		return tx==null?0:tx.getId();
 	}
+    
+    
 }

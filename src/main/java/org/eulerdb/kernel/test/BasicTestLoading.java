@@ -13,11 +13,11 @@ public class BasicTestLoading {
 
 	public static void main(String[] args) {
 		
-		String path = "./temp/BasicTest";
+		String name = "BasicTest";
 		
 		System.out.println("loading a graph with 1m vertices");
 		
-		EdbGraph g =  new EdbGraph(path);
+		EdbGraph g =  new EdbGraph(name);
 
 		System.out.println("All nodes:"+g.toString());
 		for (Vertex v : g.getVertices()) {

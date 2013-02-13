@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.eulerdb.kernel.storage.EdbManager;
 import org.eulerdb.kernel.storage.EdbStorage;
 import org.eulerdb.kernel.storage.EdbStorage.storeType;
 
@@ -30,17 +31,24 @@ public class EdbEdge implements Edge, Serializable {
 	protected String mToVertex; // tail/out
 	protected String mRelation;
 	protected String mId;
-	protected transient static EdbStorage mStorage = null;
+	protected String mOwner;
+	protected transient EdbStorage mStorage = null;
 
-	public EdbEdge(Vertex n1, Vertex n2, Object id, String relation) {
+	/**
+	 * The EdbEdge constructor is invisible outside of the package. The only way to add Edge is via graph's addEdge function.
+	 * @param owner 
+	 * @param id
+	 */
+	EdbEdge(String owner, Vertex n1, Vertex n2, Object id, String relation) {
 		logger.debug("EdbEdge consturctor: from "+ n1.getId()+" to "+n2.getId()+" relation of "+ relation);
+		mOwner = owner;
 		mFromVertex = (String) n1.getId();
 		mToVertex = (String) n2.getId();
 		mRelation = relation;
 		mId = n1.getId() + "_" + relation + "_" + n2.getId();// FIXME id is not
 																// used here
 		if (mStorage == null)
-			mStorage = EdbStorage.getInstance();
+			mStorage = EdbManager.getDbInstance(mOwner);
 		initSaving();
 	}
 	
@@ -64,7 +72,7 @@ public class EdbEdge implements Edge, Serializable {
 		    	sBlackList = Arrays.asList(new String[] { "id","label" });
 		    
 		    if (mStorage == null)
-				mStorage = EdbStorage.getInstance();
+				mStorage = EdbManager.getDbInstance(mOwner);
 		}
 
 	@Override
@@ -78,7 +86,7 @@ public class EdbEdge implements Edge, Serializable {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> props = (Hashtable<String, Object>) mStorage
 				.getObj(storeType.EDGEPROPERTY,
-						EdbTransactionalGraph.txs.get(), mId);
+						mStorage.getTransaction(), mId);
 
 		return props.get(arg0);
 	}
@@ -88,7 +96,7 @@ public class EdbEdge implements Edge, Serializable {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> props = (Hashtable<String, Object>) mStorage
 				.getObj(storeType.EDGEPROPERTY,
-						EdbTransactionalGraph.txs.get(), mId);
+						mStorage.getTransaction(), mId);
 
 		return props.keySet();
 	}
@@ -99,9 +107,9 @@ public class EdbEdge implements Edge, Serializable {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> props = (Hashtable<String, Object>) mStorage
 				.getObj(storeType.EDGEPROPERTY,
-						EdbTransactionalGraph.txs.get(), mId);
+						mStorage.getTransaction(), mId);
 		Object o = props.remove(arg0);
-		mStorage.store(storeType.EDGEPROPERTY, EdbTransactionalGraph.txs.get(),
+		mStorage.store(storeType.EDGEPROPERTY, mStorage.getTransaction(),
 				mId, props);
 		return o;
 	}
@@ -120,9 +128,9 @@ public class EdbEdge implements Edge, Serializable {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> props = (Hashtable<String, Object>) mStorage
 				.getObj(storeType.EDGEPROPERTY,
-						EdbTransactionalGraph.txs.get(), mId);
+						mStorage.getTransaction(), mId);
 		props.put(arg0, arg1);
-		mStorage.store(storeType.EDGEPROPERTY, EdbTransactionalGraph.txs.get(),
+		mStorage.store(storeType.EDGEPROPERTY, mStorage.getTransaction(),
 				mId, props);
 
 	}
@@ -140,10 +148,10 @@ public class EdbEdge implements Edge, Serializable {
 		logger.debug("getVertex of direction " +arg0);
 		if (arg0 == Direction.IN)
 			return (Vertex) mStorage.getObj(storeType.VERTEX,
-					EdbTransactionalGraph.txs.get(), mToVertex);
+					mStorage.getTransaction(), mToVertex);
 		else if (arg0 == Direction.OUT)
 			return (Vertex) mStorage.getObj(storeType.VERTEX,
-					EdbTransactionalGraph.txs.get(), mFromVertex);
+					mStorage.getTransaction(), mFromVertex);
 		else{
 			
 			logger.error("direction should not be "+ arg0);
@@ -154,7 +162,7 @@ public class EdbEdge implements Edge, Serializable {
 	private void initSaving() {
 		logger.debug("initialize property for edge "+ mId);
 		Map<String, Object> props = new Hashtable<String, Object>();
-		mStorage.store(storeType.EDGEPROPERTY, EdbTransactionalGraph.txs.get(),
+		mStorage.store(storeType.EDGEPROPERTY, mStorage.getTransaction(),
 				mId, props);
 
 	}
@@ -174,7 +182,7 @@ public class EdbEdge implements Edge, Serializable {
 	public Vertex getToVertex() {
 		logger.debug("getToVertex ");
 		return (Vertex) mStorage.getObj(storeType.VERTEX,
-				EdbTransactionalGraph.txs.get(), mFromVertex);
+				mStorage.getTransaction(), mFromVertex);
 	}
 
 	@Override
